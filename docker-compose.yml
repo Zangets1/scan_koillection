@@ -1,0 +1,45 @@
+services:
+  scan-koillection:
+    # Image publiée à chaque release (amd64 + arm64, donc compatible NAS ARM).
+    image: ghcr.io/zangets1/scan_koillection:latest
+    # Pour construire depuis les sources à la place, commentez `image:` ci-dessus
+    # et décommentez la ligne suivante :
+    # build: .
+    container_name: scan-koillection
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      # Historique des ajouts (SQLite). Un simple dossier suffit.
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ────────────────────────────────────────────────────────────────────
+  # HTTPS local, indispensable pour que la caméra fonctionne sur iOS et
+  # Android. Démarrage : docker compose --profile https up -d
+  # Caddy génère un certificat interne ; le téléphone affichera un
+  # avertissement à accepter une fois (ou installez le CA de Caddy).
+  # ────────────────────────────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: scan-koillection-tls
+    profiles: ["https"]
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - scan-koillection
+
+volumes:
+  caddy-data:
+  caddy-config:

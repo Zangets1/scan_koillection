@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Scan Koillection</title>
+<meta name="description" content="Scanner d'ISBN pour alimenter Koillection">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scan">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="stylesheet" href="/styles.css?v=1">
+</head>
+<body>
+
+<!-- ══ Connexion ══════════════════════════════════════════════════════ -->
+<section id="view-login" class="view" hidden>
+  <div class="card centered">
+    <h1 class="logo">📚 Scan&nbsp;Koillection</h1>
+    <p class="muted">Cette instance est protégée par un mot de passe.</p>
+    <form id="login-form" autocomplete="on">
+      <label class="field">
+        <span>Mot de passe</span>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+    </form>
+    <p id="login-error" class="error" hidden></p>
+  </div>
+</section>
+
+<!-- ══ Accueil : ISBN d'abord ═════════════════════════════════════════ -->
+<section id="view-home" class="view" hidden>
+  <header class="topbar">
+    <h1 class="logo">📚 Scan&nbsp;Koillection</h1>
+    <button class="icon-btn" id="btn-refresh" title="Rafraîchir les collections" aria-label="Rafraîchir les collections">⟳</button>
+  </header>
+
+  <main class="stack">
+    <div class="card">
+      <h2>Numéro ISBN</h2>
+      <p class="muted small">
+        Saisissez l'ISBN imprimé sous le code-barres, ou scannez-le.
+      </p>
+      <form id="isbn-form" novalidate>
+        <div class="isbn-row">
+          <input
+            id="isbn-input"
+            class="isbn-input"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="search"
+            placeholder="978…"
+            aria-label="Numéro ISBN">
+          <button class="btn btn-primary" type="submit" id="btn-search">Chercher</button>
+        </div>
+        <p id="isbn-hint" class="hint" aria-live="polite"></p>
+      </form>
+
+      <button class="btn btn-scan btn-block" id="btn-scan" type="button">
+        <span class="scan-icon" aria-hidden="true">▣</span> Scanner un code-barres
+      </button>
+
+      <button class="btn btn-ghost btn-block" id="btn-manual" type="button">
+        Saisir le livre à la main
+      </button>
+    </div>
+
+    <div class="card">
+      <label class="field">
+        <span>Collection de destination</span>
+        <select id="collection-select"></select>
+      </label>
+      <p class="muted small" id="collection-hint"></p>
+    </div>
+
+    <div class="card">
+      <h2>Derniers ajouts</h2>
+      <ul class="history" id="history-list"><li class="muted small">Aucun ajout pour le moment.</li></ul>
+    </div>
+
+    <p class="footer muted small">
+      <span id="app-version"></span> ·
+      <a id="koillection-link" href="#" target="_blank" rel="noopener" hidden>Ouvrir Koillection</a>
+    </p>
+  </main>
+</section>
+
+<!-- ══ Scanner ════════════════════════════════════════════════════════ -->
+<section id="view-scan" class="view scan-view" hidden>
+  <video id="video" playsinline muted autoplay></video>
+  <div class="scan-overlay">
+    <div class="scan-frame" id="scan-frame">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <div class="scan-laser"></div>
+    </div>
+    <p class="scan-status" id="scan-status" aria-live="polite">Placez le code-barres dans le cadre</p>
+  </div>
+  <div class="scan-actions">
+    <button class="btn btn-ghost" id="btn-scan-close" type="button">Annuler</button>
+    <button class="btn btn-ghost" id="btn-torch" type="button" hidden>🔦 Lampe</button>
+    <button class="btn btn-ghost" id="btn-scan-manual" type="button">Saisir l'ISBN</button>
+  </div>
+</section>
+
+<!-- ══ Fiche livre ════════════════════════════════════════════════════ -->
+<section id="view-book" class="view" hidden>
+  <header class="topbar">
+    <button class="icon-btn" id="btn-book-back" aria-label="Retour">←</button>
+    <h1 class="logo" id="book-heading">Fiche du livre</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <main class="stack">
+    <div class="card" id="book-banner-card" hidden>
+      <p id="book-banner" class="banner"></p>
+    </div>
+
+    <div class="card book-head">
+      <img id="book-cover" class="cover" alt="" hidden>
+      <div class="book-head-info">
+        <p class="muted small" id="book-sources"></p>
+        <p class="muted small" id="book-isbn"></p>
+      </div>
+    </div>
+
+    <form id="book-form" class="card stack-tight">
+      <label class="field">
+        <span>Titre <em>*</em></span>
+        <input id="f-title" type="text" required autocapitalize="sentences">
+      </label>
+
+      <label class="field">
+        <span>Auteur(s) <em>*</em></span>
+        <input id="f-authors" type="text" placeholder="Séparés par une virgule">
+      </label>
+
+      <div class="grid-2">
+        <label class="field">
+          <span>Éditeur</span>
+          <input id="f-publisher" type="text">
+        </label>
+        <label class="field">
+          <span>Date de parution</span>
+          <input id="f-date" type="text" inputmode="numeric" placeholder="AAAA ou AAAA-MM-JJ">
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <label class="field">
+          <span>Nombre de pages</span>
+          <input id="f-pages" type="number" inputmode="numeric" min="1" max="19999">
+        </label>
+        <label class="field">
+          <span>Langue</span>
+          <input id="f-language" type="text">
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Genre</span>
+        <input id="f-genres" type="text" placeholder="Séparés par une virgule">
+      </label>
+
+      <div class="grid-2">
+        <label class="field">
+          <span>Série</span>
+          <input id="f-series" type="text" placeholder="Laisser vide si hors série">
+        </label>
+        <label class="field">
+          <span>Tome</span>
+          <input id="f-volume" type="number" inputmode="numeric" min="1" max="999">
+        </label>
+      </div>
+      <p class="muted small" id="series-hint"></p>
+
+      <label class="field">
+        <span>Synopsis</span>
+        <textarea id="f-synopsis" rows="5"></textarea>
+      </label>
+
+      <label class="field">
+        <span>Collection de destination</span>
+        <select id="f-collection"></select>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" id="f-read">
+        <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+        <span class="switch-label">J'ai lu ce livre</span>
+      </label>
+
+      <p id="book-error" class="error" hidden></p>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit" id="btn-add">
+        Ajouter à Koillection
+      </button>
+      <button class="btn btn-ghost btn-block" type="button" id="btn-cancel">Annuler</button>
+    </form>
+  </main>
+</section>
+
+<!-- ══ Confirmation ═══════════════════════════════════════════════════ -->
+<section id="view-done" class="view" hidden>
+  <div class="card centered">
+    <div class="done-mark" aria-hidden="true">✓</div>
+    <h2 id="done-title">Livre ajouté</h2>
+    <p class="muted" id="done-message"></p>
+    <a class="btn btn-ghost btn-block" id="done-link" target="_blank" rel="noopener" hidden>Voir dans Koillection</a>
+    <button class="btn btn-primary btn-block btn-lg" id="btn-scan-next" type="button">Scanner le livre suivant</button>
+    <button class="btn btn-ghost btn-block" id="btn-home" type="button">Retour à l'accueil</button>
+  </div>
+</section>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="busy" class="busy" hidden><div class="spinner" aria-hidden="true"></div><p id="busy-label">Recherche…</p></div>
+
+<script src="/vendor/zxing.min.js"></script>
+<script src="/app.js?v=1"></script>
+</body>
+</html>

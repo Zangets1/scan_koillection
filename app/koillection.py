@@ -1,0 +1,399 @@
+"""Client de l'API Koillection (Symfony / API Platform).
+
+Notes d'implémentation :
+
+* l'authentification se fait par jeton JWT obtenu sur ``/api/authentication_token`` ;
+* les relations s'expriment en IRI (``/api/collections/<uuid>``) et non en identifiants ;
+* les champs personnalisés d'un item sont des « data » créés **après** l'item,
+  un par appel ``POST /api/data`` ;
+* l'API n'expose aucun filtre de recherche : les collections et les tags sont
+  donc listés puis filtrés côté client, avec un cache mémoire.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import time
+
+import httpx
+
+from .config import Settings
+from .covers import Cover
+from .models import KoiCollection
+
+logger = logging.getLogger(__name__)
+
+PAGE_SIZE = 30
+
+
+class KoillectionError(RuntimeError):
+    """Erreur fonctionnelle remontée telle quelle à l'interface."""
+
+
+class KoillectionClient:
+    def __init__(self, settings: Settings) -> None:
+        self.settings = settings
+        self._client: httpx.AsyncClient | None = None
+        self._token: str | None = None
+        self._token_at: float = 0.0
+        self._lock = asyncio.Lock()
+        self._collections: list[KoiCollection] | None = None
+        self._tags: dict[str, str] | None = None
+
+    # ------------------------------------------------------------------
+    # Cycle de vie
+    # ------------------------------------------------------------------
+    async def startup(self) -> None:
+        if not self.settings.koillection_configured:
+            logger.warning(
+                "Koillection n'est pas configuré : renseignez KOILLECTION_URL, "
+                "KOILLECTION_USERNAME et KOILLECTION_PASSWORD."
+            )
+            return
+        self._client = httpx.AsyncClient(
+            base_url=self.settings.koillection_url,
+            timeout=httpx.Timeout(30.0),
+            verify=self.settings.koillection_verify_ssl,
+            headers={"Accept": "application/json"},
+            follow_redirects=True,
+        )
+
+    async def shutdown(self) -> None:
+        if self._client is not None:
+            await self._client.aclose()
+            self._client = None
+
+    @property
+    def configured(self) -> bool:
+        return self._client is not None
+
+    def invalidate_cache(self) -> None:
+        self._collections = None
+        self._tags = None
+
+    # ------------------------------------------------------------------
+    # Requêtes de bas niveau
+    # ------------------------------------------------------------------
+    async def _authenticate(self) -> str:
+        assert self._client is not None
+        response = await self._client.post(
+            "/api/authentication_token",
+            json={
+                "username": self.settings.koillection_username,
+                "password": self.settings.koillection_password,
+            },
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code == 401:
+            raise KoillectionError("Identifiants Koillection refusés (401).")
+        if response.status_code >= 400:
+            raise KoillectionError(
+                f"Authentification Koillection impossible ({response.status_code}). "
+                "Vérifiez KOILLECTION_URL."
+            )
+        token = (response.json() or {}).get("token")
+        if not token:
+            raise KoillectionError("Koillection n'a pas renvoyé de jeton JWT.")
+        self._token = token
+        self._token_at = time.monotonic()
+        return token
+
+    async def _ensure_token(self) -> str:
+        async with self._lock:
+            # Les jetons Koillection vivent 1 h ; on renouvelle largement avant.
+            if self._token is None or time.monotonic() - self._token_at > 1800:
+                return await self._authenticate()
+            return self._token
+
+    async def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        json_body: dict | list | None = None,
+        params: dict | None = None,
+        files: dict | None = None,
+        content_type: str = "application/json",
+        retry_auth: bool = True,
+    ) -> httpx.Response:
+        if self._client is None:
+            raise KoillectionError(
+                "Koillection n'est pas configuré (KOILLECTION_URL / USERNAME / PASSWORD)."
+            )
+        token = await self._ensure_token()
+        headers = {"Authorization": f"Bearer {token}"}
+        if json_body is not None and files is None:
+            headers["Content-Type"] = content_type
+
+        try:
+            response = await self._client.request(
+                method, path, json=json_body, params=params, files=files, headers=headers
+            )
+        except httpx.HTTPError as exc:
+            raise KoillectionError(f"Koillection injoignable : {exc}") from exc
+
+        if response.status_code == 401 and retry_auth:
+            self._token = None
+            return await self.request(
+                method,
+                path,
+                json_body=json_body,
+                params=params,
+                files=files,
+                content_type=content_type,
+                retry_auth=False,
+            )
+        return response
+
+    async def _get_all(self, path: str) -> list[dict]:
+        """Parcourt toutes les pages d'une collection API Platform."""
+        results: list[dict] = []
+        page = 1
+        while page <= 200:  # garde-fou
+            response = await self.request("GET", path, params={"page": page})
+            if response.status_code >= 400:
+                raise KoillectionError(
+                    f"GET {path} a échoué ({response.status_code}) : {response.text[:200]}"
+                )
+            payload = response.json()
+            if isinstance(payload, dict):
+                payload = payload.get("hydra:member") or payload.get("member") or []
+            if not payload:
+                break
+            results.extend(payload)
+            if len(payload) < PAGE_SIZE:
+                break
+            page += 1
+        return results
+
+    # ------------------------------------------------------------------
+    # Collections
+    # ------------------------------------------------------------------
+    async def collections(self, refresh: bool = False) -> list[KoiCollection]:
+        if self._collections is not None and not refresh:
+            return self._collections
+
+        raw = await self._get_all("/api/collections")
+        by_id: dict[str, KoiCollection] = {}
+        for entry in raw:
+            identifier = entry.get("id")
+            if not identifier:
+                continue
+            parent = entry.get("parent")
+            by_id[identifier] = KoiCollection(
+                id=identifier,
+                iri=f"/api/collections/{identifier}",
+                title=entry.get("title") or "(sans titre)",
+                parent=_iri_id(parent),
+            )
+
+        for collection in by_id.values():
+            collection.path = _build_path(collection, by_id)
+
+        self._collections = sorted(by_id.values(), key=lambda c: c.path.casefold())
+        return self._collections
+
+    async def find_collection(self, reference: str) -> KoiCollection | None:
+        """Retrouve une collection par IRI, identifiant, chemin ou titre."""
+        if not reference:
+            return None
+        wanted = reference.strip()
+        identifier = _iri_id(wanted)
+        collections = await self.collections()
+        for collection in collections:
+            if collection.id == identifier:
+                return collection
+        for collection in collections:
+            if collection.path.casefold() == wanted.casefold():
+                return collection
+        for collection in collections:
+            if collection.title.casefold() == wanted.casefold():
+                return collection
+        return None
+
+    async def create_collection(self, title: str, parent: KoiCollection | None) -> KoiCollection:
+        body: dict[str, object] = {"title": title}
+        if parent is not None:
+            body["parent"] = parent.iri
+        response = await self.request("POST", "/api/collections", json_body=body)
+        if response.status_code not in (200, 201):
+            raise KoillectionError(
+                f"Création de la collection « {title} » refusée "
+                f"({response.status_code}) : {response.text[:200]}"
+            )
+        payload = response.json()
+        created = KoiCollection(
+            id=payload["id"],
+            iri=f"/api/collections/{payload['id']}",
+            title=payload.get("title") or title,
+            parent=parent.id if parent else None,
+            path=f"{parent.path} / {title}" if parent else title,
+        )
+        if self._collections is not None:
+            self._collections.append(created)
+        return created
+
+    async def ensure_child_collection(
+        self, parent: KoiCollection, title: str
+    ) -> tuple[KoiCollection, bool]:
+        """Retourne la sous-collection ``title`` de ``parent``, en la créant au besoin."""
+        collections = await self.collections()
+        for collection in collections:
+            if collection.parent == parent.id and collection.title.casefold() == title.casefold():
+                return collection, False
+        # La collection a pu être créée depuis un autre onglet : on rafraîchit
+        # avant de risquer un doublon.
+        collections = await self.collections(refresh=True)
+        for collection in collections:
+            if collection.parent == parent.id and collection.title.casefold() == title.casefold():
+                return collection, False
+        return await self.create_collection(title, parent), True
+
+    # ------------------------------------------------------------------
+    # Items
+    # ------------------------------------------------------------------
+    async def collection_items(self, collection: KoiCollection) -> list[dict]:
+        return await self._get_all(f"/api/collections/{collection.id}/items")
+
+    async def find_duplicate(self, collection: KoiCollection, isbn13: str) -> dict | None:
+        """Cherche un item de la collection portant déjà cet ISBN.
+
+        L'API Koillection n'offrant aucun filtre, la recherche se limite à la
+        collection de destination : c'est le cas réel (rescanner deux fois le
+        même livre) et cela évite de parcourir toute la base.
+        """
+        label = self.settings.labels.get("isbn")
+        if not label:
+            return None
+        items = await self.collection_items(collection)
+        for item in items:
+            item_id = item.get("id")
+            if not item_id:
+                continue
+            response = await self.request("GET", f"/api/items/{item_id}/data")
+            if response.status_code >= 400:
+                continue
+            payload = response.json()
+            if isinstance(payload, dict):
+                payload = payload.get("hydra:member") or payload.get("member") or []
+            for datum in payload:
+                if datum.get("label") == label and _same_isbn(datum.get("value"), isbn13):
+                    return item
+        return None
+
+    async def create_item(
+        self,
+        name: str,
+        collection: KoiCollection,
+        tags: list[str] | None = None,
+    ) -> dict:
+        body: dict[str, object] = {
+            "name": name,
+            "collection": collection.iri,
+            "quantity": 1,
+        }
+        if tags:
+            body["tags"] = tags
+        response = await self.request("POST", "/api/items", json_body=body)
+        if response.status_code not in (200, 201):
+            raise KoillectionError(
+                f"Création de l'item refusée ({response.status_code}) : {response.text[:300]}"
+            )
+        return response.json()
+
+    async def add_datum(
+        self, item_iri: str, label: str, value: str, datum_type: str, position: int
+    ) -> None:
+        body = {
+            "item": item_iri,
+            "type": datum_type,
+            "label": label,
+            "value": value,
+            "position": position,
+        }
+        response = await self.request("POST", "/api/data", json_body=body)
+        if response.status_code not in (200, 201):
+            # Un champ refusé (libellé en doublon, valeur invalide) ne doit pas
+            # faire échouer tout l'ajout : l'item existe déjà.
+            logger.warning(
+                "Champ « %s » refusé par Koillection (%s) : %s",
+                label,
+                response.status_code,
+                response.text[:200],
+            )
+
+    async def upload_cover(self, item_id: str, cover: Cover) -> bool:
+        files = {"file": (f"cover{cover.extension}", cover.content, cover.content_type)}
+        response = await self.request("POST", f"/api/items/{item_id}/image", files=files)
+        if response.status_code not in (200, 201):
+            logger.warning(
+                "Téléversement de la couverture refusé (%s) : %s",
+                response.status_code,
+                response.text[:200],
+            )
+            return False
+        return True
+
+    # ------------------------------------------------------------------
+    # Tags
+    # ------------------------------------------------------------------
+    async def tags(self, refresh: bool = False) -> dict[str, str]:
+        if self._tags is not None and not refresh:
+            return self._tags
+        raw = await self._get_all("/api/tags")
+        self._tags = {
+            (entry.get("label") or "").casefold(): f"/api/tags/{entry['id']}"
+            for entry in raw
+            if entry.get("id")
+        }
+        return self._tags
+
+    async def ensure_tags(self, labels: list[str]) -> list[str]:
+        known = await self.tags()
+        iris: list[str] = []
+        for label in labels:
+            key = label.casefold()
+            if key in known:
+                iris.append(known[key])
+                continue
+            response = await self.request("POST", "/api/tags", json_body={"label": label})
+            if response.status_code not in (200, 201):
+                logger.warning(
+                    "Tag « %s » non créé (%s) : %s", label, response.status_code, response.text[:200]
+                )
+                continue
+            iri = f"/api/tags/{response.json()['id']}"
+            known[key] = iri
+            iris.append(iri)
+        return iris
+
+    def item_url(self, item_id: str) -> str:
+        return f"{self.settings.koillection_url}/items/{item_id}"
+
+
+def _iri_id(value: object) -> str | None:
+    """``/api/collections/<uuid>`` → ``<uuid>`` ; laisse passer un uuid nu."""
+    if not value:
+        return None
+    if isinstance(value, dict):
+        value = value.get("@id") or value.get("id") or ""
+    text = str(value).strip().rstrip("/")
+    return text.rsplit("/", 1)[-1] or None
+
+
+def _build_path(collection: KoiCollection, by_id: dict[str, KoiCollection]) -> str:
+    parts = [collection.title]
+    seen = {collection.id}
+    parent_id = collection.parent
+    while parent_id and parent_id in by_id and parent_id not in seen:
+        seen.add(parent_id)
+        parent = by_id[parent_id]
+        parts.append(parent.title)
+        parent_id = parent.parent
+    return " / ".join(reversed(parts))
+
+
+def _same_isbn(left: object, right: str) -> bool:
+    digits = lambda value: "".join(c for c in str(value or "") if c.isalnum())  # noqa: E731
+    return digits(left).upper() == digits(right).upper()

@@ -1,0 +1,26 @@
+[project]
+name = "scan-koillection"
+version = "1.0.0"
+description = "Scanner d'ISBN auto-hébergé qui alimente Koillection (BnF, OpenLibrary, openBD)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E501",   # la longueur de ligne est déjà contrôlée par le formateur
+    "B008",   # Depends() en valeur par défaut : idiome FastAPI
+    "SIM105", # contextlib.suppress est moins lisible ici
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

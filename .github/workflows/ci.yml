@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Tests Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest ruff
+
+      - name: Analyse statique
+        run: ruff check app tests
+
+      - name: Tests unitaires
+        run: python -m pytest
+
+  docker:
+    name: Construction de l'image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier que ZXing est bien embarqué
+        run: test -s static/vendor/zxing.min.js
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construire l'image (sans publication)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: scan-koillection:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Vérifier que le conteneur démarre et répond
+        run: |
+          docker run -d --name ci -p 8080:8080 scan-koillection:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/healthz; then echo; exit 0; fi
+            sleep 2
+          done
+          echo "Le conteneur n'a pas répondu :"
+          docker logs ci
+          exit 1

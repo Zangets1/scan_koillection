@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+tests
+docs
+data
+*.md
+!README.md
+.env
+.env.*
+docker-compose*.yml
+Caddyfile
+pytest.ini

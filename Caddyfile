@@ -1,0 +1,19 @@
+# TLS local pour Scan Koillection.
+#
+# Les navigateurs mobiles n'autorisent l'accès à la caméra qu'en HTTPS (ou sur
+# localhost). Sur un NAS accessible en http://192.168.x.x, le scan est donc
+# impossible sans ce reverse proxy.
+#
+# `tls internal` fabrique un certificat auto-signé : le téléphone affichera un
+# avertissement de sécurité à accepter une fois. Pour l'éviter, remplacez le
+# bloc par votre domaine et vos certificats, par exemple :
+#
+#   scan.mondomaine.fr {
+#       reverse_proxy scan-koillection:8080
+#   }
+
+:8443 {
+	tls internal
+	encode gzip
+	reverse_proxy scan-koillection:8080
+}
