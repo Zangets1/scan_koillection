@@ -242,8 +242,17 @@ docker compose up -d
 Les tags `:latest`, `:1`, `:1.0` et `:1.0.0` sont maintenus. Le dossier `./data` (historique)
 est compatible entre versions ; aucune donnée Koillection n'est touchée par un retour arrière.
 
-Branches : `main` est la version stable publiée, le développement se fait sur des branches
-dédiées fusionnées ensuite dans `main`. Voir le [CHANGELOG](CHANGELOG.md).
+**Branches.** `main` porte la version stable publiée ; le développement se fait sur des
+branches dédiées (`claude/…`, `feat/…`) fusionnées ensuite dans `main`. Voir le
+[CHANGELOG](CHANGELOG.md).
+
+**Publier une version.** Deux possibilités, au choix :
+
+- depuis GitHub : onglet **Actions → Release → Run workflow**, saisissez `v1.0.0` ;
+- depuis un terminal : `git tag -a v1.0.0 -m "…" && git push origin v1.0.0`.
+
+Dans les deux cas, le workflow construit l'image `amd64` + `arm64`, la publie sur GHCR et
+crée la release GitHub avec ses notes.
 
 ---
 
