@@ -79,7 +79,8 @@ jobs:
             4. Ce qui manque pour trancher : version utilisée, logs du conteneur,
                résultat du diagnostic, ISBN concerné.
 
-            Écris ensuite **un seul commentaire en français**, court et concret :
+            Écris ensuite **un seul commentaire**, court et concret, **dans la langue de
+            l'issue** — anglais si elle est en anglais, français si elle est en français :
             ce que tu comprends du problème, ta conclusion, et soit la solution,
             soit les informations qu'il te manque. Pas de formules creuses, pas
             de remerciements convenus. Si tu n'es pas sûr, dis-le.

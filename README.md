@@ -2,176 +2,171 @@
 
 # 📚 Scan Koillection
 
-**Scannez le code-barres d'un livre, il arrive dans Koillection.**
+**Scan a book's barcode, it lands in Koillection.**
 
-Application web auto-hébergée, pensée pour un NAS et un téléphone.
-Métadonnées issues de la **BnF**, du **SUDOC**, d'**OpenLibrary** et d'**openBD** — pas de dépendance à Google Books.
+A self-hosted web app built for a NAS and a phone.
+Metadata from the **BnF**, the **SUDOC**, **OpenLibrary** and **openBD** — no reliance on Google Books.
 
 [![CI](https://github.com/zangets1/scan_koillection/actions/workflows/ci.yml/badge.svg)](https://github.com/zangets1/scan_koillection/actions/workflows/ci.yml)
-[![Image Docker](https://img.shields.io/badge/ghcr.io-scan__koillection-2f6df6)](https://github.com/zangets1/scan_koillection/pkgs/container/scan_koillection)
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
+[![Docker image](https://img.shields.io/badge/ghcr.io-scan__koillection-2f6df6)](https://github.com/zangets1/scan_koillection/pkgs/container/scan_koillection)
+[![MIT licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
+
+**English** · [Français](README.fr.md)
 
 </div>
 
 ---
 
-## Ce que ça fait
+## What it does
 
-1. Vous ouvrez la page sur votre téléphone et vous scannez le code-barres au dos du livre.
-2. L'ISBN est vérifié (clé de contrôle + double lecture concordante) — pas de faux positifs.
-3. Les catalogues sont interrogés **en parallèle** et leurs réponses fusionnées — une demi-seconde en général, quatre au grand maximum.
-4. Une fiche pré-remplie s'affiche : vous corrigez ce que vous voulez, vous cochez **« J'ai lu ce livre »**, vous validez.
-5. L'item est créé dans Koillection avec sa couverture ; **si le livre appartient à une série, il est rangé dans une sous-collection à son nom**, créée automatiquement.
+1. Open the page on your phone and scan the barcode on the back of the book.
+2. The ISBN is verified — checksum plus two matching reads in a row, so no false positives.
+3. Catalogues are queried **in parallel** and their answers merged — half a second typically, four at the very worst.
+4. A pre-filled form appears: correct whatever you like, tick **"I have read this book"**, confirm.
+5. The item is created in Koillection with its cover; **if the book belongs to a series, it goes into a sub-collection named after it**, created on the fly.
 
-Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution, nombre de pages, genre, synopsis, série, tome, langue, ISBN, et la case « Lu »**.
+Fields written to Koillection: **title, author, publisher, publication date, page count, genre, synopsis, series, volume, language, ISBN, and the "Read" checkbox**.
 
 ---
 
-## Pourquoi la BnF plutôt que Google Books
+## Why the BnF rather than Google Books
 
-| Source | Sans clé | Livres FR | Synopsis FR | Série + tome | Genre |
+This project was built for French-language books, and that choice drives the whole design.
+
+| Source | No API key | French books | French synopsis | Series + volume | Genre |
 |---|:--:|:--:|:--:|:--:|:--:|
-| **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (notices Electre) | ✅ (zone 461) | ✅ |
-| **SUDOC** (bibliothèques universitaires) | ✅ | ✅✅ | ✅ (4e de couverture) | ✅ (zone 200) | ✅✅ |
-| **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
-| **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
+| **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (Electre records) | ✅ (field 461) | ✅ |
+| **SUDOC** (French academic libraries) | ✅ | ✅✅ | ✅ (back cover) | ✅ (field 200) | ✅✅ |
+| **OpenLibrary** | ✅ | ⚠️ partial | 🇬🇧 English | ⚠️ sometimes | ⚠️ keywords |
+| **openBD** (Japan) | ✅ | ❌ | 🇯🇵 Japanese | ✅ | ⚠️ |
+| Google Books | ✅ | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
 
-La BnF est interrogée en premier et fait autorité. Les autres ne servent qu'à **combler les champs vides**.
-Google Books reste présent en dernier recours et se retire d'une variable : `PROVIDERS=bnf,sudoc,openbd`.
+The BnF is queried first and takes precedence. The others only **fill in the blanks**.
+Google Books is a last resort and can be dropped with one variable: `PROVIDERS=bnf,sudoc,openbd`.
 
-**Pourquoi le SUDOC en second.** Mesuré sur 18 livres français, il n'apporte quasiment
-aucun titre que la BnF ignore — mais il remplit le résumé sur **4 livres de plus** et le
-genre sur **8 de plus**, avec des étiquettes bien plus utiles (« Mangas », « Shônen »
-plutôt que « Bandes dessinées »). Il sert aussi de roue de secours : le service SRU de la
-BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
+**Why SUDOC comes second.** Measured across 18 French books, it turns up almost no title the
+BnF misses — but it fills the synopsis on **4 more books** and the genre on **8 more**, with
+far more useful labels ("Manga", "Shōnen" instead of "Comics"). It also acts as a spare
+wheel: the BnF's SRU service drops connections intermittently, and SUDOC covers for it.
 
-> **Garde-fou anti-mélange.** Certains ISBN sont attribués à deux ouvrages différents selon les catalogues.
-> Si une source secondaire décrit visiblement un autre livre (titre sans rapport **et** aucun auteur commun),
-> sa notice est écartée plutôt que fusionnée : mieux vaut un champ vide qu'une fiche chimérique.
+> **Guard against mixed-up records.** Some ISBNs are assigned to two different works
+> depending on the catalogue. When a secondary source clearly describes another book
+> (unrelated title **and** no author in common), its record is discarded rather than merged:
+> an empty field beats a chimera.
+
+If you mostly collect English-language books, reorder the sources —
+`PROVIDERS=openlibrary,bnf,sudoc,googlebooks` — or plug in your own catalogue, see
+[Adding a catalogue](#adding-a-catalogue).
 
 ---
 
-## Installation sur le NAS
+## Installing on a NAS
 
 ### 1. Docker Compose
 
-Le [`docker-compose.yml`](docker-compose.yml) **se suffit à lui-même** : la configuration
-est écrite dedans, pas dans un `.env` à côté. Il peut donc être collé tel quel dans
-l'interface Docker d'un NAS (UGREEN, Synology, QNAP…) qui ne permet pas de déposer des
-fichiers annexes.
+The [`docker-compose.yml`](docker-compose.yml) **stands on its own**: configuration lives
+inside it rather than in a neighbouring `.env`. It can therefore be pasted as-is into the
+Docker UI of a NAS (UGREEN, Synology, QNAP…) that offers no way to drop extra files.
 
-Il joint Koillection **par son nom de conteneur** (`http://koillection:80`), ce qui suppose
-un réseau Docker partagé. Une seule chose est donc à vérifier avant de démarrer : le nom du
-réseau de votre Koillection, en bas du fichier.
+It reaches Koillection **by container name** (`http://koillection:80`), which assumes a
+shared Docker network. So there is exactly one thing to check before starting: the name of
+your Koillection network, at the bottom of the file.
 
 ```bash
-docker network ls        # relevez « koillection_default » ou son équivalent
+docker network ls        # look for « koillection_default » or its equivalent
 ```
 
 ```yaml
 networks:
   koillection:
     external: true
-    name: koillection_default    # le nom relevé ci-dessus
+    name: koillection_default    # the name you just found
 ```
 
-Si le nom est faux, Compose refuse de démarrer avec un message sans ambiguïté
-(`network … declared as external, but could not be found`) — vous ne resterez pas devant
-une liste de collections vide sans savoir pourquoi.
+Get it wrong and Compose refuses to start with an unambiguous message
+(`network … declared as external, but could not be found`) — you won't be left staring at
+an empty collection list wondering why.
 
-> **Vous préférez éviter la configuration réseau ?** Remplacez simplement `KOILLECTION_URL`
-> par l'IP du NAS et le port publié par Koillection (`http://192.168.1.10:81`), et retirez
-> le bloc `networks` ainsi que les deux lignes `networks:` du service.
+> **Rather avoid network configuration?** Just point `KOILLECTION_URL` at your NAS IP and
+> the port Koillection publishes (`http://192.168.1.10:81`), then drop the `networks` block
+> along with the two `networks:` lines on the service.
 
-Les autres valeurs à renseigner : vos identifiants Koillection, `PUID`/`PGID`, et
-l'adresse du NAS pour le HTTPS.
+The remaining values to fill in: your Koillection credentials, `PUID`/`PGID`, and the NAS
+address for HTTPS.
 
-En ligne de commande :
+From a terminal:
 
 ```bash
 mkdir -p /volume1/docker/scan-koillection && cd $_
 curl -O https://raw.githubusercontent.com/zangets1/scan_koillection/main/docker-compose.yml
-nano docker-compose.yml     # les lignes « À RENSEIGNER »
+nano docker-compose.yml     # the lines marked « À RENSEIGNER »
 docker compose --profile https up -d
 ```
 
-> Si vous préférez un `.env` séparé, remplacez le bloc `environment:` par
-> `env_file: [.env]` et partez du [`.env.example`](.env.example), qui documente
-> **toutes** les variables disponibles.
+> Prefer a separate `.env`? Replace the `environment:` block with `env_file: [.env]` and
+> start from [`.env.example`](.env.example), which documents **every** available variable.
 
-L'interface répond sur `http://IP_DU_NAS:8080`.
+The interface answers on `http://YOUR_NAS_IP:8080`.
 
-> **Dépôt privé ?** Tant que le dépôt GitHub reste privé, l'image publiée sur GHCR l'est
-> aussi : le NAS doit s'authentifier avant de la télécharger.
->
-> ```bash
-> echo VOTRE_TOKEN | docker login ghcr.io -u zangets1 --password-stdin
-> ```
->
-> Le jeton est un *personal access token* (classic) avec la seule portée `read:packages`.
-> Pour éviter cette étape, rendez le paquet public depuis
-> **GitHub → Packages → scan_koillection → Package settings → Change visibility**,
-> ou construisez l'image localement avec `build: .` dans `docker-compose.yml`.
+### 2. The part that trips everyone up: HTTPS
 
-### 2. Le point qui bloque tout le monde : HTTPS
+**iOS and Android both refuse camera access on an `http://` page** (except on `localhost`).
+On `http://192.168.1.x:8080`, typing the ISBN by hand will work, but scanning will not.
 
-**iOS comme Android refusent l'accès à la caméra sur une page en `http://`** (hors `localhost`).
-En `http://192.168.1.x:8080`, la saisie manuelle de l'ISBN fonctionnera, mais pas le scan.
-
-Trois solutions, de la plus simple à la plus propre :
+Three ways out, from quickest to cleanest:
 
 <details>
-<summary><b>a. Le reverse proxy fourni (Caddy, certificat auto-signé)</b></summary>
+<summary><b>a. The bundled reverse proxy (Caddy, self-signed certificate)</b></summary>
 
-Il est déjà dans le `docker-compose.yml`. Renseignez `NAS_HOST` avec **exactement**
-l'adresse que vous taperez dans le navigateur — le certificat est émis pour elle — puis :
+It is already in the `docker-compose.yml`. Set `NAS_HOST` to **exactly** the address you
+will type in the browser — the certificate is issued for it — then:
 
 ```bash
 docker compose --profile https up -d
 ```
 
-Rendez-vous sur `https://IP_DU_NAS:8443` et acceptez l'avertissement de sécurité une fois.
-Sur iOS, il faut parfois appuyer sur « Afficher les détails » → « visiter ce site web ».
+Go to `https://YOUR_NAS_IP:8443` and accept the security warning once. On iOS you sometimes
+need to tap "Show details" → "visit this website".
 
-Aucun fichier de configuration à créer : Caddy écrit la sienne au démarrage. Le
-[`Caddyfile`](Caddyfile) du dépôt n'est là que si vous préférez un fichier séparé.
+No config file to create: Caddy writes its own at startup. The [`Caddyfile`](Caddyfile) in
+the repository is only there if you prefer a separate file.
 </details>
 
 <details>
-<summary><b>b. Un vrai certificat (recommandé si vous avez un domaine)</b></summary>
+<summary><b>b. A real certificate (recommended if you own a domain)</b></summary>
 
-Utilisez le [`Caddyfile`](Caddyfile) du dépôt, monté dans le conteneur Caddy en
-remplacement du bloc `command:`, avec pour contenu :
+Use the repository's [`Caddyfile`](Caddyfile), mounted into the Caddy container in place of
+the `command:` block, containing:
 
 ```
-scan.mondomaine.fr {
+scan.mydomain.com {
     reverse_proxy scan-koillection:8080
 }
 ```
 
-Caddy obtient et renouvelle le certificat Let's Encrypt tout seul.
-La plupart des NAS (Synology, UGREEN, TrueNAS) savent aussi le faire depuis leur propre reverse proxy.
+Caddy obtains and renews the Let's Encrypt certificate on its own. Most NAS boxes
+(Synology, UGREEN, TrueNAS) can also do this from their own reverse proxy.
 </details>
 
 <details>
 <summary><b>c. Tailscale / WireGuard</b></summary>
 
-Avec Tailscale, `tailscale serve` fournit un nom en `*.ts.net` et un certificat valide sans rien exposer sur Internet.
+With Tailscale, `tailscale serve` gives you a `*.ts.net` name and a valid certificate
+without exposing anything to the internet.
 </details>
 
-### 3. Créer une collection dans Koillection
+### 3. Create a collection in Koillection
 
-Le scanner ne crée pas de collection racine : il range les livres dans celle que vous
-choisissez. Créez-en une (« Livres », « Mangas »…) depuis Koillection avant le premier
-scan, sinon la liste déroulante restera vide.
+The scanner never creates a root collection: it files books into the one you pick. Create
+one ("Books", "Manga"…) in Koillection before your first scan, otherwise the dropdown stays
+empty.
 
-Une collection ajoutée pendant que le scanner tourne apparaît **au bout d'une minute**,
-ou tout de suite avec le bouton **« ⟳ Recharger depuis Koillection »** sous la liste. La
-liste est mise en cache une minute pour ne pas interroger l'API à chaque affichage.
+A collection added while the scanner is running shows up **within a minute**, or right away
+via the **"⟳ Recharger depuis Koillection"** button below the list. The list is cached for
+one minute so the API isn't queried on every page view.
 
-> **La liste reste vide ?** Le bouton **« Diagnostiquer la connexion »** déroule la chaîne
-> étape par étape et nomme la cause exacte :
+> **List still empty?** The **"Diagnostiquer la connexion"** button walks the chain
+> step by step and names the exact cause:
 >
 > ```
 > ✓ Configuration — http://192.168.1.10:81
@@ -180,260 +175,265 @@ liste est mise en cache une minute pour ne pas interroger l'API à chaque affich
 > ✗ Collections visibles — Le compte « damien » n'a aucune collection.
 > ```
 >
-> Les pièges habituels :
+> The usual traps:
 >
-> - **`http://koillection:80` sans réseau partagé.** Chaque pile Compose crée son propre
->   réseau : le nom du conteneur Koillection n'est pas résolu depuis le scanner. Voir
->   ci-dessous.
-> - **`localhost` ou `127.0.0.1`** qui, depuis le conteneur, désigne le conteneur lui-même
->   et non le NAS.
-> - **Une collection créée sous un autre compte Koillection** : elle appartient à son
->   créateur et reste invisible aux autres comptes.
+> - **`http://koillection:80` without a shared network.** Every Compose stack creates its
+>   own: the Koillection container name simply doesn't resolve from the scanner.
+> - **`localhost` or `127.0.0.1`**, which from inside the container means the container
+>   itself, not the NAS.
+> - **A collection created under a different Koillection account**: it belongs to its
+>   creator and stays invisible to other accounts.
 >
-> `KOILLECTION_DEFAULT_COLLECTION` n'est jamais en cause : cette variable présélectionne
-> une entrée dans la liste, elle ne la filtre pas.
+> `KOILLECTION_DEFAULT_COLLECTION` is never the culprit: that variable pre-selects an entry
+> in the list, it does not filter it.
 
-#### Le nom de conteneur ne se résout pas ?
+#### Container name won't resolve?
 
-`http://koillection:80` ne fonctionne que si les deux piles partagent un réseau : chaque
-pile Compose crée le sien. Vérifiez le bloc `networks` en fin de `docker-compose.yml`, et
-que le conteneur a bien rejoint les deux réseaux :
+`http://koillection:80` only works when both stacks share a network. Check the `networks`
+block at the end of `docker-compose.yml`, and that the container really joined both:
 
 ```bash
 docker inspect scan-koillection --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 # → koillection_default scan_default
 ```
 
-### 4. Ajouter l'application à l'écran d'accueil
+### 4. Add the app to your home screen
 
-C'est une PWA : **Partager → Sur l'écran d'accueil** (iOS) ou **Menu → Installer l'application** (Android).
-Elle s'ouvre alors en plein écran, sans barre d'adresse.
+It's a PWA: **Share → Add to Home Screen** (iOS) or **Menu → Install app** (Android). It
+then opens full screen, with no address bar.
+
+> **Interface language.** The app itself is in French. Everything it writes into Koillection
+> comes from the catalogues, so an English-language book yields English metadata. Field
+> labels are renamable through `FIELD_LABELS`, see below.
 
 ---
 
 ## Configuration
 
-Tout passe par des variables d'environnement, déclarées soit directement dans le
-`docker-compose.yml`, soit dans un `.env` séparé ([modèle commenté](.env.example)).
+Everything goes through environment variables, declared either straight in
+`docker-compose.yml` or in a separate `.env` ([commented template](.env.example)).
 
-### L'essentiel
+### The essentials
 
-| Variable | Rôle |
+| Variable | Purpose |
 |---|---|
-| `KOILLECTION_URL` | URL de Koillection **vue depuis le conteneur** |
-| `KOILLECTION_USERNAME` / `KOILLECTION_PASSWORD` | Compte utilisé par l'API |
-| `KOILLECTION_DEFAULT_COLLECTION` | Collection proposée par défaut (titre, chemin ou UUID) |
-| `APP_PASSWORD` | Mot de passe d'accès à l'interface (vide = libre) |
+| `KOILLECTION_URL` | Koillection URL **as seen from inside the container** |
+| `KOILLECTION_USERNAME` / `KOILLECTION_PASSWORD` | Account used against the API |
+| `KOILLECTION_DEFAULT_COLLECTION` | Collection offered by default (title, path or UUID) |
+| `APP_PASSWORD` | Password guarding the interface (empty = open) |
 
-### Le reste
+### The rest
 
-| Variable | Défaut | Rôle |
+| Variable | Default | Purpose |
 |---|---|---|
-| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues et ordre de priorité |
-| `PROVIDER_TIMEOUT` | `8` | Délai maximal par catalogue (s) |
-| `LOOKUP_DEADLINE` | `4` | Plafond global d'une recherche (s) |
-| `SERIES_SUBCOLLECTIONS` | `1` | Créer une sous-collection par série |
-| `SERIES_ITEM_NAME` | `{series} - T{volume:02d} - {title}` | Nom de l'item pour une série |
-| `GENRES_AS_TAGS` | `1` | Créer aussi les genres comme tags |
-| `UPLOAD_COVER` | `1` | Téléverser la couverture |
-| `FIELD_LABELS` | — | Renommer les champs créés (JSON) |
-| `CACHE_TTL` | `86400` | Cache mémoire des recherches (s) |
-| `SESSION_SECRET` | — | Clé de signature des sessions |
-| `PUID` / `PGID` | `10001` | Propriétaire du dossier `./data` (voir ci-dessous) |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues, in priority order |
+| `PROVIDER_TIMEOUT` | `8` | Per-catalogue timeout (s) |
+| `LOOKUP_DEADLINE` | `4` | Overall ceiling for one lookup (s) |
+| `SERIES_SUBCOLLECTIONS` | `1` | Create one sub-collection per series |
+| `SERIES_ITEM_NAME` | `{series} - T{volume:02d} - {title}` | Item name for a book in a series |
+| `GENRES_AS_TAGS` | `1` | Also create genres as Koillection tags |
+| `UPLOAD_COVER` | `1` | Upload the cover image |
+| `FIELD_LABELS` | — | Rename the fields created (JSON) |
+| `CACHE_TTL` | `86400` | In-memory lookup cache (s) |
+| `SESSION_SECRET` | — | Session signing key |
+| `PUID` / `PGID` | `10001` | Owner of the `./data` folder (see below) |
 
-> **Droits sur `./data`.** Le conteneur ne tourne pas en root. Au démarrage, il aligne le
-> propriétaire du volume sur `PUID:PGID`. Si votre NAS impose un utilisateur précis
-> (souvent `1000:1000`, `1026:100` chez Synology), renseignez-le : c'est la cause n°1
-> d'un conteneur qui refuse de démarrer avec « impossible d'écrire l'historique ».
+> **Permissions on `./data`.** The container does not run as root. At startup it aligns the
+> volume's owner with `PUID:PGID`. If your NAS mandates a specific user (often `1000:1000`,
+> `1026:100` on Synology), set it: this is the number one cause of a container refusing to
+> start with "impossible d'écrire l'historique".
 
-### Adapter les noms de champs à votre Koillection
+### Matching the field names to your Koillection
 
-Si vos fiches utilisent déjà « Écrivain » plutôt que « Auteur » :
+If your records already use "Writer" rather than "Auteur":
 
 ```env
-FIELD_LABELS={"authors":"Écrivain","published":"Parution","read":"Terminé"}
+FIELD_LABELS={"authors":"Writer","published":"Published","read":"Finished"}
 ```
 
-Une valeur vide supprime le champ : `FIELD_LABELS={"language":"","source":""}`.
+An empty value removes the field entirely: `FIELD_LABELS={"language":"","source":""}`.
 
-> La date de parution est écrite en **texte** et non en type « date » : la BnF ne fournit
-> le plus souvent que l'année, et Koillection refuse une date incomplète. Le champ garde
-> ainsi le même type d'un livre à l'autre, et reste triable (`2013` < `2016-04`).
+> The publication date is written as **text**, not as a "date" type: the BnF usually only
+> provides the year, and Koillection rejects an incomplete date. The field therefore keeps
+> the same type from one book to the next, and still sorts correctly (`2013` < `2016-04`).
 
 ---
 
-## Combien de temps prend une recherche
+## How long does a lookup take
 
-Mesuré sur 18 livres français, cache vidé, les cinq catalogues activés :
+Measured across 18 French books, cache cleared, all five catalogues enabled:
 
-| | médiane | 9 fois sur 10 | maximum |
+| | median | 9 times out of 10 | worst case |
 |---|:--:|:--:|:--:|
-| Recherche complète | **0,6 s** | 1,1 s | 4,0 s |
+| Full lookup | **0.6 s** | 1.1 s | 4.0 s |
 
-Les catalogues sont interrogés **tous en même temps** : le temps total est celui du plus
-lent, pas la somme. Ajouter une source ne rallonge donc pas la recherche tant qu'elle
-répond dans les temps — passer de quatre à cinq catalogues a coûté 0,13 s de médiane.
+Catalogues are queried **all at once**: total time is the slowest one, not the sum. Adding a
+source therefore costs nothing as long as it answers in time — going from four to five
+catalogues cost 0.13 s of median.
 
-Le maximum n'est pas un hasard : c'est `LOOKUP_DEADLINE`. Passé ce délai, la fiche
-s'affiche avec ce qui est arrivé et les retardataires sont marqués « trop lent » à côté
-des sources. Personne n'attend indéfiniment devant son étagère parce qu'un serveur
-distant a hoqueté.
-
----
-
-## Le scanner
-
-- **Deux moteurs.** L'API `BarcodeDetector` du navigateur quand elle existe (Android), sinon
-  **ZXing** en JavaScript — c'est ce dernier qui fait tourner iOS, où Safari n'implémente
-  toujours pas `BarcodeDetector`.
-- **Décodage recadré.** Seule la bande centrale de l'image est analysée : plus rapide, et
-  cela évite d'attraper le code-barres du livre d'à côté.
-- **Validation en trois temps.** Clé de contrôle EAN-13 → préfixe Bookland (978/979) →
-  **deux lectures identiques d'affilée**. Un ISSN de revue (977) ou un code de supermarché
-  est refusé avec un message explicite plutôt que cherché en vain.
-- **Confirmation sensorielle.** Vibration, bip et cadre qui vire au vert.
-- **Lampe torche** quand l'appareil l'expose (Android).
-- **Toujours une porte de sortie.** Le champ ISBN est en haut de la première page, et le
-  bouton « Saisir l'ISBN » reste accessible depuis l'écran de scan.
-
-### Quand le livre est introuvable
-
-Aucun catalogue ne connaît l'ISBN ? La fiche s'ouvre quand même, vide, avec le message qui
-invite à renseigner le titre et l'auteur. Le reste est facultatif, la case « Lu » est là,
-et l'item part dans Koillection comme les autres.
-
-Surtout, **le numéro réellement lu est affiché en grand**, en chiffres à chasse fixe
-groupés par trois : de quoi le comparer à celui imprimé sur le livre et savoir tout de
-suite si le lecteur s'est trompé ou si l'ouvrage est simplement absent des bases. Deux
-boutons sont proposés dans la foulée — **Rescanner** et **Corriger le numéro**, qui
-renvoie à l'accueil avec le code prêt à être modifié.
-
-Le découpage est volontairement sans tirets : la vraie césure d'un ISBN dépend de tables
-de préfixes d'éditeurs, et un découpage inventé (`978-2-72-348989-8` au lieu de
-`978-2-7234-8989-8`) gênerait précisément la comparaison. Un ISBN-10 lu au dos d'un livre
-ancien reste affiché tel quel, à côté de sa conversion en ISBN-13.
-
-Le bouton **« Saisir le livre à la main »** de l'accueil ouvre la même fiche, sans ISBN du tout
-(livres anciens, éditions sans code-barres).
+The worst case is no accident: it is `LOOKUP_DEADLINE`. Past that, the form appears with
+whatever arrived and the stragglers are marked "trop lent" next to the sources. Nobody waits
+indefinitely in front of a bookshelf because a remote server hiccuped.
 
 ---
 
-## Détection des doublons
+## The scanner
 
-Avant chaque création, les items de la collection de destination sont comparés sur leur champ ISBN.
-Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche existante.
+- **Two engines.** The browser's `BarcodeDetector` API where it exists (Android), otherwise
+  **ZXing** in JavaScript — the latter is what carries iOS, where Safari still doesn't
+  implement `BarcodeDetector`.
+- **Cropped decoding.** Only the central band of the frame is analysed: faster, and it
+  avoids catching the barcode of the book next to it.
+- **Three-stage validation.** EAN-13 checksum → Bookland prefix (978/979) → **two identical
+  reads in a row**. A magazine ISSN (977) or a supermarket barcode is rejected with a plain
+  explanation instead of being looked up in vain.
+- **Physical confirmation.** Vibration, beep, and the frame turning green.
+- **Torch** where the device exposes it (Android).
+- **Always a way out.** The ISBN field sits at the top of the first page, and the "type the
+  ISBN" button stays reachable from the scanning screen.
 
-> **Limite assumée.** L'API de Koillection n'expose aucun filtre de recherche : la vérification
-> se limite à la collection visée (et à sa sous-collection de série). Un même livre rangé
-> ailleurs ne sera pas détecté. L'historique local, lui, signale tout ISBN déjà passé par l'outil.
+### When the book can't be found
+
+No catalogue knows the ISBN? The form still opens, empty, inviting you to fill in title and
+author. Everything else is optional, the "Read" checkbox is there, and the item reaches
+Koillection like any other.
+
+Above all, **the number actually read is shown large**, in monospaced digits grouped in
+threes: enough to compare it against the one printed on the book and tell straight away
+whether the scanner misread or the book is simply absent from the databases. Two buttons
+follow — **rescan** and **fix the number**, which returns to the home screen with the code
+ready to edit.
+
+The grouping deliberately avoids hyphens: real ISBN hyphenation depends on publisher prefix
+ranges, and an invented split (`978-2-72-348989-8` instead of `978-2-7234-8989-8`) would
+defeat the very comparison it is meant to help. An ISBN-10 read off an older book is shown
+as-is, next to its ISBN-13 conversion.
+
+The **"Saisir le livre à la main"** button on the home screen opens the same form with no
+ISBN at all (old books, editions without a barcode).
 
 ---
 
-## Développement
+## Duplicate detection
+
+Before each creation, items in the destination collection are compared on their ISBN field.
+If the book is already there, a confirmation appears with a link to the existing record.
+
+> **A known limit.** Koillection's API exposes no search filter, so the check is confined to
+> the target collection (and its series sub-collection). The same book filed elsewhere won't
+> be caught. The local history, on the other hand, flags any ISBN the tool has seen before.
+
+---
+
+## Development
 
 ```bash
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 79 tests, sans accès réseau
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest pytest-asyncio
+.venv/bin/python -m pytest                 # 79 tests, no network access
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 
-### Organisation
+### Layout
 
 ```
 app/
-  main.py         routes FastAPI, sessions, service des fichiers statiques
-  lookup.py       appels parallèles aux catalogues, plafond de temps, fusion, cache
-  providers/      un module par catalogue, plus `unimarc.py` mutualisé
-                  entre la BnF et le SUDOC (même format, emballage XML différent)
-  koillection.py  client de l'API Koillection (JWT, collections, items, data)
-  importer.py     traduction d'une fiche livre en item + champs Koillection
-  series.py       extraction série/tome depuis un titre
-  isbn.py         validation, conversion ISBN-10 ↔ ISBN-13
-  covers.py       résolution des couvertures (liste blanche + vérification)
-static/           PWA : une page, un CSS, un JS, ZXing embarqué
-tests/            tests unitaires + fixtures BnF réelles
+  main.py         FastAPI routes, sessions, static file serving
+  lookup.py       parallel catalogue calls, time ceiling, merging, cache
+  providers/      one module per catalogue, plus `unimarc.py` shared between
+                  the BnF and SUDOC (same format, different XML wrapper)
+  koillection.py  Koillection API client (JWT, collections, items, data)
+  importer.py     turns a book record into a Koillection item and its fields
+  series.py       series/volume extraction from a title
+  isbn.py         validation, ISBN-10 ↔ ISBN-13 conversion
+  covers.py       cover resolution (allow-list + real verification)
+static/           the PWA: one page, one CSS, one JS, ZXing vendored in
+tests/            unit tests plus real BnF fixtures
 ```
 
-### Ajouter un catalogue
+Source comments and the changelog are in French, as is the interface. Contributions in
+English are welcome all the same — say so in your pull request and we'll sort out the
+wording together.
 
-Créez `app/providers/mon_catalogue.py`, héritez de `Provider`, renvoyez un `BookMeta`,
-inscrivez la classe dans `build_providers()` puis ajoutez son nom à `PROVIDERS`.
-Un fournisseur qui échoue est simplement ignoré : il ne peut pas bloquer une recherche.
+### Adding a catalogue
+
+Create `app/providers/my_catalogue.py`, subclass `Provider`, return a `BookMeta`, register
+the class in `build_providers()` and add its name to `PROVIDERS`. A provider that fails is
+simply ignored: it cannot hold up a lookup.
 
 ---
 
-## Versions et retour arrière
+## Versions and rolling back
 
-Chaque version est publiée en **release GitHub** avec une image Docker étiquetée.
-Une mise à jour se passe mal ? Revenez à la précédente en une ligne :
+Every version ships as a **GitHub release** with a tagged Docker image. An update went
+badly? Go back in one line:
 
 ```yaml
-image: ghcr.io/zangets1/scan_koillection:1.0.0   # au lieu de :latest
+image: ghcr.io/zangets1/scan_koillection:1.0.0   # instead of :latest
 ```
 
 ```bash
 docker compose up -d
 ```
 
-Les tags `:latest`, `:1`, `:1.0` et `:1.0.0` sont maintenus. Le dossier `./data` (historique)
-est compatible entre versions ; aucune donnée Koillection n'est touchée par un retour arrière.
+The `:latest`, `:1`, `:1.0` and `:1.0.0` tags are all maintained. The `./data` folder
+(history) is compatible across versions, and no Koillection data is touched by a rollback.
 
-**Branches.** `main` porte la version stable publiée ; le développement se fait sur des
-branches dédiées (`claude/…`, `feat/…`) fusionnées ensuite dans `main`. Voir le
-[CHANGELOG](CHANGELOG.md).
+**Branches.** `main` carries the published stable version; development happens on dedicated
+branches merged into `main` afterwards. See the [CHANGELOG](CHANGELOG.md).
 
-**Publier une version.** Deux possibilités, au choix :
+**Publishing a version.** Either way works:
 
-- depuis GitHub : onglet **Actions → Release → Run workflow**, saisissez `v1.0.0` ;
-- depuis un terminal : `git tag -a v1.0.0 -m "…" && git push origin v1.0.0`.
+- from GitHub: **Actions → Release → Run workflow**, enter `v1.0.0`;
+- from a terminal: `git tag -a v1.0.0 -m "…" && git push origin v1.0.0`.
 
-Dans les deux cas, le workflow construit l'image `amd64` + `arm64`, la publie sur GHCR et
-crée la release GitHub avec ses notes.
+Both build the `amd64` + `arm64` image, push it to GHCR and create the GitHub release with
+its notes.
 
 ---
 
-## Signaler un problème
+## Reporting a problem
 
-Les [issues](https://github.com/zangets1/scan_koillection/issues) sont ouvertes. Deux
-formulaires guident la saisie (bogue / évolution) et demandent d'emblée ce qui manque
-presque toujours : la version, et le résultat du bouton **« Diagnostiquer la connexion »**.
+[Issues](https://github.com/zangets1/scan_koillection/issues) are open. Two forms guide the
+report and ask up front for what is almost always missing: the version, and the output of
+the **"Diagnostiquer la connexion"** button.
 
-Chaque nouvelle issue reçoit une **première analyse automatique** : nature de la demande,
-vérification qu'elle n'est pas déjà corrigée dans une version publiée, causes de
-configuration connues, et informations manquantes. Cette analyse ne touche jamais au code.
+Every new issue gets a **first automated analysis**: what kind of request it is, whether it
+is already fixed in a published version, known configuration causes, and what information is
+missing. That analysis never touches the code.
 
-La correction, elle, ne se déclenche **que sur demande d'un mainteneur** — étiquette
-`claude-fix` ou commentaire `@claude` — et aboutit toujours à une pull request relue, jamais
-à un commit direct sur `main`.
+Fixes only start **at a maintainer's request** — the `claude-fix` label or an `@claude`
+comment — and always end in a reviewed pull request, never a direct commit on `main`.
 
 <details>
-<summary><b>Activer l'automatisation sur votre propre copie</b></summary>
+<summary><b>Enabling the automation on your own fork</b></summary>
 
-Les deux workflows restent inertes tant que le secret n'existe pas : ils s'arrêtent à la
-première étape en le signalant, sans faire échouer quoi que ce soit.
+Both workflows stay dormant until the secret exists: they stop at the first step and say so,
+without failing anything.
 
 1. **Settings → Secrets and variables → Actions → New repository secret**
-   nommé `ANTHROPIC_API_KEY` ([clé à créer ici](https://console.anthropic.com/settings/keys)).
-2. Pour la correction assistée, créez l'étiquette `claude-fix` (elle peut aussi être créée
-   à la volée en l'appliquant à une issue).
+   named `ANTHROPIC_API_KEY` ([create a key here](https://console.anthropic.com/settings/keys)).
+2. For assisted fixing, create the `claude-fix` label (it can also be created on the fly by
+   applying it to an issue).
 
-L'analyse consomme des jetons d'API à chaque issue ouverte : sur un dépôt public, c'est une
-dépense que n'importe qui peut déclencher. Le tri est volontairement court pour la limiter,
-mais surveillez la consommation, et retirez le secret si elle s'emballe.
+The analysis burns API tokens on every issue opened: on a public repository, that is spending
+anyone can trigger. Triage is deliberately short to limit it, but keep an eye on consumption
+and pull the secret if it runs away.
 
 </details>
 
 ---
 
-## Crédits et licence
+## Credits and licence
 
-- Données : [BnF – Catalogue général](https://api.bnf.fr/fr/api-sru-catalogue-general),
+- Data: [BnF – Catalogue général](https://api.bnf.fr/fr/api-sru-catalogue-general),
   [SUDOC / ABES](https://abes.fr/reseau-sudoc/documentation-technique/),
   [OpenLibrary](https://openlibrary.org/developers/api), [openBD](https://openbd.jp/),
-  résumés Electre diffusés par la BnF.
-- Décodage : [ZXing pour JavaScript](https://github.com/zxing-js/library) (Apache 2.0), embarqué dans `static/vendor/`.
-- [Koillection](https://github.com/benjaminjonard/koillection) de Benjamin Jonard.
+  Electre summaries distributed by the BnF.
+- Decoding: [ZXing for JavaScript](https://github.com/zxing-js/library) (Apache 2.0),
+  vendored in `static/vendor/`.
+- [Koillection](https://github.com/benjaminjonard/koillection) by Benjamin Jonard.
 
-Ce projet est sous licence [MIT](LICENSE). Il n'est affilié ni à la BnF ni à Koillection.
+This project is released under the [MIT licence](LICENSE). It is affiliated with neither the
+BnF nor Koillection.

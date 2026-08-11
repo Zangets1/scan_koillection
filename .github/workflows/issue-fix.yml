@@ -98,7 +98,8 @@ jobs:
                le problème est réel et n'est pas déjà corrigé.
             2. **Reproduis-le d'abord par un test qui échoue**, dans `tests/`.
                Sans reproduction, ne corrige rien : commente l'issue pour
-               expliquer ce qui te manque et arrête-toi là.
+               expliquer ce qui te manque, dans la langue de l'issue, et
+               arrête-toi là.
             3. Corrige à la racine, pas le symptôme. Reste dans le périmètre de
                l'issue : aucune refonte opportuniste.
             4. Fais passer toute la suite : `python -m pytest` et `ruff check app tests`.
@@ -107,8 +108,9 @@ jobs:
 
             Ouvre ensuite une pull request depuis une branche
             `fix/issue-${{ github.event.issue.number }}`, jamais directement sur
-            `main`. Le corps de la pull request explique en français le
-            problème, sa cause, et ce que le test ajouté démontre.
+            `main`. Le corps de la pull request explique le problème, sa cause et
+            ce que le test ajouté démontre, dans la langue de l'issue. Le code et
+            ses commentaires restent en français, comme le reste du dépôt.
 
             Si tu n'arrives pas à reproduire ou si le correctif demande un choix
             qui ne t'appartient pas, n'invente rien : dis-le en commentaire de

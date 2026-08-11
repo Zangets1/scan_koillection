@@ -16,6 +16,9 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
   inconnu.
 - **Formulaires d'issue** (bogue / évolution) réclamant d'emblée la version et le résultat
   du diagnostic de connexion.
+- **README en anglais** (`README.md`), la version française devenant `README.fr.md`. Les
+  deux se renvoient l'une à l'autre. Le tri des issues et la correction assistée répondent
+  désormais dans la langue de l'issue.
 
 ## [1.3.2] — 2026-08-11
 
