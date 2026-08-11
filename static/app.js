@@ -451,6 +451,7 @@ function readForm() {
     volume: number($('f-volume').value),
     language: $('f-language').value.trim() || null,
     cover_url: (state.book && (state.book.cover_url || (state.book.cover_candidates || [])[0])) || null,
+    source_url: (state.book && state.book.source_url) || null,
     read: $('f-read').checked,
     collection: $('f-collection').value || null,
   };

@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
     app.state.lookup = lookup
     app.state.koillection = koillection
     app.state.history = history
-    app.state.importer = Importer(settings, koillection, history, lookup.client)
+    app.state.importer = Importer(settings, koillection, history, lookup)
 
     logger.info(
         "Démarrage — fournisseurs : %s | Koillection : %s",

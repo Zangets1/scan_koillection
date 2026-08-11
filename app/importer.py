@@ -6,12 +6,11 @@ import json
 import logging
 import re
 
-import httpx
-
 from . import covers
 from .config import Settings
 from .history import History
 from .koillection import KoillectionClient, KoillectionError
+from .lookup import LookupService
 from .models import AddRequest, AddResponse
 
 logger = logging.getLogger(__name__)
@@ -29,12 +28,12 @@ class Importer:
         settings: Settings,
         koillection: KoillectionClient,
         history: History,
-        http: httpx.AsyncClient,
+        lookup: LookupService,
     ) -> None:
         self.settings = settings
         self.koillection = koillection
         self.history = history
-        self.http = http
+        self.lookup = lookup
 
     async def add(self, request: AddRequest) -> AddResponse:
         settings = self.settings
@@ -60,9 +59,11 @@ class Importer:
         if series and settings.series_subcollections:
             target, created_collection = await self.koillection.ensure_child_collection(root, series)
 
+        name = build_item_name(request, settings.series_item_name)
+
         # --- doublons -----------------------------------------------------
-        if request.isbn13 and not request.force:
-            duplicate = await self.koillection.find_duplicate(target, request.isbn13)
+        if not request.force:
+            duplicate = await self.koillection.find_duplicate(target, request.isbn13, name)
             if duplicate is not None:
                 return AddResponse(
                     ok=False,
@@ -70,8 +71,7 @@ class Importer:
                     duplicate_of=self.koillection.item_url(duplicate["id"]),
                     collection_title=target.path,
                     message=(
-                        f"« {duplicate.get('name')} » possède déjà cet ISBN dans "
-                        f"« {target.path} »."
+                        f"« {duplicate.get('name')} » figure déjà dans « {target.path} »."
                     ),
                 )
 
@@ -81,7 +81,6 @@ class Importer:
             tag_iris = await self.koillection.ensure_tags(request.genres[:5])
 
         # --- item ----------------------------------------------------------
-        name = build_item_name(request, settings.series_item_name)
         item = await self.koillection.create_item(name, target, tag_iris)
         item_id = item["id"]
         item_iri = f"/api/items/{item_id}"
@@ -98,8 +97,8 @@ class Importer:
             position += 1
 
         # --- couverture -------------------------------------------------------
-        if settings.upload_cover and request.cover_url:
-            cover = await covers.resolve(self.http, [request.cover_url])
+        if settings.upload_cover:
+            cover = await covers.resolve(self.lookup.client, await self._cover_candidates(request))
             if cover is not None:
                 await self.koillection.upload_cover(item_id, cover)
 
@@ -125,6 +124,21 @@ class Importer:
             created_collection=created_collection,
             message=f"« {name} » ajouté dans « {target.path} ».",
         )
+
+    async def _cover_candidates(self, request: AddRequest) -> list[str]:
+        """Reprend toute la liste de couvertures trouvée à la recherche.
+
+        La couverture affichée dans l'interface est la première réellement
+        valide, qui n'est pas forcément celle du fournisseur prioritaire : la
+        BnF répond 500 quand elle n'a pas l'image. Reprendre la liste complète
+        évite de téléverser une couverture différente de celle qui a été vue.
+        """
+        candidates = [request.cover_url] if request.cover_url else []
+        if request.isbn13:
+            result = await self.lookup.lookup(request.isbn13)
+            if result.book:
+                candidates.extend(result.book.cover_candidates)
+        return [url for url in candidates if url]
 
     def _build_data(self, request: AddRequest) -> dict[str, tuple[str, str]]:
         """Associe à chaque champ sa valeur et son type Koillection."""
@@ -156,6 +170,10 @@ class Importer:
         data["read"] = ("1" if request.read else "0", "checkbox")
         if request.synopsis:
             data["synopsis"] = (request.synopsis, "textarea")
+        if request.source_url and request.source_url.startswith("https://"):
+            # Koillection valide le type « link » : une URL malformée ferait
+            # échouer le champ, on ne prend donc que les liens sûrs.
+            data["source"] = (request.source_url, "link")
         return data
 
 

@@ -61,6 +61,8 @@ class AddRequest(BaseModel):
     volume: int | None = None
     language: str | None = None
     cover_url: str | None = None
+    #: Lien vers la notice d'origine, enregistré comme champ « Source »
+    source_url: str | None = None
     read: bool = False
     #: IRI (``/api/collections/<uuid>``) ou identifiant de la collection racine
     collection: str | None = None

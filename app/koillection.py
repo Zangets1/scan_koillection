@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+import unicodedata
 
 import httpx
 
@@ -256,22 +257,33 @@ class KoillectionClient:
     async def collection_items(self, collection: KoiCollection) -> list[dict]:
         return await self._get_all(f"/api/collections/{collection.id}/items")
 
-    async def find_duplicate(self, collection: KoiCollection, isbn13: str) -> dict | None:
-        """Cherche un item de la collection portant déjà cet ISBN.
+    async def find_duplicate(
+        self, collection: KoiCollection, isbn13: str, name: str
+    ) -> dict | None:
+        """Cherche dans la collection un item qui serait déjà ce livre.
 
-        L'API Koillection n'offrant aucun filtre, la recherche se limite à la
-        collection de destination : c'est le cas réel (rescanner deux fois le
-        même livre) et cela évite de parcourir toute la base.
+        L'API Koillection n'expose aucun filtre de recherche. Interroger les
+        champs de chaque item coûterait une requête par item : sur une
+        collection de plusieurs centaines de livres, l'ajout deviendrait
+        interminable. On se sert donc du nom — identique quand le même livre est
+        scanné deux fois — pour ne vérifier l'ISBN que sur les rares homonymes.
         """
-        label = self.settings.labels.get("isbn")
-        if not label:
+        wanted = _normalize_name(name)
+        candidates = [
+            item
+            for item in await self.collection_items(collection)
+            if item.get("id") and _normalize_name(item.get("name", "")) == wanted
+        ]
+        if not candidates:
             return None
-        items = await self.collection_items(collection)
-        for item in items:
-            item_id = item.get("id")
-            if not item_id:
-                continue
-            response = await self.request("GET", f"/api/items/{item_id}/data")
+
+        label = self.settings.labels.get("isbn")
+        if not label or not isbn13:
+            # Sans champ ISBN configuré, l'homonymie exacte fait office de preuve.
+            return candidates[0]
+
+        for item in candidates:
+            response = await self.request("GET", f"/api/items/{item['id']}/data")
             if response.status_code >= 400:
                 continue
             payload = response.json()
@@ -392,6 +404,13 @@ def _build_path(collection: KoiCollection, by_id: dict[str, KoiCollection]) -> s
         parts.append(parent.title)
         parent_id = parent.parent
     return " / ".join(reversed(parts))
+
+
+def _normalize_name(value: str) -> str:
+    """Compare les noms d'items en ignorant casse, accents et ponctuation."""
+    decomposed = unicodedata.normalize("NFKD", value or "")
+    without_accents = "".join(c for c in decomposed if not unicodedata.combining(c))
+    return "".join(c for c in without_accents.casefold() if c.isalnum())
 
 
 def _same_isbn(left: object, right: str) -> bool:

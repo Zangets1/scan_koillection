@@ -27,8 +27,10 @@ Première version publiée.
   d'OpenLibrary, ou à défaut le titre lui-même (« One Piece, Tome 12 : … »). Les
   collections éditoriales numérotées (Folio n°822) ne sont pas confondues avec des séries.
 - **Envoi vers Koillection** : création de l'item, des champs (titre, auteur, éditeur,
-  date, pages, genre, synopsis, série, tome, langue, ISBN, case « Lu »), des tags de genre
-  et téléversement de la couverture.
+  date, pages, genre, synopsis, série, tome, langue, ISBN, lien vers la notice source et
+  case « Lu »), des tags de genre et téléversement de la couverture — celle réellement
+  affichée dans l'interface, les services de couverture renvoyant souvent une image vide
+  avec un code 200.
 - **Sous-collections de série** créées automatiquement sous la collection choisie.
 - **Détection des doublons** sur l'ISBN dans la collection de destination, avec lien vers
   la fiche existante et possibilité de forcer l'ajout.
