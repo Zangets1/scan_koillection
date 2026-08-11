@@ -82,6 +82,84 @@ class KoillectionClient:
         return time.monotonic() - stored_at < CACHE_TTL
 
     # ------------------------------------------------------------------
+    # Diagnostic
+    # ------------------------------------------------------------------
+    async def diagnose(self) -> list[dict]:
+        """Déroule la chaîne de connexion étape par étape.
+
+        « Aucune collection » a trois causes très différentes — serveur
+        injoignable, identifiants refusés, ou compte réellement vide — que
+        l'interface ne savait pas distinguer. Ce contrôle nomme la bonne.
+        """
+        steps: list[dict] = []
+
+        def add(label: str, ok: bool, detail: str) -> None:
+            steps.append({"label": label, "ok": ok, "detail": detail})
+
+        if not self.settings.koillection_configured:
+            manquants = [
+                nom
+                for nom, valeur in (
+                    ("KOILLECTION_URL", self.settings.koillection_url),
+                    ("KOILLECTION_USERNAME", self.settings.koillection_username),
+                    ("KOILLECTION_PASSWORD", self.settings.koillection_password),
+                )
+                if not valeur
+            ]
+            add("Configuration", False, f"Variable(s) non renseignée(s) : {', '.join(manquants)}.")
+            return steps
+        add("Configuration", True, self.settings.koillection_url)
+
+        assert self._client is not None
+        try:
+            response = await self._client.get("/api", follow_redirects=True)
+            joignable = response.status_code < 500
+            add(
+                "Koillection joignable",
+                joignable,
+                f"Réponse HTTP {response.status_code}."
+                if joignable
+                else f"Le serveur répond {response.status_code}.",
+            )
+            if not joignable:
+                return steps
+        except httpx.HTTPError as exc:
+            add(
+                "Koillection joignable",
+                False,
+                f"{exc.__class__.__name__} : {exc}. Vérifiez KOILLECTION_URL — depuis le "
+                f"conteneur, « localhost » désigne le conteneur lui-même, pas le NAS.",
+            )
+            return steps
+
+        try:
+            self._token = None
+            await self._authenticate()
+            add("Identifiants acceptés", True, f"Connecté en tant que « {self.settings.koillection_username} ».")
+        except KoillectionError as exc:
+            add("Identifiants acceptés", False, str(exc))
+            return steps
+
+        try:
+            collections = await self.collections(refresh=True)
+        except KoillectionError as exc:
+            add("Lecture des collections", False, str(exc))
+            return steps
+
+        add(
+            "Collections visibles",
+            bool(collections),
+            f"{len(collections)} collection(s) : {', '.join(c.path for c in collections[:5])}"
+            if collections
+            else (
+                f"Le compte « {self.settings.koillection_username} » n'a aucune collection. "
+                f"Créez-la depuis Koillection en étant connecté avec ce compte précis — une "
+                f"collection appartient à son créateur et reste invisible aux autres comptes."
+            ),
+        )
+        return steps
+
+    # ------------------------------------------------------------------
     # Requêtes de bas niveau
     # ------------------------------------------------------------------
     async def _authenticate(self) -> str:

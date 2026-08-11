@@ -609,6 +609,44 @@ function goHome() {
   loadHistory();
 }
 
+/**
+ * Affiche la chaîne de connexion à Koillection, étape par étape.
+ *
+ * Une liste vide peut vouloir dire trois choses : serveur injoignable,
+ * identifiants refusés, ou compte réellement sans collection. Le message
+ * générique d'avant ne permettait pas de trancher.
+ */
+async function runDiagnostics(silencieux = false) {
+  const bloc = $('diagnostics');
+  try {
+    const result = await api('/api/diagnostics');
+    bloc.innerHTML = '';
+    for (const step of result.steps) {
+      const item = document.createElement('li');
+      item.className = step.ok ? 'ok' : 'ko';
+      const mark = document.createElement('span');
+      mark.className = 'mark';
+      mark.textContent = step.ok ? '✓' : '✗';
+      const corps = document.createElement('span');
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = `${step.label} — `;
+      const detail = document.createElement('span');
+      detail.className = 'detail';
+      detail.textContent = step.detail;
+      corps.append(label, detail);
+      item.append(mark, corps);
+      bloc.append(item);
+    }
+    bloc.hidden = result.steps.length === 0;
+    return result.ok;
+  } catch (error) {
+    if (!silencieux) toast(error.message, true);
+    bloc.hidden = true;
+    return false;
+  }
+}
+
 async function loadCollections(refresh = false) {
   try {
     state.collections = await api(`/api/collections${refresh ? '?refresh=true' : ''}`);
@@ -618,10 +656,13 @@ async function loadCollections(refresh = false) {
   }
   fillCollectionSelect($('collection-select'));
   const preset = state.config && state.config.default_collection;
-  $('collection-hint').textContent = state.collections.length
-    ? (preset ? `Collection par défaut configurée : ${preset}` : '')
-    : "Aucune collection trouvée. Créez-en une dans Koillection (par exemple « Livres »), "
-      + 'puis rechargez la liste ci-dessous.';
+  if (state.collections.length) {
+    $('collection-hint').textContent = preset ? `Collection par défaut configurée : ${preset}` : '';
+    $('diagnostics').hidden = true;
+    return;
+  }
+  $('collection-hint').textContent = 'Aucune collection disponible. Voici où ça bloque :';
+  await runDiagnostics(true);
 }
 
 async function loadHistory() {
@@ -739,6 +780,16 @@ function bind() {
     $('isbn-input').focus();
   });
   $('btn-manual').addEventListener('click', () => manualEntry(''));
+
+  $('btn-diagnose').addEventListener('click', async () => {
+    busy('Vérification de la connexion à Koillection…');
+    // La liste d'abord, le rapport ensuite : c'est l'utilisateur qui a demandé
+    // le diagnostic, il doit rester lisible même quand tout est au vert.
+    await loadCollections(true);
+    const ok = await runDiagnostics();
+    idle();
+    if (ok) toast('Connexion à Koillection opérationnelle.');
+  });
 
   $('btn-reload-collections').addEventListener('click', async () => {
     busy('Lecture des collections…');

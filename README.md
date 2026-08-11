@@ -145,6 +145,21 @@ Une collection ajoutée pendant que le scanner tourne apparaît **au bout d'une 
 ou tout de suite avec le bouton **« ⟳ Recharger depuis Koillection »** sous la liste. La
 liste est mise en cache une minute pour ne pas interroger l'API à chaque affichage.
 
+> **La liste reste vide ?** Le bouton **« Diagnostiquer la connexion »** déroule la chaîne
+> étape par étape et nomme la cause exacte :
+>
+> ```
+> ✓ Configuration — http://192.168.1.10:81
+> ✓ Koillection joignable — Réponse HTTP 200.
+> ✓ Identifiants acceptés — Connecté en tant que « damien ».
+> ✗ Collections visibles — Le compte « damien » n'a aucune collection.
+> ```
+>
+> Les trois pièges habituels : une `KOILLECTION_URL` en `localhost` (qui, depuis le
+> conteneur, désigne le conteneur lui-même et non le NAS), un mot de passe refusé, et
+> surtout **une collection créée sous un autre compte Koillection** — une collection
+> appartient à son créateur et reste invisible aux autres comptes.
+
 ### 4. Ajouter l'application à l'écran d'accueil
 
 C'est une PWA : **Partager → Sur l'écran d'accueil** (iOS) ou **Menu → Installer l'application** (Android).
@@ -276,7 +291,7 @@ Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche 
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 72 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 74 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 

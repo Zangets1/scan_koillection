@@ -449,3 +449,23 @@ select {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Diagnostic de connexion à Koillection ─────────────────────────── */
+.diagnostics {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: .85rem;
+}
+
+.diagnostics li { display: flex; gap: 8px; align-items: flex-start; }
+.diagnostics .mark { flex: 0 0 auto; font-weight: 700; line-height: 1.4; }
+.diagnostics .ok .mark { color: var(--success); }
+.diagnostics .ko .mark { color: var(--danger); }
+.diagnostics .label { font-weight: 600; }
+.diagnostics .detail { color: var(--muted); overflow-wrap: anywhere; }

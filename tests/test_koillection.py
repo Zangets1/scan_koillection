@@ -104,3 +104,44 @@ async def test_le_chemin_hierarchique_est_reconstruit():
     client = client_with_pages(pages)
     chemins = {c.title: c.path for c in await client.collections()}
     assert chemins["One Piece"] == "Livres / Mangas / One Piece"
+
+
+# ── Diagnostic de la chaîne de connexion ──────────────────────────────
+
+
+async def test_diagnostic_signale_les_variables_manquantes(monkeypatch):
+    monkeypatch.setenv("KOILLECTION_URL", "")
+    monkeypatch.setenv("KOILLECTION_USERNAME", "")
+    monkeypatch.setenv("KOILLECTION_PASSWORD", "")
+    steps = await KoillectionClient(Settings()).diagnose()
+    assert [s["ok"] for s in steps] == [False]
+    assert "KOILLECTION_URL" in steps[0]["detail"]
+
+
+async def test_diagnostic_distingue_un_compte_vide_dune_panne(monkeypatch):
+    """Le cas piégeux : tout fonctionne, mais le compte n'a aucune collection."""
+    monkeypatch.setenv("KOILLECTION_URL", "http://koillection")
+    monkeypatch.setenv("KOILLECTION_USERNAME", "scanner")
+    monkeypatch.setenv("KOILLECTION_PASSWORD", "secret")
+
+    client = client_with_pages([[]])
+    client._client = object()  # présence suffisante, les appels sont simulés
+
+    async def fake_get(path, **kwargs):
+        return FakeResponse({}, 200)
+
+    client._client = type("C", (), {"get": staticmethod(fake_get)})()
+
+    async def fake_auth():
+        return "jeton"
+
+    client._authenticate = fake_auth
+
+    steps = await client.diagnose()
+    labels = {s["label"]: s for s in steps}
+    assert labels["Koillection joignable"]["ok"] is True
+    assert labels["Identifiants acceptés"]["ok"] is True
+    assert labels["Collections visibles"]["ok"] is False
+    # Le message doit orienter vers la vraie cause, pas vers une panne réseau.
+    assert "scanner" in labels["Collections visibles"]["detail"]
+    assert "collection appartient à son créateur" in labels["Collections visibles"]["detail"]

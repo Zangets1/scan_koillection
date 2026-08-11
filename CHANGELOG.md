@@ -3,6 +3,18 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.3.0] — 2026-08-11
+
+### Ajouté
+
+- **Diagnostic de la connexion à Koillection.** « Aucune collection trouvée » recouvrait
+  trois situations très différentes — serveur injoignable, identifiants refusés, ou compte
+  réellement sans collection — que rien ne permettait de distinguer à l'écran. La liste
+  vide déclenche maintenant un contrôle affiché étape par étape dans la page, et un bouton
+  **« Diagnostiquer la connexion »** permet de le relancer à tout moment. Le message final
+  nomme la cause, y compris la plus déroutante : une collection créée sous un autre compte
+  Koillection, invisible au compte configuré.
+
 ## [1.2.2] — 2026-08-11
 
 ### Corrigé
@@ -123,6 +135,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.3.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.0
 [1.2.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.2
 [1.2.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.1
 [1.2.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.0

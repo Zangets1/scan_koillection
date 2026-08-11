@@ -198,6 +198,18 @@ async def collections(request: Request, _: Auth, refresh: bool = False) -> list[
     return [entry.model_dump() for entry in entries]
 
 
+@app.get("/api/diagnostics")
+async def diagnostics(request: Request, _: Auth) -> dict:
+    """Pourquoi la liste des collections est-elle vide ? Réponse détaillée."""
+    client: KoillectionClient = request.app.state.koillection
+    try:
+        steps = await client.diagnose()
+    except Exception as exc:  # noqa: BLE001 - un diagnostic ne doit jamais planter
+        logger.exception("Diagnostic Koillection impossible")
+        steps = [{"label": "Diagnostic", "ok": False, "detail": str(exc)}]
+    return {"steps": steps, "ok": all(step["ok"] for step in steps)}
+
+
 @app.post("/api/add", response_model=AddResponse)
 async def add(request: Request, body: AddRequest, _: Auth) -> AddResponse:
     importer: Importer = request.app.state.importer
