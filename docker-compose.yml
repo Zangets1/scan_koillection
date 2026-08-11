@@ -1,16 +1,55 @@
+# Scan Koillection — pile complète, sans aucun fichier annexe.
+#
+# Ce fichier se suffit à lui-même : il peut être collé tel quel dans l'interface
+# Docker d'un NAS (UGREEN, Synology, QNAP…) qui ne permet pas de déposer un
+# `.env` ou un `Caddyfile` à côté. Renseignez simplement les valeurs marquées
+# « À RENSEIGNER » ci-dessous.
+#
+# Si vous préférez un fichier `.env` séparé, remplacez le bloc `environment:`
+# par `env_file: [.env]` et reprenez le modèle commenté `.env.example`.
+
 services:
   scan-koillection:
-    # Image publiée à chaque release (amd64 + arm64, donc compatible NAS ARM).
+    # Épinglez une version (1.2.1, 1.2, 1…) plutôt que `latest` pour maîtriser
+    # les mises à jour et pouvoir revenir en arrière.
     image: ghcr.io/zangets1/scan_koillection:latest
-    # Pour construire depuis les sources à la place, commentez `image:` ci-dessus
-    # et décommentez la ligne suivante :
-    # build: .
     container_name: scan-koillection
     restart: unless-stopped
     ports:
       - "8080:8080"
-    env_file:
-      - .env
+    environment:
+      # ── Koillection — À RENSEIGNER ──────────────────────────────────
+      # URL vue depuis ce conteneur : l'IP du NAS et le port de Koillection
+      # (pas 8080, qui est celui de cet outil).
+      KOILLECTION_URL: "http://192.168.1.10:81"
+      KOILLECTION_USERNAME: "mon_utilisateur"
+      KOILLECTION_PASSWORD: "mon_mot_de_passe"
+      # Collection proposée par défaut : titre exact, chemin ou identifiant.
+      KOILLECTION_DEFAULT_COLLECTION: "Livres"
+
+      # ── Droits sur le dossier ./data ────────────────────────────────
+      # Doivent correspondre au propriétaire du dossier côté NAS, sinon le
+      # conteneur ne peut pas écrire son historique et refuse de démarrer.
+      PUID: "1000"
+      PGID: "1000"
+
+      # ── Réglages courants (valeurs par défaut, à ajuster si besoin) ──
+      # Mot de passe d'accès à l'interface. Vide = aucune authentification.
+      APP_PASSWORD: ""
+      # Indispensable si APP_PASSWORD est défini, sinon chaque redémarrage
+      # déconnecte tout le monde. Générez-la : openssl rand -base64 32
+      SESSION_SECRET: ""
+      # Catalogues interrogés, dans l'ordre de priorité.
+      PROVIDERS: "bnf,sudoc,openlibrary,openbd,googlebooks"
+      # Plafond global d'une recherche, en secondes.
+      LOOKUP_DEADLINE: "4"
+      # Range chaque tome d'une série dans une sous-collection à son nom.
+      SERIES_SUBCOLLECTIONS: "1"
+      # Crée aussi les genres comme tags Koillection.
+      GENRES_AS_TAGS: "1"
+      # Téléverse la couverture trouvée comme image de l'item.
+      UPLOAD_COVER: "1"
+      TZ: "Europe/Paris"
     volumes:
       # Historique des ajouts (SQLite). Un simple dossier suffit.
       - ./data:/data
@@ -21,10 +60,15 @@ services:
       retries: 3
 
   # ────────────────────────────────────────────────────────────────────
-  # HTTPS local, indispensable pour que la caméra fonctionne sur iOS et
-  # Android. Démarrage : docker compose --profile https up -d
-  # Caddy génère un certificat interne ; le téléphone affichera un
-  # avertissement à accepter une fois (ou installez le CA de Caddy).
+  # HTTPS local — indispensable : iOS et Android refusent l'accès à la
+  # caméra sur une page en http://. Sans ce service, seule la saisie
+  # manuelle de l'ISBN fonctionnera depuis un téléphone.
+  #
+  #   docker compose --profile https up -d
+  #   puis https://ADRESSE_DU_NAS:8443
+  #
+  # Le certificat est auto-signé : le téléphone affiche un avertissement à
+  # accepter une fois.
   # ────────────────────────────────────────────────────────────────────
   caddy:
     image: caddy:2-alpine
@@ -33,8 +77,31 @@ services:
     restart: unless-stopped
     ports:
       - "8443:8443"
+    environment:
+      # À RENSEIGNER : exactement l'adresse que vous taperez dans le
+      # navigateur, IP ou nom d'hôte. Le certificat est émis pour elle.
+      NAS_HOST: "192.168.1.10"
+    # La configuration est écrite au démarrage plutôt que montée depuis un
+    # fichier, pour que ce compose reste utilisable seul dans une interface de
+    # NAS. `default_sni` est indispensable : un navigateur qui vise une adresse
+    # IP n'envoie pas de SNI, et Caddy refuserait sinon la poignée de main.
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          '{' \
+          "  default_sni $${NAS_HOST}" \
+          '}' \
+          "https://$${NAS_HOST}:8443 {" \
+          '  tls internal' \
+          '  encode gzip' \
+          '  reverse_proxy scan-koillection:8080' \
+          '}' > /etc/caddy/Caddyfile
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Conserve l'autorité de certification locale : sans cela, un
+      # redémarrage régénère un certificat et le téléphone redemande à
+      # l'utilisateur d'accepter l'avertissement.
       - caddy-data:/data
       - caddy-config:/config
     depends_on:

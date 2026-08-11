@@ -18,7 +18,12 @@ if [ "$(id -u)" = "0" ]; then
         echo "Si l'application ne démarre pas, exécutez sur l'hôte :" >&2
         echo "  chown -R $PUID:$PGID ./data" >&2
     fi
-    exec setpriv --reuid "$PUID" --regid "$PGID" --init-groups "$@"
+    # `--clear-groups` plutôt que `--init-groups` : ce dernier exige que l'UID
+    # existe dans /etc/passwd, ce qui n'est jamais le cas des identifiants
+    # propres au NAS (1000, 1026…) et faisait boucler le conteneur. Aucun groupe
+    # secondaire n'est nécessaire : l'application ne lit que son propre code et
+    # n'écrit que dans $DATA_DIR, dont le propriétaire vient d'être ajusté.
+    exec setpriv --reuid "$PUID" --regid "$PGID" --clear-groups "$@"
 fi
 
 # Conteneur déjà lancé sous un utilisateur non privilégié (docker run --user …).

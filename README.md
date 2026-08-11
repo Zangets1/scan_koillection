@@ -56,13 +56,24 @@ BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
 
 ### 1. Docker Compose
 
+Le [`docker-compose.yml`](docker-compose.yml) **se suffit à lui-même** : la configuration
+est écrite dedans, pas dans un `.env` à côté. Il peut donc être collé tel quel dans
+l'interface Docker d'un NAS (UGREEN, Synology, QNAP…) qui ne permet pas de déposer des
+fichiers annexes. Seules quatre valeurs sont à renseigner : l'URL de Koillection, vos
+identifiants, et l'adresse du NAS pour le HTTPS.
+
+En ligne de commande :
+
 ```bash
 mkdir -p /volume1/docker/scan-koillection && cd $_
 curl -O https://raw.githubusercontent.com/zangets1/scan_koillection/main/docker-compose.yml
-curl -o .env https://raw.githubusercontent.com/zangets1/scan_koillection/main/.env.example
-nano .env          # renseignez au minimum les trois variables KOILLECTION_*
-docker compose up -d
+nano docker-compose.yml     # les lignes « À RENSEIGNER »
+docker compose --profile https up -d
 ```
+
+> Si vous préférez un `.env` séparé, remplacez le bloc `environment:` par
+> `env_file: [.env]` et partez du [`.env.example`](.env.example), qui documente
+> **toutes** les variables disponibles.
 
 L'interface répond sur `http://IP_DU_NAS:8080`.
 
@@ -88,19 +99,25 @@ Trois solutions, de la plus simple à la plus propre :
 <details>
 <summary><b>a. Le reverse proxy fourni (Caddy, certificat auto-signé)</b></summary>
 
+Il est déjà dans le `docker-compose.yml`. Renseignez `NAS_HOST` avec **exactement**
+l'adresse que vous taperez dans le navigateur — le certificat est émis pour elle — puis :
+
 ```bash
-curl -O https://raw.githubusercontent.com/zangets1/scan_koillection/main/Caddyfile
 docker compose --profile https up -d
 ```
 
 Rendez-vous sur `https://IP_DU_NAS:8443` et acceptez l'avertissement de sécurité une fois.
 Sur iOS, il faut parfois appuyer sur « Afficher les détails » → « visiter ce site web ».
+
+Aucun fichier de configuration à créer : Caddy écrit la sienne au démarrage. Le
+[`Caddyfile`](Caddyfile) du dépôt n'est là que si vous préférez un fichier séparé.
 </details>
 
 <details>
 <summary><b>b. Un vrai certificat (recommandé si vous avez un domaine)</b></summary>
 
-Remplacez le contenu du `Caddyfile` par :
+Utilisez le [`Caddyfile`](Caddyfile) du dépôt, monté dans le conteneur Caddy en
+remplacement du bloc `command:`, avec pour contenu :
 
 ```
 scan.mondomaine.fr {
@@ -127,7 +144,8 @@ Elle s'ouvre alors en plein écran, sans barre d'adresse.
 
 ## Configuration
 
-Tout passe par le fichier `.env` ([modèle commenté](.env.example)).
+Tout passe par des variables d'environnement, déclarées soit directement dans le
+`docker-compose.yml`, soit dans un `.env` séparé ([modèle commenté](.env.example)).
 
 ### L'essentiel
 

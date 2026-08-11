@@ -3,6 +3,26 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.2.1] — 2026-08-11
+
+### Corrigé
+
+- **Le HTTPS ne fonctionnait pas du tout.** Le `Caddyfile` livré déclarait un site sans
+  nom d'hôte (`:8443`), si bien que Caddy n'avait aucun certificat à présenter et
+  interrompait chaque poignée de main. Il faut à la fois une adresse explicite
+  (`NAS_HOST`) et l'option `default_sni`, un navigateur qui vise une adresse IP n'envoyant
+  pas d'indication de nom de serveur. Vérifié de bout en bout, requête sans SNI comprise.
+- **Le conteneur bouclait au démarrage dès que `PUID` était renseigné**, c'est-à-dire dans
+  le cas le plus courant sur un NAS : `setpriv --init-groups` exige que l'identifiant
+  existe dans `/etc/passwd`, ce qui n'est jamais vrai pour un UID propre au NAS.
+
+### Modifié
+
+- **Le `docker-compose.yml` se suffit désormais à lui-même** : configuration en
+  `environment:` et configuration Caddy écrite au démarrage, sans `.env` ni `Caddyfile` à
+  déposer à côté. Il peut être collé tel quel dans l'interface Docker d'un NAS. Le
+  `.env.example` reste la référence complète des variables.
+
 ## [1.2.0] — 2026-08-11
 
 ### Ajouté
@@ -83,6 +103,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.2.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.1
 [1.2.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.0
 [1.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.0.0
