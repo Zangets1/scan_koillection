@@ -19,8 +19,13 @@ services:
       - "8080:8080"
     environment:
       # ── Koillection — À RENSEIGNER ──────────────────────────────────
-      # URL vue depuis ce conteneur : l'IP du NAS et le port de Koillection
-      # (pas 8080, qui est celui de cet outil).
+      # URL vue depuis ce conteneur : l'IP du NAS et le port publié par
+      # Koillection (pas 8080, qui est celui de cet outil).
+      #
+      # Pour utiliser plutôt le nom du conteneur (« http://koillection:80 »),
+      # il faut que les deux partagent un réseau Docker : voir le bloc
+      # « networks » en bas de ce fichier. Sans cela le nom reste introuvable,
+      # chaque pile Compose créant son propre réseau isolé.
       KOILLECTION_URL: "http://192.168.1.10:81"
       KOILLECTION_USERNAME: "mon_utilisateur"
       KOILLECTION_PASSWORD: "mon_mot_de_passe"
@@ -53,6 +58,8 @@ services:
     volumes:
       # Historique des ajouts (SQLite). Un simple dossier suffit.
       - ./data:/data
+    # Décommentez pour rejoindre le réseau de Koillection (voir plus bas).
+    # networks: [default, koillection]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=4)"]
       interval: 30s
@@ -110,3 +117,20 @@ services:
 volumes:
   caddy-data:
   caddy-config:
+
+# ──────────────────────────────────────────────────────────────────────
+# Joindre Koillection par son nom de conteneur
+#
+# Utile si Koillection tourne dans une autre pile Docker sur le même NAS.
+# Repérez le nom de son réseau — il se termine généralement par « _default » :
+#
+#     docker network ls
+#
+# puis décommentez le bloc ci-dessous ainsi que la ligne « networks: » du
+# service scan-koillection, et mettez KOILLECTION_URL à « http://koillection:80 »
+# (le nom du service ou du conteneur Koillection, et son port interne).
+# ──────────────────────────────────────────────────────────────────────
+# networks:
+#   koillection:
+#     external: true
+#     name: koillection_default

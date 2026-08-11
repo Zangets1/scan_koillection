@@ -16,6 +16,7 @@ import asyncio
 import logging
 import time
 import unicodedata
+from urllib.parse import urlparse
 
 import httpx
 
@@ -124,12 +125,7 @@ class KoillectionClient:
             if not joignable:
                 return steps
         except httpx.HTTPError as exc:
-            add(
-                "Koillection joignable",
-                False,
-                f"{exc.__class__.__name__} : {exc}. Vérifiez KOILLECTION_URL — depuis le "
-                f"conteneur, « localhost » désigne le conteneur lui-même, pas le NAS.",
-            )
+            add("Koillection joignable", False, _explain_network_error(exc, self.settings.koillection_url))
             return steps
 
         try:
@@ -490,6 +486,33 @@ def _build_path(collection: KoiCollection, by_id: dict[str, KoiCollection]) -> s
         parts.append(parent.title)
         parent_id = parent.parent
     return " / ".join(reversed(parts))
+
+
+#: Formulations d'échec de résolution DNS selon la plateforme.
+_DNS_ERRORS = ("name or service not known", "nodename nor servname", "getaddrinfo failed", "no address")
+
+
+def _explain_network_error(exc: Exception, url: str) -> str:
+    """Traduit une erreur réseau en cause probable, plutôt qu'en trace technique."""
+    message = str(exc).lower()
+    host = urlparse(url).hostname or url
+
+    if any(marque in message for marque in _DNS_ERRORS):
+        return (
+            f"Le nom « {host} » est introuvable. S'il s'agit d'un autre conteneur, les deux "
+            f"ne partagent pas le même réseau Docker : chaque pile Compose crée le sien. "
+            f"Rattachez-les (voir les lignes « networks » du docker-compose.yml) ou "
+            f"utilisez l'adresse IP du NAS et le port publié par Koillection."
+        )
+    if "connection refused" in message or "all connection attempts failed" in message:
+        return (
+            f"Rien ne répond sur {url}. Vérifiez le port — celui de Koillection, pas celui "
+            f"du scanner — et notez que « localhost » désigne, depuis le conteneur, le "
+            f"conteneur lui-même et non le NAS."
+        )
+    if "timed out" in message or isinstance(exc, httpx.TimeoutException):
+        return f"{url} ne répond pas dans le délai imparti. Pare-feu ou serveur surchargé ?"
+    return f"{exc.__class__.__name__} : {exc}"
 
 
 def _normalize_name(value: str) -> str:

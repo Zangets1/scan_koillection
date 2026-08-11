@@ -3,6 +3,15 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.3.1] — 2026-08-11
+
+### Ajouté
+
+- Le diagnostic distingue désormais **un nom d'hôte non résolu** d'un port fermé et nomme
+  la cause : deux piles Compose ne partagent pas leur réseau, si bien qu'une URL du type
+  `http://koillection:80` reste introuvable tant que les conteneurs n'ont pas été
+  rattachés. Le `docker-compose.yml` et le README expliquent comment le faire.
+
 ## [1.3.0] — 2026-08-11
 
 ### Ajouté
@@ -135,6 +144,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.3.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.1
 [1.3.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.0
 [1.2.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.2
 [1.2.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.1

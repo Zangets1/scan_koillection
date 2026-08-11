@@ -155,10 +155,45 @@ liste est mise en cache une minute pour ne pas interroger l'API à chaque affich
 > ✗ Collections visibles — Le compte « damien » n'a aucune collection.
 > ```
 >
-> Les trois pièges habituels : une `KOILLECTION_URL` en `localhost` (qui, depuis le
-> conteneur, désigne le conteneur lui-même et non le NAS), un mot de passe refusé, et
-> surtout **une collection créée sous un autre compte Koillection** — une collection
-> appartient à son créateur et reste invisible aux autres comptes.
+> Les pièges habituels :
+>
+> - **`http://koillection:80` sans réseau partagé.** Chaque pile Compose crée son propre
+>   réseau : le nom du conteneur Koillection n'est pas résolu depuis le scanner. Voir
+>   ci-dessous.
+> - **`localhost` ou `127.0.0.1`** qui, depuis le conteneur, désigne le conteneur lui-même
+>   et non le NAS.
+> - **Une collection créée sous un autre compte Koillection** : elle appartient à son
+>   créateur et reste invisible aux autres comptes.
+>
+> `KOILLECTION_DEFAULT_COLLECTION` n'est jamais en cause : cette variable présélectionne
+> une entrée dans la liste, elle ne la filtre pas.
+
+#### Joindre Koillection par son nom de conteneur
+
+Si Koillection tourne dans une autre pile Docker sur le même NAS, `http://koillection:80`
+ne fonctionnera **pas** tel quel : les deux piles ont chacune leur réseau. Repérez celui de
+Koillection…
+
+```bash
+docker network ls          # cherchez par exemple « koillection_default »
+```
+
+…puis, dans le `docker-compose.yml` du scanner, décommentez la ligne `networks:` du service
+et le bloc en fin de fichier :
+
+```yaml
+services:
+  scan-koillection:
+    networks: [default, koillection]
+
+networks:
+  koillection:
+    external: true
+    name: koillection_default    # le nom relevé ci-dessus
+```
+
+L'alternative, tout aussi valable et sans configuration réseau : garder l'IP du NAS et le
+port publié par Koillection.
 
 ### 4. Ajouter l'application à l'écran d'accueil
 
@@ -291,7 +326,7 @@ Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche 
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 74 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 79 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 

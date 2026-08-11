@@ -1,5 +1,6 @@
 """Client Koillection : pagination et fraîcheur du cache."""
 
+import httpx
 import pytest
 
 from app import koillection as koi_module
@@ -145,3 +146,28 @@ async def test_diagnostic_distingue_un_compte_vide_dune_panne(monkeypatch):
     # Le message doit orienter vers la vraie cause, pas vers une panne réseau.
     assert "scanner" in labels["Collections visibles"]["detail"]
     assert "collection appartient à son créateur" in labels["Collections visibles"]["detail"]
+
+
+@pytest.mark.parametrize(
+    ("message", "attendu"),
+    [
+        ("[Errno -2] Name or service not known", "même réseau Docker"),
+        ("nodename nor servname provided", "même réseau Docker"),
+        ("All connection attempts failed", "Rien ne répond"),
+        ("Connection refused", "Rien ne répond"),
+    ],
+)
+def test_les_erreurs_reseau_sont_traduites_en_cause_probable(message, attendu):
+    from app.koillection import _explain_network_error
+
+    detail = _explain_network_error(httpx.ConnectError(message), "http://koillection:80")
+    assert attendu in detail
+
+
+def test_un_nom_introuvable_est_cite_dans_le_message():
+    from app.koillection import _explain_network_error
+
+    detail = _explain_network_error(
+        httpx.ConnectError("[Errno -2] Name or service not known"), "http://koillection:80"
+    )
+    assert "« koillection »" in detail
