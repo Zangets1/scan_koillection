@@ -1,0 +1,34 @@
+name: Proposer une évolution
+description: Une idée pour rendre l'outil plus utile
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: besoin
+    attributes:
+      label: Le besoin
+      description: >
+        Décrivez la situation concrète qui pose problème aujourd'hui, plutôt que
+        la solution technique. C'est le besoin qui permet de trouver la bonne
+        réponse.
+      placeholder: >
+        Quand j'ajoute une intégrale, je dois retirer à la main le numéro de tome…
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Ce que vous imaginez
+      description: Facultatif, si vous avez déjà une idée en tête.
+
+  - type: dropdown
+    id: portee
+    attributes:
+      label: Cela concerne
+      options:
+        - Le scanner (caméra, lecture du code-barres)
+        - Les métadonnées (BnF, SUDOC, OpenLibrary…)
+        - L'envoi vers Koillection (champs, collections, séries)
+        - L'interface
+        - L'installation (Docker, NAS, HTTPS)
+        - Autre

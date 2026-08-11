@@ -394,6 +394,39 @@ crée la release GitHub avec ses notes.
 
 ---
 
+## Signaler un problème
+
+Les [issues](https://github.com/zangets1/scan_koillection/issues) sont ouvertes. Deux
+formulaires guident la saisie (bogue / évolution) et demandent d'emblée ce qui manque
+presque toujours : la version, et le résultat du bouton **« Diagnostiquer la connexion »**.
+
+Chaque nouvelle issue reçoit une **première analyse automatique** : nature de la demande,
+vérification qu'elle n'est pas déjà corrigée dans une version publiée, causes de
+configuration connues, et informations manquantes. Cette analyse ne touche jamais au code.
+
+La correction, elle, ne se déclenche **que sur demande d'un mainteneur** — étiquette
+`claude-fix` ou commentaire `@claude` — et aboutit toujours à une pull request relue, jamais
+à un commit direct sur `main`.
+
+<details>
+<summary><b>Activer l'automatisation sur votre propre copie</b></summary>
+
+Les deux workflows restent inertes tant que le secret n'existe pas : ils s'arrêtent à la
+première étape en le signalant, sans faire échouer quoi que ce soit.
+
+1. **Settings → Secrets and variables → Actions → New repository secret**
+   nommé `ANTHROPIC_API_KEY` ([clé à créer ici](https://console.anthropic.com/settings/keys)).
+2. Pour la correction assistée, créez l'étiquette `claude-fix` (elle peut aussi être créée
+   à la volée en l'appliquant à une issue).
+
+L'analyse consomme des jetons d'API à chaque issue ouverte : sur un dépôt public, c'est une
+dépense que n'importe qui peut déclencher. Le tri est volontairement court pour la limiter,
+mais surveillez la consommation, et retirez le secret si elle s'emballe.
+
+</details>
+
+---
+
 ## Crédits et licence
 
 - Données : [BnF – Catalogue général](https://api.bnf.fr/fr/api-sru-catalogue-general),

@@ -3,6 +3,20 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## Non publié
+
+### Ajouté
+
+- **Tri automatique des issues** : chaque nouvelle issue reçoit une analyse — nature de la
+  demande, vérification qu'elle n'est pas déjà corrigée, causes de configuration connues,
+  informations manquantes — et une étiquette. Ce workflow ne modifie jamais le code.
+- **Correction assistée sur demande** (étiquette `claude-fix` ou commentaire `@claude` d'un
+  mainteneur) : reproduction par un test qui échoue, correctif, suite de tests, puis pull
+  request. Jamais de commit direct sur `main`, et rien ne se déclenche à l'initiative d'un
+  inconnu.
+- **Formulaires d'issue** (bogue / évolution) réclamant d'emblée la version et le résultat
+  du diagnostic de connexion.
+
 ## [1.3.2] — 2026-08-11
 
 ### Modifié

@@ -1,0 +1,69 @@
+name: Signaler un bogue
+description: Quelque chose ne fonctionne pas comme prévu
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de prendre le temps de remonter le problème.
+
+        **Avant tout** : si la liste des collections est vide ou si l'ajout
+        échoue, ouvrez l'application et appuyez sur **« Diagnostiquer la
+        connexion »**. Le résultat suffit le plus souvent à identifier la cause,
+        et il est demandé plus bas.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Visible en bas de la page d'accueil, ou dans l'étiquette de l'image Docker.
+      placeholder: "1.3.2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: probleme
+    attributes:
+      label: Ce qui se passe
+      description: Décrivez le comportement observé, puis celui que vous attendiez.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Comment le reproduire
+      description: Les étapes, et l'ISBN concerné s'il s'agit d'un livre précis.
+      placeholder: |
+        1. Je scanne l'ISBN 978…
+        2. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Résultat du diagnostic
+      description: Le contenu du bloc « Diagnostiquer la connexion », si le problème touche Koillection.
+      render: text
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Journaux du conteneur
+      description: "`docker logs scan-koillection --tail 50`. Retirez vos identifiants s'il y en a."
+      render: shell
+
+  - type: dropdown
+    id: contexte
+    attributes:
+      label: Où
+      multiple: true
+      options:
+        - iPhone / iPad (Safari)
+        - Android (Chrome)
+        - Ordinateur
+        - NAS Synology
+        - NAS UGREEN
+        - NAS QNAP
+        - Autre / Docker classique
