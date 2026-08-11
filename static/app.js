@@ -602,6 +602,13 @@ function fillCollectionSelect(select) {
   state.collectionId = select.value;
 }
 
+/** Affiche l'accueil et resynchronise ce qui a pu changer dans Koillection. */
+function goHome() {
+  show('view-home');
+  loadCollections();
+  loadHistory();
+}
+
 async function loadCollections(refresh = false) {
   try {
     state.collections = await api(`/api/collections${refresh ? '?refresh=true' : ''}`);
@@ -613,7 +620,8 @@ async function loadCollections(refresh = false) {
   const preset = state.config && state.config.default_collection;
   $('collection-hint').textContent = state.collections.length
     ? (preset ? `Collection par défaut configurée : ${preset}` : '')
-    : "Aucune collection : créez-en une dans Koillection (par exemple « Livres »).";
+    : "Aucune collection trouvée. Créez-en une dans Koillection (par exemple « Livres »), "
+      + 'puis rechargez la liste ci-dessous.';
 }
 
 async function loadHistory() {
@@ -723,7 +731,7 @@ function bind() {
   });
 
   $('btn-scan').addEventListener('click', () => { state.continuous = false; startScanner(); });
-  $('btn-scan-close').addEventListener('click', () => { stopScanner(); show('view-home'); });
+  $('btn-scan-close').addEventListener('click', () => { stopScanner(); goHome(); });
   $('btn-torch').addEventListener('click', toggleTorch);
   $('btn-scan-manual').addEventListener('click', () => {
     stopScanner();
@@ -731,6 +739,18 @@ function bind() {
     $('isbn-input').focus();
   });
   $('btn-manual').addEventListener('click', () => manualEntry(''));
+
+  $('btn-reload-collections').addEventListener('click', async () => {
+    busy('Lecture des collections…');
+    await loadCollections(true);
+    idle();
+    toast(
+      state.collections.length
+        ? `${state.collections.length} collection(s) trouvée(s).`
+        : 'Toujours aucune collection dans Koillection.',
+      !state.collections.length,
+    );
+  });
 
   $('btn-refresh').addEventListener('click', async () => {
     busy('Rafraîchissement…');
@@ -761,14 +781,14 @@ function bind() {
 
   $('f-series').addEventListener('input', updateSeriesHint);
   $('book-form').addEventListener('submit', submitBook);
-  $('btn-cancel').addEventListener('click', () => show('view-home'));
-  $('btn-book-back').addEventListener('click', () => show('view-home'));
+  $('btn-cancel').addEventListener('click', goHome);
+  $('btn-book-back').addEventListener('click', goHome);
 
   $('btn-scan-next').addEventListener('click', () => { $('isbn-input').value = ''; startScanner(); });
   $('btn-home').addEventListener('click', () => {
     $('isbn-input').value = '';
     $('isbn-hint').textContent = '';
-    show('view-home');
+    goHome();
   });
 
   // La caméra doit être relâchée dès que l'onglet passe en arrière-plan :

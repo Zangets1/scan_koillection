@@ -135,7 +135,17 @@ La plupart des NAS (Synology, UGREEN, TrueNAS) savent aussi le faire depuis leur
 Avec Tailscale, `tailscale serve` fournit un nom en `*.ts.net` et un certificat valide sans rien exposer sur Internet.
 </details>
 
-### 3. Ajouter l'application à l'écran d'accueil
+### 3. Créer une collection dans Koillection
+
+Le scanner ne crée pas de collection racine : il range les livres dans celle que vous
+choisissez. Créez-en une (« Livres », « Mangas »…) depuis Koillection avant le premier
+scan, sinon la liste déroulante restera vide.
+
+Une collection ajoutée pendant que le scanner tourne apparaît **au bout d'une minute**,
+ou tout de suite avec le bouton **« ⟳ Recharger depuis Koillection »** sous la liste. La
+liste est mise en cache une minute pour ne pas interroger l'API à chaque affichage.
+
+### 4. Ajouter l'application à l'écran d'accueil
 
 C'est une PWA : **Partager → Sur l'écran d'accueil** (iOS) ou **Menu → Installer l'application** (Android).
 Elle s'ouvre alors en plein écran, sans barre d'adresse.
@@ -266,7 +276,7 @@ Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche 
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 64 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 72 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 

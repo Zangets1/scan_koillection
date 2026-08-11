@@ -3,6 +3,26 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.2.2] — 2026-08-11
+
+### Corrigé
+
+- **Une collection créée dans Koillection après le démarrage n'apparaissait jamais** dans
+  la liste du scanner : son cache n'avait aucune durée de vie et n'était vidé qu'au
+  redémarrage du conteneur. Il expire désormais au bout d'une minute, et la liste est
+  aussi resynchronisée à chaque retour sur l'accueil.
+- La pagination de l'API Koillection ne supposait plus rien sur la taille des pages
+  décidée par le serveur : elle s'arrêtait dès qu'une page comptait moins de 30 éléments.
+  Le comportement était correct avec la valeur actuelle, mais aurait silencieusement
+  masqué des collections si elle changeait.
+
+### Ajouté
+
+- Bouton **« ⟳ Recharger depuis Koillection »** sous la liste des collections, bien plus
+  visible que l'icône de la barre de titre, avec un retour explicite sur le nombre de
+  collections trouvées.
+- Message d'aide plus clair quand aucune collection n'existe encore.
+
 ## [1.2.1] — 2026-08-11
 
 ### Corrigé
@@ -103,6 +123,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.2.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.2
 [1.2.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.1
 [1.2.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.0
 [1.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.1.0

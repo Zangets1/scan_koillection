@@ -25,7 +25,10 @@ from .models import KoiCollection
 
 logger = logging.getLogger(__name__)
 
-PAGE_SIZE = 30
+#: Durée de validité du cache des collections et des tags. Assez courte pour
+#: qu'une collection créée dans Koillection apparaisse presque aussitôt dans le
+#: scanner, assez longue pour ne pas réinterroger l'API à chaque affichage.
+CACHE_TTL = 60.0
 
 
 class KoillectionError(RuntimeError):
@@ -40,7 +43,9 @@ class KoillectionClient:
         self._token_at: float = 0.0
         self._lock = asyncio.Lock()
         self._collections: list[KoiCollection] | None = None
+        self._collections_at: float = 0.0
         self._tags: dict[str, str] | None = None
+        self._tags_at: float = 0.0
 
     # ------------------------------------------------------------------
     # Cycle de vie
@@ -72,6 +77,9 @@ class KoillectionClient:
     def invalidate_cache(self) -> None:
         self._collections = None
         self._tags = None
+
+    def _is_fresh(self, stored_at: float) -> bool:
+        return time.monotonic() - stored_at < CACHE_TTL
 
     # ------------------------------------------------------------------
     # Requêtes de bas niveau
@@ -163,8 +171,6 @@ class KoillectionClient:
             if not payload:
                 break
             results.extend(payload)
-            if len(payload) < PAGE_SIZE:
-                break
             page += 1
         return results
 
@@ -172,7 +178,7 @@ class KoillectionClient:
     # Collections
     # ------------------------------------------------------------------
     async def collections(self, refresh: bool = False) -> list[KoiCollection]:
-        if self._collections is not None and not refresh:
+        if self._collections is not None and not refresh and self._is_fresh(self._collections_at):
             return self._collections
 
         raw = await self._get_all("/api/collections")
@@ -193,6 +199,7 @@ class KoillectionClient:
             collection.path = _build_path(collection, by_id)
 
         self._collections = sorted(by_id.values(), key=lambda c: c.path.casefold())
+        self._collections_at = time.monotonic()
         return self._collections
 
     async def find_collection(self, reference: str) -> KoiCollection | None:
@@ -351,9 +358,10 @@ class KoillectionClient:
     # Tags
     # ------------------------------------------------------------------
     async def tags(self, refresh: bool = False) -> dict[str, str]:
-        if self._tags is not None and not refresh:
+        if self._tags is not None and not refresh and self._is_fresh(self._tags_at):
             return self._tags
         raw = await self._get_all("/api/tags")
+        self._tags_at = time.monotonic()
         self._tags = {
             (entry.get("label") or "").casefold(): f"/api/tags/{entry['id']}"
             for entry in raw

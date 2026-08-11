@@ -13,7 +13,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
-<link rel="stylesheet" href="/styles.css?v=2">
+<link rel="stylesheet" href="/styles.css?v=3">
 </head>
 <body>
 
@@ -79,6 +79,9 @@
         <select id="collection-select"></select>
       </label>
       <p class="muted small" id="collection-hint"></p>
+      <button class="btn btn-ghost btn-sm" type="button" id="btn-reload-collections">
+        ⟳ Recharger depuis Koillection
+      </button>
     </div>
 
     <div class="card">
@@ -230,6 +233,6 @@
 <div id="busy" class="busy" hidden><div class="spinner" aria-hidden="true"></div><p id="busy-label">Recherche…</p></div>
 
 <script src="/vendor/zxing.min.js"></script>
-<script src="/app.js?v=2"></script>
+<script src="/app.js?v=3"></script>
 </body>
 </html>

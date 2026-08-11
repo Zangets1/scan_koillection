@@ -1,10 +1,10 @@
 /* Service worker minimal : coquille applicative hors ligne, API toujours en direct. */
-const CACHE = 'scan-koillection-v2';
+const CACHE = 'scan-koillection-v3';
 const SHELL = [
   '/',
   '/index.html',
-  '/styles.css?v=2',
-  '/app.js?v=2',
+  '/styles.css?v=3',
+  '/app.js?v=3',
   '/vendor/zxing.min.js',
   '/manifest.webmanifest',
   '/icons/icon.svg',
