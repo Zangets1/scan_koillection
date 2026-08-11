@@ -145,7 +145,9 @@ async def healthz() -> dict:
 # Recherche
 # ----------------------------------------------------------------------
 @app.get("/api/lookup/{raw_isbn}", response_model=LookupResponse)
-async def lookup_isbn(request: Request, raw_isbn: str, refresh: bool = False) -> LookupResponse:
+async def lookup_isbn(
+    request: Request, raw_isbn: str, _: Auth, refresh: bool = False
+) -> LookupResponse:
     try:
         isbn13 = isbn_utils.normalize(raw_isbn)
     except isbn_utils.InvalidISBN as exc:
@@ -164,7 +166,7 @@ async def lookup_isbn(request: Request, raw_isbn: str, refresh: bool = False) ->
 
 
 @app.get("/api/cover/{raw_isbn}")
-async def cover(request: Request, raw_isbn: str) -> Response:
+async def cover(request: Request, raw_isbn: str, _: Auth) -> Response:
     try:
         isbn13 = isbn_utils.normalize(raw_isbn)
     except isbn_utils.InvalidISBN as exc:
