@@ -59,8 +59,33 @@ BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
 Le [`docker-compose.yml`](docker-compose.yml) **se suffit à lui-même** : la configuration
 est écrite dedans, pas dans un `.env` à côté. Il peut donc être collé tel quel dans
 l'interface Docker d'un NAS (UGREEN, Synology, QNAP…) qui ne permet pas de déposer des
-fichiers annexes. Seules quatre valeurs sont à renseigner : l'URL de Koillection, vos
-identifiants, et l'adresse du NAS pour le HTTPS.
+fichiers annexes.
+
+Il joint Koillection **par son nom de conteneur** (`http://koillection:80`), ce qui suppose
+un réseau Docker partagé. Une seule chose est donc à vérifier avant de démarrer : le nom du
+réseau de votre Koillection, en bas du fichier.
+
+```bash
+docker network ls        # relevez « koillection_default » ou son équivalent
+```
+
+```yaml
+networks:
+  koillection:
+    external: true
+    name: koillection_default    # le nom relevé ci-dessus
+```
+
+Si le nom est faux, Compose refuse de démarrer avec un message sans ambiguïté
+(`network … declared as external, but could not be found`) — vous ne resterez pas devant
+une liste de collections vide sans savoir pourquoi.
+
+> **Vous préférez éviter la configuration réseau ?** Remplacez simplement `KOILLECTION_URL`
+> par l'IP du NAS et le port publié par Koillection (`http://192.168.1.10:81`), et retirez
+> le bloc `networks` ainsi que les deux lignes `networks:` du service.
+
+Les autres valeurs à renseigner : vos identifiants Koillection, `PUID`/`PGID`, et
+l'adresse du NAS pour le HTTPS.
 
 En ligne de commande :
 
@@ -168,32 +193,16 @@ liste est mise en cache une minute pour ne pas interroger l'API à chaque affich
 > `KOILLECTION_DEFAULT_COLLECTION` n'est jamais en cause : cette variable présélectionne
 > une entrée dans la liste, elle ne la filtre pas.
 
-#### Joindre Koillection par son nom de conteneur
+#### Le nom de conteneur ne se résout pas ?
 
-Si Koillection tourne dans une autre pile Docker sur le même NAS, `http://koillection:80`
-ne fonctionnera **pas** tel quel : les deux piles ont chacune leur réseau. Repérez celui de
-Koillection…
+`http://koillection:80` ne fonctionne que si les deux piles partagent un réseau : chaque
+pile Compose crée le sien. Vérifiez le bloc `networks` en fin de `docker-compose.yml`, et
+que le conteneur a bien rejoint les deux réseaux :
 
 ```bash
-docker network ls          # cherchez par exemple « koillection_default »
+docker inspect scan-koillection --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+# → koillection_default scan_default
 ```
-
-…puis, dans le `docker-compose.yml` du scanner, décommentez la ligne `networks:` du service
-et le bloc en fin de fichier :
-
-```yaml
-services:
-  scan-koillection:
-    networks: [default, koillection]
-
-networks:
-  koillection:
-    external: true
-    name: koillection_default    # le nom relevé ci-dessus
-```
-
-L'alternative, tout aussi valable et sans configuration réseau : garder l'IP du NAS et le
-port publié par Koillection.
 
 ### 4. Ajouter l'application à l'écran d'accueil
 

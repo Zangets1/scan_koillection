@@ -2,34 +2,39 @@
 #
 # Ce fichier se suffit à lui-même : il peut être collé tel quel dans l'interface
 # Docker d'un NAS (UGREEN, Synology, QNAP…) qui ne permet pas de déposer un
-# `.env` ou un `Caddyfile` à côté. Renseignez simplement les valeurs marquées
-# « À RENSEIGNER » ci-dessous.
+# `.env` ou un `Caddyfile` à côté. Renseignez les valeurs marquées « À RENSEIGNER ».
+#
+# Cette version joint Koillection **par son nom de conteneur**. Elle suppose donc
+# que les deux piles partagent un réseau Docker : voir le bloc `networks` en fin
+# de fichier, c'est la seule chose à vérifier avant de démarrer.
 #
 # Si vous préférez un fichier `.env` séparé, remplacez le bloc `environment:`
 # par `env_file: [.env]` et reprenez le modèle commenté `.env.example`.
 
 services:
   scan-koillection:
-    # Épinglez une version (1.2.1, 1.2, 1…) plutôt que `latest` pour maîtriser
+    # Épinglez une version (1.3.1, 1.3, 1…) plutôt que `latest` pour maîtriser
     # les mises à jour et pouvoir revenir en arrière.
     image: ghcr.io/zangets1/scan_koillection:latest
     container_name: scan-koillection
     restart: unless-stopped
     ports:
       - "8080:8080"
+    networks:
+      # `default` : réseau propre à cette pile, pour parler à Caddy.
+      # `koillection` : réseau existant de Koillection, déclaré en bas.
+      - default
+      - koillection
     environment:
       # ── Koillection — À RENSEIGNER ──────────────────────────────────
-      # URL vue depuis ce conteneur : l'IP du NAS et le port publié par
-      # Koillection (pas 8080, qui est celui de cet outil).
-      #
-      # Pour utiliser plutôt le nom du conteneur (« http://koillection:80 »),
-      # il faut que les deux partagent un réseau Docker : voir le bloc
-      # « networks » en bas de ce fichier. Sans cela le nom reste introuvable,
-      # chaque pile Compose créant son propre réseau isolé.
-      KOILLECTION_URL: "http://192.168.1.10:81"
+      # Nom du service ou du conteneur Koillection, suivi de son port INTERNE
+      # (80 par défaut) — pas le port publié sur le NAS. Ne fonctionne que
+      # grâce au réseau partagé déclaré plus bas.
+      KOILLECTION_URL: "http://koillection:80"
       KOILLECTION_USERNAME: "mon_utilisateur"
       KOILLECTION_PASSWORD: "mon_mot_de_passe"
       # Collection proposée par défaut : titre exact, chemin ou identifiant.
+      # Purement indicatif, cela ne filtre jamais la liste.
       KOILLECTION_DEFAULT_COLLECTION: "Livres"
 
       # ── Droits sur le dossier ./data ────────────────────────────────
@@ -58,8 +63,6 @@ services:
     volumes:
       # Historique des ajouts (SQLite). Un simple dossier suffit.
       - ./data:/data
-    # Décommentez pour rejoindre le réseau de Koillection (voir plus bas).
-    # networks: [default, koillection]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=4)"]
       interval: 30s
@@ -119,18 +122,23 @@ volumes:
   caddy-config:
 
 # ──────────────────────────────────────────────────────────────────────
-# Joindre Koillection par son nom de conteneur
+# LE SEUL POINT À VÉRIFIER
 #
-# Utile si Koillection tourne dans une autre pile Docker sur le même NAS.
-# Repérez le nom de son réseau — il se termine généralement par « _default » :
+# `name` doit être le nom EXACT du réseau Docker de votre Koillection.
+# Relevez-le avec :
 #
 #     docker network ls
 #
-# puis décommentez le bloc ci-dessous ainsi que la ligne « networks: » du
-# service scan-koillection, et mettez KOILLECTION_URL à « http://koillection:80 »
-# (le nom du service ou du conteneur Koillection, et son port interne).
+# Il porte le plus souvent le nom de la pile suivi de « _default » —
+# par exemple « koillection_default ». Si Koillection a été lancé sans
+# Compose, son réseau peut simplement s'appeler « bridge » : dans ce cas
+# le nom de conteneur n'est pas résolu et il faut passer par l'IP du NAS.
+#
+# `external: true` signifie « ce réseau existe déjà, ne le crée pas » :
+# Compose refusera de démarrer, avec un message clair, si le nom est faux.
 # ──────────────────────────────────────────────────────────────────────
-# networks:
-#   koillection:
-#     external: true
-#     name: koillection_default
+networks:
+  default:
+  koillection:
+    external: true
+    name: koillection_default

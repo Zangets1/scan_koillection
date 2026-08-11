@@ -3,6 +3,18 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.3.2] — 2026-08-11
+
+### Modifié
+
+- Le `docker-compose.yml` fourni joint désormais Koillection **par son nom de conteneur**
+  (`http://koillection:80`), avec le réseau partagé déclaré et actif plutôt qu'en
+  commentaire : c'est la configuration attendue quand les deux services tournent sur le
+  même NAS. Un nom de réseau erroné fait échouer le démarrage avec un message explicite,
+  au lieu d'aboutir à une liste de collections vide et inexpliquée. L'alternative par
+  l'adresse IP reste documentée.
+  Vérifié de bout en bout avec deux piles Compose distinctes, profil HTTPS compris.
+
 ## [1.3.1] — 2026-08-11
 
 ### Ajouté
@@ -144,6 +156,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.3.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.2
 [1.3.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.1
 [1.3.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.0
 [1.2.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.2
