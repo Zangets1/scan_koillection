@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record>
+  <leader>     cam0 22        450 </leader>
+  <controlfield tag="001">18048074X</controlfield>
+  <controlfield tag="002">4,5,19,24,27,36,38,50,51,56,67,80,85,91,102,161,175</controlfield>
+  <controlfield tag="003">https://www.sudoc.fr/18048074X</controlfield>
+  <controlfield tag="004">20140912</controlfield>
+  <controlfield tag="005">20260715121331.000</controlfield>
+  <controlfield tag="006">870852107</controlfield>
+  <controlfield tag="007">920462101</controlfield>
+  <controlfield tag="008">Aax3</controlfield>
+  <datafield tag="010" ind1="#" ind2="#">
+    <subfield code="a">978-2-7234-8989-8</subfield>
+    <subfield code="b">broché</subfield>
+  </datafield>
+  <datafield tag="034" ind1=" " ind2=" ">
+    <subfield code="a">OCoLC</subfield>
+    <subfield code="0">893788582</subfield>
+  </datafield>
+  <datafield tag="035" ind1="#" ind2="#">
+    <subfield code="1">24</subfield>
+    <subfield code="a">765337</subfield>
+  </datafield>
+  <datafield tag="035" ind1="#" ind2="#">
+    <subfield code="1">80</subfield>
+    <subfield code="a">547106</subfield>
+  </datafield>
+  <datafield tag="073" ind1="#" ind2="1">
+    <subfield code="a">9782723489898</subfield>
+  </datafield>
+  <datafield tag="100" ind1="#" ind2="#">
+    <subfield code="a">20140912h20132013m  y0frey50      ba</subfield>
+  </datafield>
+  <datafield tag="101" ind1="1" ind2="#">
+    <subfield code="a">fre</subfield>
+    <subfield code="c">jpn</subfield>
+    <subfield code="2">639-2</subfield>
+  </datafield>
+  <datafield tag="102" ind1="#" ind2="#">
+    <subfield code="a">FR</subfield>
+  </datafield>
+  <datafield tag="104" ind1="#" ind2="#">
+    <subfield code="a">m</subfield>
+    <subfield code="b">y</subfield>
+    <subfield code="c">y</subfield>
+    <subfield code="d">ba</subfield>
+    <subfield code="e">0</subfield>
+    <subfield code="f">fre</subfield>
+  </datafield>
+  <datafield tag="105" ind1="#" ind2="#">
+    <subfield code="a">a   t   000ay</subfield>
+  </datafield>
+  <datafield tag="106" ind1="#" ind2="#">
+    <subfield code="a">r</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="c">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="#">
+    <subfield code="6">z02</subfield>
+    <subfield code="c">sti</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="1">
+    <subfield code="6">z01</subfield>
+    <subfield code="a">i#</subfield>
+    <subfield code="b">xxxe##</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="1">
+    <subfield code="6">z02</subfield>
+    <subfield code="a">b#</subfield>
+    <subfield code="b">xb2e##</subfield>
+  </datafield>
+  <datafield tag="182" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="c">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="182" ind1="#" ind2="1">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="a">n</subfield>
+  </datafield>
+  <datafield tag="183" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="a">nga</subfield>
+    <subfield code="2">RDAfrCarrier</subfield>
+  </datafield>
+  <datafield tag="200" ind1="1" ind2="#">
+    <subfield code="a">One piece</subfield>
+    <subfield code="h">Tome [2]</subfield>
+    <subfield code="i">Luffy versus la bande à Baggy</subfield>
+    <subfield code="h">2</subfield>
+    <subfield code="f">Eiichirô Oda</subfield>
+    <subfield code="g">[Djamel Rabahi, traducteur]</subfield>
+  </datafield>
+  <datafield tag="205" ind1="#" ind2="#">
+    <subfield code="a">Nouvelle édition française</subfield>
+  </datafield>
+  <datafield tag="214" ind1="#" ind2="0">
+    <subfield code="a">Grenoble</subfield>
+    <subfield code="c">Glénat</subfield>
+    <subfield code="d">DL 2013</subfield>
+  </datafield>
+  <datafield tag="215" ind1="#" ind2="#">
+    <subfield code="a">1 volume (192 pages)</subfield>
+    <subfield code="c">illustrations, couverture illustrée, jaquette illustrée en couleurs</subfield>
+    <subfield code="d">18 cm</subfield>
+  </datafield>
+  <datafield tag="225" ind1="2" ind2="#">
+    <subfield code="a">Shonen manga</subfield>
+    <subfield code="x">1253-1928 [sic]</subfield>
+  </datafield>
+  <datafield tag="300" ind1="#" ind2="#">
+    <subfield code="a">ISSN exact : 1761-2268</subfield>
+  </datafield>
+  <datafield tag="305" ind1="#" ind2="#">
+    <subfield code="a">Autre tirage : 2021, 2026</subfield>
+  </datafield>
+  <datafield tag="410" ind1="#" ind2="#">
+    <subfield code="0">076257894</subfield>
+    <subfield code="t">Shonen manga</subfield>
+    <subfield code="x">1761-2268</subfield>
+  </datafield>
+  <datafield tag="517" ind1="#" ind2="#">
+    <subfield code="a">Luffy versus la bande à Baggy</subfield>
+  </datafield>
+  <datafield tag="579" ind1=" " ind2=" ">
+    <subfield code="1">0499</subfield>
+    <subfield code="3">20493687X</subfield>
+    <subfield code="t">One piece</subfield>
+  </datafield>
+  <datafield tag="608" ind1="#" ind2="#">
+    <subfield code="3">033824185</subfield>
+    <subfield code="a">Mangas</subfield>
+    <subfield code="2">rameau</subfield>
+  </datafield>
+  <datafield tag="608" ind1="#" ind2="#">
+    <subfield code="3">188482822</subfield>
+    <subfield code="a">Shônen</subfield>
+    <subfield code="2">rameau</subfield>
+  </datafield>
+  <datafield tag="686" ind1="#" ind2="#">
+    <subfield code="a">805</subfield>
+    <subfield code="2">Cadre de classement de la Bibliographie nationale française</subfield>
+  </datafield>
+  <datafield tag="700" ind1="#" ind2="1">
+    <subfield code="3">077354184</subfield>
+    <subfield code="a">Oda</subfield>
+    <subfield code="b">Eiichirō</subfield>
+    <subfield code="f">1975-....</subfield>
+    <subfield code="c">mangaka</subfield>
+    <subfield code="4">070</subfield>
+    <subfield code="4">440</subfield>
+  </datafield>
+  <datafield tag="701" ind1="#" ind2="1">
+    <subfield code="3">130706795</subfield>
+    <subfield code="a">Rabahi</subfield>
+    <subfield code="b">Djamel</subfield>
+    <subfield code="f">1981-....</subfield>
+    <subfield code="c">traducteur</subfield>
+    <subfield code="4">730</subfield>
+  </datafield>
+  <datafield tag="712" ind1="0" ind2="2">
+    <subfield code="3">079201369</subfield>
+    <subfield code="a">Glénat</subfield>
+    <subfield code="c">Grenoble, Isère, France</subfield>
+    <subfield code="c">1969-....</subfield>
+    <subfield code="4">650</subfield>
+  </datafield>
+  <datafield tag="801" ind1="#" ind2="3">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">Abes</subfield>
+    <subfield code="c">20260715</subfield>
+    <subfield code="g">AFNOR</subfield>
+  </datafield>
+  <datafield tag="801" ind1="#" ind2="0">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">FR-751131015</subfield>
+    <subfield code="c">20130718</subfield>
+    <subfield code="g">AFNOR</subfield>
+    <subfield code="2">intermrc</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">130012103:625714830</subfield>
+    <subfield code="b">130012103</subfield>
+    <subfield code="a">170011296</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">130012103:625714830</subfield>
+    <subfield code="a">20181217</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">130012103:625714830</subfield>
+    <subfield code="a">20181217</subfield>
+    <subfield code="b">10:49:43.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">026912101:531863425</subfield>
+    <subfield code="b">026912101</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">026912101:531863425</subfield>
+    <subfield code="a">20150609</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">026912101:531863425</subfield>
+    <subfield code="a">20150609</subfield>
+    <subfield code="b">09:43:32.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">920022201:641292929</subfield>
+    <subfield code="b">920022201</subfield>
+    <subfield code="a">BD ODA</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">920022201:641292929</subfield>
+    <subfield code="a">20190703</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">920022201:641292929</subfield>
+    <subfield code="a">20220610</subfield>
+    <subfield code="b">11:36:09.000</subfield>
+  </datafield>
+  <datafield tag="991" ind1="#" ind2="#">
+    <subfield code="5">920022201:641292929</subfield>
+    <subfield code="a">Exemplaire modifié automatiquement. le 10-06-2022 11:36</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">890242201:60386340X</subfield>
+    <subfield code="b">890242201</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">890242201:60386340X</subfield>
+    <subfield code="a">20180301</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">890242201:60386340X</subfield>
+    <subfield code="a">20260710</subfield>
+    <subfield code="b">13:33:59.000</subfield>
+  </datafield>
+  <datafield tag="991" ind1="#" ind2="#">
+    <subfield code="5">890242201:60386340X</subfield>
+    <subfield code="a">Exemplaire modifié automatiquement le 10-07-2026 13:33</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">890242201:792027914</subfield>
+    <subfield code="b">890242201</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">890242201:792027914</subfield>
+    <subfield code="a">20230612</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">890242201:792027914</subfield>
+    <subfield code="a">20260710</subfield>
+    <subfield code="b">13:34:00.000</subfield>
+  </datafield>
+  <datafield tag="991" ind1="#" ind2="#">
+    <subfield code="5">890242201:792027914</subfield>
+    <subfield code="a">Exemplaire modifié automatiquement le 10-07-2026 13:34</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">384212226:778164659</subfield>
+    <subfield code="b">384212226</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">384212226:778164659</subfield>
+    <subfield code="a">20230221</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">384212226:778164659</subfield>
+    <subfield code="a">20230221</subfield>
+    <subfield code="b">15:52:32.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">870852107:512617295</subfield>
+    <subfield code="b">870852107</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">870852107:512617295</subfield>
+    <subfield code="a">20140912</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">870852107:512617295</subfield>
+    <subfield code="a">20140912</subfield>
+    <subfield code="b">11:03:10.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">190312201:860338444</subfield>
+    <subfield code="b">190312201</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">190312201:860338444</subfield>
+    <subfield code="a">20250705</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">190312201:860338444</subfield>
+    <subfield code="a">20250705</subfield>
+    <subfield code="b">14:58:25.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">692662217:601202333</subfield>
+    <subfield code="b">692662217</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">692662217:601202333</subfield>
+    <subfield code="a">20180130</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">692662217:601202333</subfield>
+    <subfield code="a">20180130</subfield>
+    <subfield code="b">14:16:48.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">060882102:811745457</subfield>
+    <subfield code="b">060882102</subfield>
+    <subfield code="c">MEDP</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">060882102:811745457</subfield>
+    <subfield code="a">20240219</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">060882102:811745457</subfield>
+    <subfield code="a">20240219</subfield>
+    <subfield code="b">14:48:25.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">360442201:696810417</subfield>
+    <subfield code="b">360442201</subfield>
+    <subfield code="a">BD ODA</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">360442201:696810417</subfield>
+    <subfield code="a">20210511</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">360442201:696810417</subfield>
+    <subfield code="a">20210511</subfield>
+    <subfield code="b">16:52:26.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">861942220:886937728</subfield>
+    <subfield code="b">861942220</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">861942220:886937728</subfield>
+    <subfield code="a">20260507</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">861942220:886937728</subfield>
+    <subfield code="a">20260507</subfield>
+    <subfield code="b">15:54:31.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">654402301:710874324</subfield>
+    <subfield code="b">654402301</subfield>
+    <subfield code="a">BD MAN ODA</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">654402301:710874324</subfield>
+    <subfield code="a">20211124</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">654402301:710874324</subfield>
+    <subfield code="a">20221011</subfield>
+    <subfield code="b">17:19:19.000</subfield>
+  </datafield>
+  <datafield tag="991" ind1="#" ind2="#">
+    <subfield code="5">654402301:710874324</subfield>
+    <subfield code="a">Exemplaire modifié automatiquement. le 11-10-2022 17:19</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">930482201:880913592</subfield>
+    <subfield code="b">930482201</subfield>
+    <subfield code="a">BD ONE 002</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">930482201:880913592</subfield>
+    <subfield code="a">20260402</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">930482201:880913592</subfield>
+    <subfield code="a">20260402</subfield>
+    <subfield code="b">11:10:31.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">930792101:746653506</subfield>
+    <subfield code="b">930792101</subfield>
+    <subfield code="a">BDM ONE 2</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">930792101:746653506</subfield>
+    <subfield code="a">20221003</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">930792101:746653506</subfield>
+    <subfield code="a">20221003</subfield>
+    <subfield code="b">11:57:24.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">930082101:773354239</subfield>
+    <subfield code="b">930082101</subfield>
+    <subfield code="a">MA ODA</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">930082101:773354239</subfield>
+    <subfield code="a">20230121</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">930082101:773354239</subfield>
+    <subfield code="a">20230225</subfield>
+    <subfield code="b">10:23:47.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">920462101:891499148</subfield>
+    <subfield code="b">920462101</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">920462101:891499148</subfield>
+    <subfield code="a">20260715</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">920462101:891499148</subfield>
+    <subfield code="a">20260715</subfield>
+    <subfield code="b">12:13:37.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">543952108:717778959</subfield>
+    <subfield code="b">543952108</subfield>
+    <subfield code="j">g</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">543952108:717778959</subfield>
+    <subfield code="a">20220222</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">543952108:717778959</subfield>
+    <subfield code="a">20220222</subfield>
+    <subfield code="b">16:44:02.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">591782301:62230965X</subfield>
+    <subfield code="b">591782301</subfield>
+    <subfield code="a">BD ODA</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">591782301:62230965X</subfield>
+    <subfield code="a">20181026</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">591782301:62230965X</subfield>
+    <subfield code="a">20181026</subfield>
+    <subfield code="b">16:46:53.000</subfield>
+  </datafield>
+  <datafield tag="915" ind1="#" ind2="#">
+    <subfield code="5">593502331:797043276</subfield>
+    <subfield code="a">70000</subfield>
+    <subfield code="b">IE00014878</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">593502331:797043276</subfield>
+    <subfield code="b">593502331</subfield>
+    <subfield code="a">544 ODA</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">593502331:797043276</subfield>
+    <subfield code="a">20230913</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">593502331:797043276</subfield>
+    <subfield code="a">20230914</subfield>
+    <subfield code="b">10:19:26.000</subfield>
+  </datafield>
+</record>

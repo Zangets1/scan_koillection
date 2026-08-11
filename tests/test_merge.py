@@ -96,3 +96,31 @@ def test_la_serie_peut_venir_dune_source_secondaire():
     )
     merged = merge([bnf, ol], "9782070643066")
     assert (merged.series, merged.volume) == ("Harry Potter", 5)
+
+
+def test_le_genre_lemporte_sur_les_vedettes_matiere():
+    # « Mangas » (zone 608) doit gagner contre l'indexation matière d'OpenLibrary.
+    bnf = make(title="One piece", authors=["Oda"], subjects=["Pirates", "Amitié"], sources=["bnf"])
+    sudoc = make(title="One piece", authors=["Oda"], genres=["Mangas", "Shônen"], sources=["sudoc"])
+    merged = merge([bnf, sudoc], "9782723489898")
+    assert merged.genres == ["Mangas", "Shônen"]
+
+
+def test_les_vedettes_matiere_servent_de_repli():
+    seul = make(title="Un roman", authors=["X"], subjects=["Romans policiers"], sources=["bnf"])
+    assert merge([seul], "9782021563313").genres == ["Romans policiers"]
+
+
+def test_les_accents_nempechent_pas_de_reconnaitre_un_auteur():
+    # La BnF translittère « Eiichirô Oda », le SUDOC « Eiichiro Oda » : les deux
+    # notices décrivent le même volume et doivent fusionner.
+    bnf = make(title="Aux prises avec Baggy et ses hommes", authors=["Eiichiro Oda"], sources=["bnf"])
+    sudoc = make(
+        title="Luffy versus la bande à Baggy",
+        authors=["Eiichirô Oda"],
+        genres=["Mangas"],
+        sources=["sudoc"],
+    )
+    merged = merge([bnf, sudoc], "9782723489898")
+    assert merged.sources == ["bnf", "sudoc"]
+    assert merged.genres == ["Mangas"]

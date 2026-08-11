@@ -5,7 +5,7 @@
 **Scannez le code-barres d'un livre, il arrive dans Koillection.**
 
 Application web auto-hébergée, pensée pour un NAS et un téléphone.
-Métadonnées issues de la **BnF**, d'**OpenLibrary** et d'**openBD** — pas de dépendance à Google Books.
+Métadonnées issues de la **BnF**, du **SUDOC**, d'**OpenLibrary** et d'**openBD** — pas de dépendance à Google Books.
 
 [![CI](https://github.com/zangets1/scan_koillection/actions/workflows/ci.yml/badge.svg)](https://github.com/zangets1/scan_koillection/actions/workflows/ci.yml)
 [![Image Docker](https://img.shields.io/badge/ghcr.io-scan__koillection-2f6df6)](https://github.com/zangets1/scan_koillection/pkgs/container/scan_koillection)
@@ -19,7 +19,7 @@ Métadonnées issues de la **BnF**, d'**OpenLibrary** et d'**openBD** — pas de
 
 1. Vous ouvrez la page sur votre téléphone et vous scannez le code-barres au dos du livre.
 2. L'ISBN est vérifié (clé de contrôle + double lecture concordante) — pas de faux positifs.
-3. Les catalogues sont interrogés **en parallèle** et leurs réponses fusionnées.
+3. Les catalogues sont interrogés **en parallèle** et leurs réponses fusionnées — une demi-seconde en général, quatre au grand maximum.
 4. Une fiche pré-remplie s'affiche : vous corrigez ce que vous voulez, vous cochez **« J'ai lu ce livre »**, vous validez.
 5. L'item est créé dans Koillection avec sa couverture ; **si le livre appartient à une série, il est rangé dans une sous-collection à son nom**, créée automatiquement.
 
@@ -29,15 +29,22 @@ Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution,
 
 ## Pourquoi la BnF plutôt que Google Books
 
-| Source | Sans clé | Livres FR | Synopsis FR | Série + tome | Pages |
+| Source | Sans clé | Livres FR | Synopsis FR | Série + tome | Genre |
 |---|:--:|:--:|:--:|:--:|:--:|
 | **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (notices Electre) | ✅ (zone 461) | ✅ |
-| **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ✅ |
+| **SUDOC** (bibliothèques universitaires) | ✅ | ✅✅ | ✅ (4e de couverture) | ✅ (zone 200) | ✅✅ |
+| **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
 | **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ souvent faux |
+| Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
 
 La BnF est interrogée en premier et fait autorité. Les autres ne servent qu'à **combler les champs vides**.
-Google Books reste présent en dernier recours et se retire d'une variable : `PROVIDERS=bnf,openlibrary,openbd`.
+Google Books reste présent en dernier recours et se retire d'une variable : `PROVIDERS=bnf,sudoc,openbd`.
+
+**Pourquoi le SUDOC en second.** Mesuré sur 18 livres français, il n'apporte quasiment
+aucun titre que la BnF ignore — mais il remplit le résumé sur **4 livres de plus** et le
+genre sur **8 de plus**, avec des étiquettes bien plus utiles (« Mangas », « Shônen »
+plutôt que « Bandes dessinées »). Il sert aussi de roue de secours : le service SRU de la
+BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
 
 > **Garde-fou anti-mélange.** Certains ISBN sont attribués à deux ouvrages différents selon les catalogues.
 > Si une source secondaire décrit visiblement un autre livre (titre sans rapport **et** aucun auteur commun),
@@ -135,8 +142,9 @@ Tout passe par le fichier `.env` ([modèle commenté](.env.example)).
 
 | Variable | Défaut | Rôle |
 |---|---|---|
-| `PROVIDERS` | `bnf,openlibrary,openbd,googlebooks` | Catalogues et ordre de priorité |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues et ordre de priorité |
 | `PROVIDER_TIMEOUT` | `8` | Délai maximal par catalogue (s) |
+| `LOOKUP_DEADLINE` | `4` | Plafond global d'une recherche (s) |
 | `SERIES_SUBCOLLECTIONS` | `1` | Créer une sous-collection par série |
 | `SERIES_ITEM_NAME` | `{series} - T{volume:02d} - {title}` | Nom de l'item pour une série |
 | `GENRES_AS_TAGS` | `1` | Créer aussi les genres comme tags |
@@ -164,6 +172,25 @@ Une valeur vide supprime le champ : `FIELD_LABELS={"language":"","source":""}`.
 > La date de parution est écrite en **texte** et non en type « date » : la BnF ne fournit
 > le plus souvent que l'année, et Koillection refuse une date incomplète. Le champ garde
 > ainsi le même type d'un livre à l'autre, et reste triable (`2013` < `2016-04`).
+
+---
+
+## Combien de temps prend une recherche
+
+Mesuré sur 18 livres français, cache vidé, les cinq catalogues activés :
+
+| | médiane | 9 fois sur 10 | maximum |
+|---|:--:|:--:|:--:|
+| Recherche complète | **0,6 s** | 1,1 s | 4,0 s |
+
+Les catalogues sont interrogés **tous en même temps** : le temps total est celui du plus
+lent, pas la somme. Ajouter une source ne rallonge donc pas la recherche tant qu'elle
+répond dans les temps — passer de quatre à cinq catalogues a coûté 0,13 s de médiane.
+
+Le maximum n'est pas un hasard : c'est `LOOKUP_DEADLINE`. Passé ce délai, la fiche
+s'affiche avec ce qui est arrivé et les retardataires sont marqués « trop lent » à côté
+des sources. Personne n'attend indéfiniment devant son étagère parce qu'un serveur
+distant a hoqueté.
 
 ---
 
@@ -221,7 +248,7 @@ Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche 
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 46 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 64 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 
@@ -230,8 +257,9 @@ KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 app/
   main.py         routes FastAPI, sessions, service des fichiers statiques
-  lookup.py       appels parallèles aux catalogues, fusion, cache TTL
-  providers/      un module par catalogue (bnf, openlibrary, openbd, …)
+  lookup.py       appels parallèles aux catalogues, plafond de temps, fusion, cache
+  providers/      un module par catalogue, plus `unimarc.py` mutualisé
+                  entre la BnF et le SUDOC (même format, emballage XML différent)
   koillection.py  client de l'API Koillection (JWT, collections, items, data)
   importer.py     traduction d'une fiche livre en item + champs Koillection
   series.py       extraction série/tome depuis un titre
@@ -282,6 +310,7 @@ crée la release GitHub avec ses notes.
 ## Crédits et licence
 
 - Données : [BnF – Catalogue général](https://api.bnf.fr/fr/api-sru-catalogue-general),
+  [SUDOC / ABES](https://abes.fr/reseau-sudoc/documentation-technique/),
   [OpenLibrary](https://openlibrary.org/developers/api), [openBD](https://openbd.jp/),
   résumés Electre diffusés par la BnF.
 - Décodage : [ZXing pour JavaScript](https://github.com/zxing-js/library) (Apache 2.0), embarqué dans `static/vendor/`.

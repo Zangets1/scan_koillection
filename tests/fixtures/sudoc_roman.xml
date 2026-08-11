@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record>
+  <leader>     cam0 22        450 </leader>
+  <controlfield tag="001">279617860</controlfield>
+  <controlfield tag="002">8,67</controlfield>
+  <controlfield tag="003">https://www.sudoc.fr/279617860</controlfield>
+  <controlfield tag="004">20240731</controlfield>
+  <controlfield tag="005">20251118013754.000</controlfield>
+  <controlfield tag="006">4994</controlfield>
+  <controlfield tag="007">0499</controlfield>
+  <controlfield tag="008">Aax</controlfield>
+  <datafield tag="010" ind1="#" ind2="#">
+    <subfield code="a">978-2-02-156331-3</subfield>
+    <subfield code="d">21,50 EUR</subfield>
+  </datafield>
+  <datafield tag="033" ind1="#" ind2="#">
+    <subfield code="a">http://catalogue.bnf.fr/ark:/12148/cb47524066m</subfield>
+    <subfield code="2">BNF</subfield>
+    <subfield code="d">20240731</subfield>
+  </datafield>
+  <datafield tag="034" ind1=" " ind2=" ">
+    <subfield code="a">OCoLC</subfield>
+    <subfield code="0">1452856518</subfield>
+  </datafield>
+  <datafield tag="035" ind1="#" ind2="#">
+    <subfield code="a">FRBNF475240660000008</subfield>
+    <subfield code="z">FRBNF47524066</subfield>
+    <subfield code="d">20240731</subfield>
+  </datafield>
+  <datafield tag="073" ind1="#" ind2="0">
+    <subfield code="a">9782021563313</subfield>
+  </datafield>
+  <datafield tag="100" ind1="#" ind2="#">
+    <subfield code="a">20240731h20242024m  y0frey50      ba</subfield>
+  </datafield>
+  <datafield tag="101" ind1="0" ind2="#">
+    <subfield code="a">fre</subfield>
+    <subfield code="d">fre</subfield>
+    <subfield code="2">639-2</subfield>
+  </datafield>
+  <datafield tag="102" ind1="#" ind2="#">
+    <subfield code="a">FR</subfield>
+  </datafield>
+  <datafield tag="104" ind1="#" ind2="#">
+    <subfield code="a">m</subfield>
+    <subfield code="b">y</subfield>
+    <subfield code="c">y</subfield>
+    <subfield code="d">ba</subfield>
+    <subfield code="e">0</subfield>
+    <subfield code="f">fre</subfield>
+  </datafield>
+  <datafield tag="105" ind1="#" ind2="#">
+    <subfield code="a">y   z   000ay</subfield>
+  </datafield>
+  <datafield tag="106" ind1="#" ind2="#">
+    <subfield code="a">r</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="c">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="#">
+    <subfield code="6">z02</subfield>
+    <subfield code="c">sti</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="1">
+    <subfield code="6">z01</subfield>
+    <subfield code="a">i#</subfield>
+    <subfield code="b">xxxe##</subfield>
+  </datafield>
+  <datafield tag="181" ind1="#" ind2="1">
+    <subfield code="6">z02</subfield>
+    <subfield code="a">b#</subfield>
+    <subfield code="b">xb2e##</subfield>
+  </datafield>
+  <datafield tag="182" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="c">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="182" ind1="#" ind2="1">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="a">n</subfield>
+  </datafield>
+  <datafield tag="183" ind1="#" ind2="#">
+    <subfield code="6">z01</subfield>
+    <subfield code="6">z02</subfield>
+    <subfield code="a">nga</subfield>
+    <subfield code="2">RDAfrCarrier</subfield>
+  </datafield>
+  <datafield tag="200" ind1="1" ind2="#">
+    <subfield code="a">Le Mystère de la maison aux Trois Ormes</subfield>
+    <subfield code="f">Valentin Musso</subfield>
+  </datafield>
+  <datafield tag="214" ind1="#" ind2="0">
+    <subfield code="a">Paris</subfield>
+    <subfield code="c">Seuil</subfield>
+    <subfield code="d">DL 2024</subfield>
+  </datafield>
+  <datafield tag="215" ind1="#" ind2="#">
+    <subfield code="a">1 vol. (364 p.)</subfield>
+    <subfield code="d">22 cm</subfield>
+  </datafield>
+  <datafield tag="330" ind1="#" ind2="#">
+    <subfield code="a">Le commissaire Forestier est appelé en urgence par Yves de Montalabert, un aristocrate qui a reçu des lettres de menace et craint pour sa vie. Le policier se rend chez lui, au coeur de la campagne normande, pour démasquer le corbeau. Mais à sa grande surprise il découvre que le comte a invité quatre personnalités à se joindre à eux : un jeune journaliste en vogue, la femme d&apos;un riche industriel, un médecin des beaux quartiers et un général ayant l&apos;oreille du pouvoir. Des convives bien sous tous rapports. Du moins en apparence... Le soir même, le comte est assassiné brutalement dans son bureau, alors que porte et fenêtres sont verrouillées de l&apos;intérieur. Qui plus est, tous les invités possèdent un alibi irréfutable. Confronté au plus déroutant des mystères de chambre close, Forestier prend l&apos;affaire en main. Il ignore que cette énigme en cache une autre bien plus incroyable encore...</subfield>
+    <subfield code="z">fre</subfield>
+    <subfield code="2">4e de couverture</subfield>
+  </datafield>
+  <datafield tag="579" ind1=" " ind2=" ">
+    <subfield code="1">0499</subfield>
+    <subfield code="3">291909477</subfield>
+    <subfield code="t">Le Mystère de la maison aux Trois Ormes</subfield>
+  </datafield>
+  <datafield tag="606" ind1="#" ind2="#">
+    <subfield code="3">027556611</subfield>
+    <subfield code="a">Littérature bas-allemande</subfield>
+    <subfield code="2">rameau</subfield>
+  </datafield>
+  <datafield tag="700" ind1="#" ind2="1">
+    <subfield code="3">14811380X</subfield>
+    <subfield code="a">Musso</subfield>
+    <subfield code="b">Valentin</subfield>
+    <subfield code="f">1977-....</subfield>
+    <subfield code="4">070</subfield>
+  </datafield>
+  <datafield tag="801" ind1="#" ind2="3">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">Abes</subfield>
+    <subfield code="c">20251118</subfield>
+    <subfield code="g">AFNOR</subfield>
+  </datafield>
+  <datafield tag="801" ind1="#" ind2="0">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">FR-751131015</subfield>
+    <subfield code="c">20240724</subfield>
+    <subfield code="g">AFNOR</subfield>
+    <subfield code="2">intermrc</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">972332101:864016549</subfield>
+    <subfield code="b">972332101</subfield>
+    <subfield code="c">BU-MARTINIQUE</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">972332101:864016549</subfield>
+    <subfield code="a">20250919</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">972332101:864016549</subfield>
+    <subfield code="a">20250919</subfield>
+    <subfield code="b">22:52:00.000</subfield>
+  </datafield>
+  <datafield tag="930" ind1="#" ind2="#">
+    <subfield code="5">315552318:828374686</subfield>
+    <subfield code="b">315552318</subfield>
+    <subfield code="a">843P MUS</subfield>
+    <subfield code="j">u</subfield>
+  </datafield>
+  <datafield tag="940" ind1=" " ind2=" ">
+    <subfield code="5">315552318:828374686</subfield>
+    <subfield code="a">20240821</subfield>
+    <subfield code="b">x</subfield>
+  </datafield>
+  <datafield tag="941" ind1=" " ind2=" ">
+    <subfield code="5">315552318:828374686</subfield>
+    <subfield code="a">20240821</subfield>
+    <subfield code="b">16:37:55.000</subfield>
+  </datafield>
+</record>

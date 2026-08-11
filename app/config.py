@@ -81,9 +81,12 @@ class Settings:
 
         # --- Fournisseurs de métadonnées --------------------------------
         self.providers: list[str] = _env_list(
-            "PROVIDERS", ["bnf", "openlibrary", "openbd", "googlebooks"]
+            "PROVIDERS", ["bnf", "sudoc", "openlibrary", "openbd", "googlebooks"]
         )
         self.provider_timeout: float = _env_float("PROVIDER_TIMEOUT", 8.0)
+        # Plafond global : au-delà, on répond avec ce qui est déjà arrivé plutôt
+        # que de faire patienter devant une étagère.
+        self.lookup_deadline: float = _env_float("LOOKUP_DEADLINE", 4.0)
         self.google_books_key: str = os.environ.get("GOOGLE_BOOKS_API_KEY", "")
         self.isbndb_key: str = os.environ.get("ISBNDB_API_KEY", "")
         self.cache_ttl: int = _env_int("CACHE_TTL", 86400)

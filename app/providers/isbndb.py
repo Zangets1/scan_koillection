@@ -48,7 +48,7 @@ class IsbndbProvider(Provider):
         pages = book.get("pages")
         if isinstance(pages, int) and 0 < pages < 20000:
             meta.page_count = pages
-        meta.genres = dedupe([clean_text(s) or "" for s in book.get("subjects", []) if s])[:6]
+        meta.subjects = dedupe([clean_text(s) or "" for s in book.get("subjects", []) if s])[:6]
         meta.synopsis = clean_text(book.get("synopsis") or book.get("overview"))
         meta.language = book.get("language")
         meta.cover_url = book.get("image")

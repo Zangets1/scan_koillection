@@ -6,6 +6,7 @@ import asyncio
 import logging
 import re
 import time
+import unicodedata
 from collections import OrderedDict
 
 import httpx
@@ -87,17 +88,7 @@ class LookupService:
                 return cached
 
         started = time.monotonic()
-        results = await asyncio.gather(
-            *(self._fetch_one(provider, isbn13) for provider in self.providers),
-            return_exceptions=False,
-        )
-
-        statuses: dict[str, str] = {}
-        metas: list[BookMeta] = []
-        for provider, (meta, status) in zip(self.providers, results, strict=True):
-            statuses[provider.label] = status
-            if meta is not None:
-                metas.append(meta)
+        statuses, metas = await self._query_providers(isbn13)
 
         elapsed = int((time.monotonic() - started) * 1000)
         if not metas:
@@ -118,6 +109,49 @@ class LookupService:
             )
         self._cache.set(isbn13, response)
         return response
+
+    async def _query_providers(
+        self, isbn13: str
+    ) -> tuple[dict[str, str], list[BookMeta]]:
+        """Interroge tous les catalogues en parallèle, sous un plafond de temps.
+
+        Les fournisseurs sont indépendants : rien ne justifie de faire attendre
+        l'utilisateur, code-barres en main devant son étagère, parce qu'un
+        catalogue secondaire est lent. Passé le délai, on répond avec ce qui est
+        arrivé et les retardataires sont signalés comme tels dans l'interface.
+        """
+        tasks = {
+            asyncio.create_task(self._fetch_one(provider, isbn13)): provider
+            for provider in self.providers
+        }
+        if not tasks:
+            return {}, []
+
+        done, pending = await asyncio.wait(tasks, timeout=self.settings.lookup_deadline)
+        for task in pending:
+            task.cancel()
+        if pending:
+            logger.info(
+                "ISBN %s : %s hors délai (%.1f s)",
+                isbn13,
+                ", ".join(tasks[task].label for task in pending),
+                self.settings.lookup_deadline,
+            )
+
+        statuses: dict[str, str] = {}
+        results: dict[str, BookMeta] = {}
+        for task, provider in tasks.items():
+            if task not in done:
+                statuses[provider.label] = "trop lent"
+                continue
+            meta, status = task.result()
+            statuses[provider.label] = status
+            if meta is not None:
+                results[provider.name] = meta
+
+        # L'ordre de PROVIDERS fait foi pour la fusion, pas l'ordre d'arrivée.
+        metas = [results[p.name] for p in self.providers if p.name in results]
+        return statuses, metas
 
     async def _fetch_one(self, provider: Provider, isbn13: str) -> tuple[BookMeta | None, str]:
         try:
@@ -148,8 +182,14 @@ def clean_genres(genres: list[str]) -> list[str]:
     return dedupe(keep)[:5]
 
 
+def _fold(text: str) -> str:
+    """Minuscules sans accents : « Eiichirô » et « Eiichiro » désignent le même auteur."""
+    decomposed = unicodedata.normalize("NFKD", text or "")
+    return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold()
+
+
 def _tokens(title: str) -> set[str]:
-    return {token for token in re.split(r"[^\w]+", (title or "").casefold()) if len(token) > 2}
+    return {token for token in re.split(r"[^\w]+", _fold(title)) if len(token) > 2}
 
 
 def same_book(reference: BookMeta, other: BookMeta) -> bool:
@@ -161,8 +201,10 @@ def same_book(reference: BookMeta, other: BookMeta) -> bool:
     le résumé de l'autre). Un auteur commun suffit à lever le doute, ce qui
     évite de rejeter « 1984 » face à « Nineteen Eighty-Four ».
     """
-    left_authors = {a.casefold() for a in reference.authors}
-    right_authors = {a.casefold() for a in other.authors}
+    # Les translittérations diffèrent d'un catalogue à l'autre (« Eiichirô Oda »
+    # à la BnF, « Eiichiro Oda » au SUDOC) : la comparaison ignore les accents.
+    left_authors = {_fold(a) for a in reference.authors}
+    right_authors = {_fold(a) for a in other.authors}
     if left_authors & right_authors:
         return True
 
@@ -205,13 +247,17 @@ def merge(metas: list[BookMeta], isbn13: str) -> BookMeta:
             merged.authors = list(meta.authors)
             break
 
-    # Genre : premier fournisseur renseigné, sans cumul. La BnF donne une forme
-    # courte et française (« Bandes dessinées ») qu'il serait dommage de noyer
-    # sous les mots-clés anglais d'OpenLibrary.
-    for meta in metas:
-        genres = clean_genres(meta.genres)
-        if genres:
-            merged.genres = genres
+    # Genre : premier fournisseur renseigné, sans cumul. La forme donnée par les
+    # catalogues français (« Mangas », « Romans policiers ») est courte et juste ;
+    # la noyer sous les mots-clés d'OpenLibrary la rendrait inutilisable. Les
+    # vedettes matière ne servent que si personne ne donne de genre.
+    for source in ("genres", "subjects"):
+        for meta in metas:
+            genres = clean_genres(getattr(meta, source))
+            if genres:
+                merged.genres = genres
+                break
+        if merged.genres:
             break
 
     merged.sources = dedupe([source for meta in metas for source in meta.sources])

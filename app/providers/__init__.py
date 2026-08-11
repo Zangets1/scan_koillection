@@ -9,6 +9,7 @@ from .googlebooks import GoogleBooksProvider
 from .isbndb import IsbndbProvider
 from .openbd import OpenBdProvider
 from .openlibrary import OpenLibraryProvider
+from .sudoc import SudocProvider
 
 __all__ = [
     "Provider",
@@ -17,6 +18,7 @@ __all__ = [
     "IsbndbProvider",
     "OpenBdProvider",
     "OpenLibraryProvider",
+    "SudocProvider",
     "build_providers",
 ]
 
@@ -29,6 +31,7 @@ def build_providers(settings: Settings) -> list[Provider]:
     """
     catalogue: dict[str, Provider] = {
         BnfProvider.name: BnfProvider(),
+        SudocProvider.name: SudocProvider(),
         OpenLibraryProvider.name: OpenLibraryProvider(),
         OpenBdProvider.name: OpenBdProvider(),
         GoogleBooksProvider.name: GoogleBooksProvider(settings.google_books_key),

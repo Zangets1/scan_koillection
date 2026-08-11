@@ -3,6 +3,31 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.2.0] — 2026-08-11
+
+### Ajouté
+
+- **Le SUDOC** (catalogue des bibliothèques universitaires) rejoint les sources, juste
+  après la BnF. Sur 18 livres français, il remplit le résumé sur 4 titres de plus et le
+  genre sur 8 de plus, avec des étiquettes plus précises (« Mangas », « Shônen »). Il sert
+  aussi de source de secours quand le SRU de la BnF coupe la connexion, ce qu'il fait par
+  intermittence.
+- **Plafond global de recherche** (`LOOKUP_DEADLINE`, 4 s par défaut) : la fiche s'affiche
+  avec les réponses déjà arrivées, les catalogues en retard étant signalés « trop lent ».
+  La médiane reste à 0,6 s et le temps d'attente est désormais borné.
+
+### Modifié
+
+- Le genre provient maintenant de la zone UNIMARC 608 (forme de l'œuvre) et non plus des
+  vedettes matière 606, qui donnaient des résultats déroutants — « Littérature
+  bas-allemande » sur un polar français. Les vedettes matière ne servent plus que de repli
+  quand aucune source ne fournit de genre.
+- La comparaison des auteurs ignore les accents : la BnF écrit « Eiichirô Oda » là où le
+  SUDOC écrit « Eiichiro Oda », et les deux notices étaient à tort tenues pour deux livres
+  différents, ce qui faisait perdre l'apport du SUDOC.
+- La lecture des notices UNIMARC est mutualisée entre la BnF et le SUDOC : même format
+  bibliographique, seul l'emballage XML diffère.
+
 ## [1.1.0] — 2026-08-11
 
 ### Ajouté
@@ -58,5 +83,6 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.2.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.2.0
 [1.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.0.0

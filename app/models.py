@@ -17,7 +17,12 @@ class BookMeta(BaseModel):
     #: ``YYYY``, ``YYYY-MM`` ou ``YYYY-MM-DD``
     published_date: str | None = None
     page_count: int | None = None
+    #: Genre au sens « forme » : Romans, Bandes dessinées, Mangas…
     genres: list[str] = Field(default_factory=list)
+    #: Indexation matière, nettement plus bruitée. Sert de repli quand aucune
+    #: source ne donne de genre : « Littérature bas-allemande » vaut mieux que rien,
+    #: mais ne doit jamais l'emporter sur « Mangas ».
+    subjects: list[str] = Field(default_factory=list)
     synopsis: str | None = None
     series: str | None = None
     volume: int | None = None

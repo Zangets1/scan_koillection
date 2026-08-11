@@ -62,7 +62,7 @@ class OpenLibraryProvider(Provider):
         if isinstance(pages, int) and 0 < pages < 20000:
             meta.page_count = pages
 
-        meta.genres = dedupe(
+        meta.subjects = dedupe(
             [clean_text(s.get("name")) or "" for s in payload.get("subjects", []) if s.get("name")]
         )[:6]
 

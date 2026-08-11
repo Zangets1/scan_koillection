@@ -51,7 +51,7 @@ class GoogleBooksProvider(Provider):
         pages = info.get("pageCount")
         if isinstance(pages, int) and 0 < pages < 20000:
             meta.page_count = pages
-        meta.genres = dedupe([clean_text(c) or "" for c in info.get("categories", []) if c])[:6]
+        meta.subjects = dedupe([clean_text(c) or "" for c in info.get("categories", []) if c])[:6]
         meta.synopsis = clean_text(info.get("description"))
         meta.language = info.get("language")
         links = info.get("imageLinks") or {}
