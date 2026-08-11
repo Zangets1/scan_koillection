@@ -188,6 +188,17 @@ Aucun catalogue ne connaît l'ISBN ? La fiche s'ouvre quand même, vide, avec le
 invite à renseigner le titre et l'auteur. Le reste est facultatif, la case « Lu » est là,
 et l'item part dans Koillection comme les autres.
 
+Surtout, **le numéro réellement lu est affiché en grand**, en chiffres à chasse fixe
+groupés par trois : de quoi le comparer à celui imprimé sur le livre et savoir tout de
+suite si le lecteur s'est trompé ou si l'ouvrage est simplement absent des bases. Deux
+boutons sont proposés dans la foulée — **Rescanner** et **Corriger le numéro**, qui
+renvoie à l'accueil avec le code prêt à être modifié.
+
+Le découpage est volontairement sans tirets : la vraie césure d'un ISBN dépend de tables
+de préfixes d'éditeurs, et un découpage inventé (`978-2-72-348989-8` au lieu de
+`978-2-7234-8989-8`) gênerait précisément la comparaison. Un ISBN-10 lu au dos d'un livre
+ancien reste affiché tel quel, à côté de sa conversion en ISBN-13.
+
 Le bouton **« Saisir le livre à la main »** de l'accueil ouvre la même fiche, sans ISBN du tout
 (livres anciens, éditions sans code-barres).
 

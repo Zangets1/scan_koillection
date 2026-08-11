@@ -37,6 +37,3 @@ def test_detecte_les_ean_de_livre():
     assert isbn.is_book_ean("9782070368228")
     assert not isbn.is_book_ean("3560070123452")
 
-
-def test_affichage_avec_tirets():
-    assert isbn.hyphenate("9782070368228") == "978-2-0703-6822-8"

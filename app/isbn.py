@@ -95,10 +95,3 @@ def normalize(raw: str) -> str:
         return to_isbn13(value)
     raise InvalidISBN(f"Longueur inattendue ({len(value)} caractères) : un ISBN fait 10 ou 13 chiffres.")
 
-
-def hyphenate(isbn13: str) -> str:
-    """Découpage lisible et volontairement approximatif (affichage seulement)."""
-    value = clean(isbn13)
-    if len(value) != 13:
-        return value
-    return f"{value[:3]}-{value[3:4]}-{value[4:8]}-{value[8:12]}-{value[12:]}"

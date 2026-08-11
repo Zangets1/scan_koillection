@@ -9,6 +9,8 @@ const state = {
   collections: [],
   collectionId: localStorage.getItem('collection') || '',
   book: null,
+  //: Ce qui a été lu ou saisi, conservé pour être affiché sur la fiche
+  scan: null,
   continuous: false,
 };
 
@@ -103,6 +105,17 @@ function checkIsbn(raw) {
     return { isbn: converted };
   }
   return { error: `${value.length} chiffre(s) sur 10 ou 13.` };
+}
+
+/**
+ * Met les chiffres en paquets de trois pour les relire sans se perdre.
+ *
+ * Volontairement sans tirets : la vraie césure d'un ISBN dépend de tables de
+ * préfixes d'éditeurs, et un découpage inventé (978-2-72-348989-8 au lieu de
+ * 978-2-7234-8989-8) gênerait justement la comparaison avec le livre.
+ */
+function groupDigits(value) {
+  return cleanIsbn(value).replace(/(.{3})(?=.)/g, '$1 ');
 }
 
 // ═══ Scanner ════════════════════════════════════════════════════════════
@@ -329,7 +342,7 @@ function handleRead(raw) {
   scanStatus(`ISBN ${check.isbn} — trouvé !`);
   feedback();
   stopScanner();
-  lookup(check.isbn);
+  lookup(check.isbn, { raw: cleanIsbn(raw), manual: false });
 }
 
 async function toggleTorch() {
@@ -344,7 +357,8 @@ async function toggleTorch() {
 }
 
 // ═══ Recherche et formulaire ════════════════════════════════════════════
-async function lookup(isbn13) {
+async function lookup(isbn13, origin = { raw: '', manual: true }) {
+  state.scan = { isbn13, raw: origin.raw || isbn13, manual: Boolean(origin.manual) };
   busy('Interrogation des catalogues…');
   try {
     const result = await api(`/api/lookup/${isbn13}`);
@@ -355,7 +369,8 @@ async function lookup(isbn13) {
       fillForm(
         { isbn13, title: '', authors: [] },
         result,
-        "Aucun catalogue ne connaît cet ISBN. Renseignez au moins le titre et l'auteur.",
+        'Aucun catalogue ne connaît ce numéro. Comparez-le d’abord avec celui imprimé '
+        + 'sur le livre : s’il correspond, renseignez le titre et l’auteur à la main.',
       );
       setTimeout(() => $('f-title').focus(), 150);
     }
@@ -369,6 +384,7 @@ async function lookup(isbn13) {
 
 function manualEntry(isbn13 = '') {
   state.book = null;
+  state.scan = isbn13 ? { isbn13, raw: isbn13, manual: true } : null;
   fillForm({ isbn13, title: '', authors: [] }, null, 'Saisie manuelle : le titre et l’auteur suffisent.');
   show('view-book');
   setTimeout(() => $('f-title').focus(), 150);
@@ -389,7 +405,7 @@ function fillForm(book, result, banner) {
   $('f-synopsis').value = book.synopsis || '';
   $('f-read').checked = false;
 
-  $('book-isbn').textContent = book.isbn13 ? `ISBN ${book.isbn13}` : 'Sans ISBN';
+  renderScannedCode(book, result);
   $('book-heading').textContent = book.title ? book.title : 'Nouveau livre';
 
   const sources = result && result.providers
@@ -419,6 +435,50 @@ function fillForm(book, result, banner) {
   $('book-error').hidden = true;
   fillCollectionSelect($('f-collection'));
   updateSeriesHint();
+}
+
+/**
+ * Affiche le code réellement lu, groupé comme sur la quatrième de couverture.
+ *
+ * Quand aucun catalogue ne répond, c'est la seule façon de savoir si le
+ * lecteur s'est trompé ou si le livre est simplement absent des bases : il
+ * suffit de comparer les chiffres à l'écran avec ceux imprimés sur le livre.
+ */
+function renderScannedCode(book, result) {
+  const scan = state.scan;
+  const code = (scan && scan.isbn13) || book.isbn13 || '';
+  const found = Boolean(result && result.found);
+
+  const label = $('code-label');
+  const value = $('book-isbn');
+  const detail = $('code-detail');
+  const actions = $('code-actions');
+
+  if (!code) {
+    label.textContent = 'Sans ISBN';
+    value.textContent = '—';
+    value.classList.remove('warn');
+    detail.hidden = true;
+    actions.hidden = true;
+    return;
+  }
+
+  label.textContent = scan && !scan.manual ? 'Code-barres lu' : 'ISBN saisi';
+  value.textContent = groupDigits(code);
+  value.classList.toggle('warn', !found);
+
+  // Un ISBN-10 lu au dos d'un livre ancien est converti : on montre les deux
+  // pour que la comparaison avec le livre reste possible.
+  const raw = scan && cleanIsbn(scan.raw);
+  if (raw && raw !== code) {
+    detail.textContent = `Lu sur le livre : ${groupDigits(raw)} — ISBN-10, converti en ISBN-13.`;
+    detail.hidden = false;
+  } else {
+    detail.hidden = true;
+  }
+
+  // Les corrections n'ont d'intérêt que si la recherche a échoué.
+  actions.hidden = found;
 }
 
 function updateSeriesHint() {
@@ -659,7 +719,7 @@ function bind() {
       return;
     }
     $('isbn-input').blur();
-    lookup(check.isbn);
+    lookup(check.isbn, { raw: cleanIsbn($('isbn-input').value), manual: true });
   });
 
   $('btn-scan').addEventListener('click', () => { state.continuous = false; startScanner(); });
@@ -686,6 +746,17 @@ function bind() {
   $('f-collection').addEventListener('change', (event) => {
     state.collectionId = event.target.value;
     localStorage.setItem('collection', state.collectionId);
+  });
+
+  $('btn-rescan').addEventListener('click', startScanner);
+  $('btn-fix-isbn').addEventListener('click', () => {
+    const code = (state.scan && state.scan.isbn13) || '';
+    show('view-home');
+    const input = $('isbn-input');
+    input.value = code;
+    input.dispatchEvent(new Event('input'));
+    input.focus();
+    input.select();
   });
 
   $('f-series').addEventListener('input', updateSeriesHint);

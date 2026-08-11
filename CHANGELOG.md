@@ -3,6 +3,21 @@
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [1.1.0] — 2026-08-11
+
+### Ajouté
+
+- **Le numéro lu est affiché en grand sur la fiche**, en chiffres à chasse fixe groupés
+  par trois, afin de le comparer à celui imprimé sur le livre. Il est mis en évidence en
+  couleur d'alerte quand aucun catalogue n'a répondu, accompagné des boutons
+  **Rescanner** et **Corriger le numéro**. Un ISBN-10 est montré tel qu'il a été lu, à
+  côté de sa conversion en ISBN-13.
+
+### Supprimé
+
+- Fonction d'affichage `isbn.hyphenate()`, inutilisée et trompeuse : la césure d'un ISBN
+  dépend de tables de préfixes d'éditeurs, un découpage fixe produisait de faux groupes.
+
 ## [1.0.0] — 2026-08-10
 
 Première version publiée.
@@ -43,4 +58,5 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[1.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.0.0

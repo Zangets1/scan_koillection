@@ -257,7 +257,34 @@ select {
   background: var(--surface-alt);
   box-shadow: var(--shadow);
 }
-.book-head-info { flex: 1; min-width: 0; }
+.book-head-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+/* Le code lu doit être comparable d'un coup d'œil avec celui imprimé sous le
+   code-barres : mêmes groupes de chiffres, chasse fixe, taille lisible. */
+.code-label {
+  margin: 0;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.code-value {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+  word-break: break-all;
+}
+
+.code-value.warn { color: var(--warning); }
+
+.code-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+.btn-sm { min-height: 38px; padding: 8px 12px; font-size: .88rem; }
 
 .banner {
   margin: 0;

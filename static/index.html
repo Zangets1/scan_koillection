@@ -13,7 +13,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
-<link rel="stylesheet" href="/styles.css?v=1">
+<link rel="stylesheet" href="/styles.css?v=2">
 </head>
 <body>
 
@@ -127,8 +127,14 @@
     <div class="card book-head">
       <img id="book-cover" class="cover" alt="" hidden>
       <div class="book-head-info">
+        <p class="code-label" id="code-label">Code lu</p>
+        <p class="code-value" id="book-isbn"></p>
+        <p class="muted small" id="code-detail" hidden></p>
         <p class="muted small" id="book-sources"></p>
-        <p class="muted small" id="book-isbn"></p>
+        <div class="code-actions" id="code-actions" hidden>
+          <button class="btn btn-ghost btn-sm" type="button" id="btn-rescan">Rescanner</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="btn-fix-isbn">Corriger le numéro</button>
+        </div>
       </div>
     </div>
 
@@ -224,6 +230,6 @@
 <div id="busy" class="busy" hidden><div class="spinner" aria-hidden="true"></div><p id="busy-label">Recherche…</p></div>
 
 <script src="/vendor/zxing.min.js"></script>
-<script src="/app.js?v=1"></script>
+<script src="/app.js?v=2"></script>
 </body>
 </html>
