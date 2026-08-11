@@ -59,6 +59,18 @@ docker compose up -d
 
 L'interface répond sur `http://IP_DU_NAS:8080`.
 
+> **Dépôt privé ?** Tant que le dépôt GitHub reste privé, l'image publiée sur GHCR l'est
+> aussi : le NAS doit s'authentifier avant de la télécharger.
+>
+> ```bash
+> echo VOTRE_TOKEN | docker login ghcr.io -u zangets1 --password-stdin
+> ```
+>
+> Le jeton est un *personal access token* (classic) avec la seule portée `read:packages`.
+> Pour éviter cette étape, rendez le paquet public depuis
+> **GitHub → Packages → scan_koillection → Package settings → Change visibility**,
+> ou construisez l'image localement avec `build: .` dans `docker-compose.yml`.
+
 ### 2. Le point qui bloque tout le monde : HTTPS
 
 **iOS comme Android refusent l'accès à la caméra sur une page en `http://`** (hors `localhost`).
