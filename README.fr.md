@@ -438,19 +438,32 @@ Pousser sur une branche `v*` publie une image portant son nom, par exemple
 **`:latest` n'est jamais touchée** : votre installation de production ne peut pas
 l'attraper par un `docker compose pull`.
 
-Faites-la tourner à côté de l'existante, sur un autre port et un autre dossier de données :
+Le fichier **`docker-compose.v2.yml`** monte cette image à côté de votre installation, sans
+rien y toucher : nom de projet, noms de conteneurs, ports et dossier de données sont tous
+décalés, si bien que les deux piles tournent en même temps.
 
-```yaml
-services:
-  scan-koillection-essai:
-    image: ghcr.io/zangets1/scan_koillection:v2
-    ports: ["8081:8080"]
-    volumes: ["./data-essai:/data"]
-    env_file: .env
+```bash
+docker login ghcr.io                                  # le paquet est privé
+docker compose -f docker-compose.v2.yml up -d         # → http://NAS:8081
+docker compose -f docker-compose.v2.yml --profile https up -d   # → https://NAS:8444
 ```
+
+Renseignez-y d'abord les mêmes identifiants Koillection que votre pile habituelle : c'est
+bien la même collection que l'on veut alimenter, seule la recherche est à l'essai.
 
 `GET /healthz` renvoie la version exacte (`v2-<commit>`), de quoi vérifier ce qui tourne
 réellement. Le workflow se relance aussi à la main depuis **Actions → Image d'essai**.
+
+Pour tout retirer :
+
+```bash
+docker compose -f docker-compose.v2.yml down && rm -rf ./data-v2
+```
+
+> **Le piège.** `PROVIDERS` écrase la liste par défaut de l'application. Si votre compose
+> énumère les catalogues sans `k10plus`, la nouveauté est silencieusement désactivée. À
+> l'inverse, `k10plus` reste sans effet sur une image plus ancienne : un nom inconnu est
+> ignoré sans erreur, la liste est donc sûre en cas de retour arrière.
 
 ### Et la Library of Congress ?
 

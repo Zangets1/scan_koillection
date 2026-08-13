@@ -49,8 +49,13 @@ services:
       # Indispensable si APP_PASSWORD est défini, sinon chaque redémarrage
       # déconnecte tout le monde. Générez-la : openssl rand -base64 32
       SESSION_SECRET: ""
-      # Catalogues interrogés, dans l'ordre de priorité.
-      PROVIDERS: "bnf,sudoc,openlibrary,openbd,googlebooks"
+      # Catalogues interrogés, dans l'ordre de priorité. Chacun n'est sollicité
+      # que sur les ISBN qu'il peut connaître : la BnF sur les 978-2, k10plus
+      # sur les 978-0/978-1, openBD sur les 978-4. Les citer tous ne coûte donc
+      # rien sur les livres qui ne les concernent pas.
+      # Un nom inconnu d'une version plus ancienne de l'image est ignoré sans
+      # erreur : cette liste reste valable en cas de retour arrière.
+      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd,googlebooks"
       # Plafond global d'une recherche, en secondes.
       LOOKUP_DEADLINE: "4"
       # Range chaque tome d'une série dans une sous-collection à son nom.

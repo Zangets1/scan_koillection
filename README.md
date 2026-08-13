@@ -430,19 +430,32 @@ Pushing to a `v*` branch publishes an image named after it, for example
 **`:latest` is never touched**: your production install cannot pick it up through a
 `docker compose pull`.
 
-Run it alongside the existing one, on a different port and data directory:
+The **`docker-compose.v2.yml`** file runs that image alongside your installation without
+touching it: project name, container names, ports and data directory are all shifted, so
+both stacks run at the same time.
 
-```yaml
-services:
-  scan-koillection-test:
-    image: ghcr.io/zangets1/scan_koillection:v2
-    ports: ["8081:8080"]
-    volumes: ["./data-test:/data"]
-    env_file: .env
+```bash
+docker login ghcr.io                                  # the package is private
+docker compose -f docker-compose.v2.yml up -d         # → http://NAS:8081
+docker compose -f docker-compose.v2.yml --profile https up -d   # → https://NAS:8444
 ```
+
+Fill in the same Koillection credentials as your usual stack: it is the same collection you
+want to feed, only the lookup is under test.
 
 `GET /healthz` returns the exact version (`v2-<commit>`), so you can check what is actually
 running. The workflow can also be re-run by hand from **Actions → Image d'essai**.
+
+To remove everything:
+
+```bash
+docker compose -f docker-compose.v2.yml down && rm -rf ./data-v2
+```
+
+> **The trap.** `PROVIDERS` overrides the application's default list. If your compose
+> enumerates catalogues without `k10plus`, the whole feature is silently disabled. The
+> reverse is safe: `k10plus` has no effect on an older image, since an unknown name is
+> ignored without error — the list survives a rollback.
 
 ### What about the Library of Congress?
 
