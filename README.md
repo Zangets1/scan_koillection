@@ -423,6 +423,27 @@ Two readers for library records already exist: `unimarc.py` for French-language 
 (BnF, SUDOC) and `marc21.py` for Anglo-American and German ones (K10plus, Library of
 Congress). Both describe the same books, but the fields do not carry the same numbers.
 
+### Trying a branch before merging it
+
+Pushing to a `v*` branch publishes an image named after it, for example
+`ghcr.io/zangets1/scan_koillection:v2`. It is built for both amd64 and arm64, and
+**`:latest` is never touched**: your production install cannot pick it up through a
+`docker compose pull`.
+
+Run it alongside the existing one, on a different port and data directory:
+
+```yaml
+services:
+  scan-koillection-test:
+    image: ghcr.io/zangets1/scan_koillection:v2
+    ports: ["8081:8080"]
+    volumes: ["./data-test:/data"]
+    env_file: .env
+```
+
+`GET /healthz` returns the exact version (`v2-<commit>`), so you can check what is actually
+running. The workflow can also be re-run by hand from **Actions → Image d'essai**.
+
 ### What about the Library of Congress?
 
 It is the only genuine US national catalogue available without a key, and `marc21.py`

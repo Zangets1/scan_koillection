@@ -431,6 +431,27 @@ catalogues francophones (BnF, SUDOC) et `marc21.py` pour les catalogues anglo-sa
 allemands (K10plus, Library of Congress). Les deux décrivent les mêmes livres, mais les
 zones n'y portent pas les mêmes numéros.
 
+### Essayer une branche avant de la fusionner
+
+Pousser sur une branche `v*` publie une image portant son nom, par exemple
+`ghcr.io/zangets1/scan_koillection:v2`. Elle est construite pour amd64 et arm64, et
+**`:latest` n'est jamais touchée** : votre installation de production ne peut pas
+l'attraper par un `docker compose pull`.
+
+Faites-la tourner à côté de l'existante, sur un autre port et un autre dossier de données :
+
+```yaml
+services:
+  scan-koillection-essai:
+    image: ghcr.io/zangets1/scan_koillection:v2
+    ports: ["8081:8080"]
+    volumes: ["./data-essai:/data"]
+    env_file: .env
+```
+
+`GET /healthz` renvoie la version exacte (`v2-<commit>`), de quoi vérifier ce qui tourne
+réellement. Le workflow se relance aussi à la main depuis **Actions → Image d'essai**.
+
 ### Et la Library of Congress ?
 
 C'est le seul véritable catalogue national américain accessible sans clé, et `marc21.py`

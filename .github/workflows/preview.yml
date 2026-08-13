@@ -1,0 +1,102 @@
+name: Image d'essai
+
+# Publie une image portant le nom de la branche, pour l'essayer sur le NAS avant
+# de fusionner. Distinct de « Release » à dessein : celui-ci pousse `:latest` et
+# crée une release publique, ce qu'une branche en cours d'évaluation ne doit
+# surtout pas faire — un `docker compose pull` sur l'installation de production
+# récupérerait du code non validé.
+#
+# Deux façons de déclencher :
+#   • pousser sur une branche « v* » (v2, v3…) : l'image est reconstruite
+#   • Actions → Image d'essai → « Run workflow » depuis n'importe quelle branche
+on:
+  push:
+    branches: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Une seule construction par branche : pousser trois commits d'affilée ne
+  # lance pas trois builds multi-architecture.
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publier l'image de la branche
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nommer l'image d'après la branche
+        id: nom
+        run: |
+          # « refs/heads/v2 » → « v2 ». Les caractères interdits dans une
+          # étiquette Docker (/, majuscules) sont convertis.
+          BRANCHE="${GITHUB_REF#refs/heads/}"
+          TAG=$(echo "$BRANCHE" | tr '[:upper:]/' '[:lower:]-')
+          case "$TAG" in
+            latest|main|master)
+              echo "Refus de publier « $TAG » : réservé aux versions publiées."
+              exit 1 ;;
+          esac
+          # Le nom du dépôt porte une majuscule (« Zangets1 »), interdite dans
+          # une référence d'image Docker : ${VAR,,} la met en minuscules.
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$TAG-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Image : ghcr.io/${GITHUB_REPOSITORY,,}:$TAG"
+
+      - name: Vérifier que ZXing est bien embarqué
+        run: test -s static/vendor/zxing.min.js
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Connexion à GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construire et publier
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          # Le NAS peut être ARM : on publie les deux architectures, comme la release.
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.nom.outputs.image }}
+          # APP_VERSION porte le commit : /healthz dit alors exactement ce qui tourne.
+          build-args: APP_VERSION=${{ steps.nom.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Mode d'emploi
+        run: |
+          IMAGE="${{ steps.nom.outputs.image }}"
+          {
+            echo "## Image d'essai publiée"
+            echo
+            echo '```'
+            echo "$IMAGE"
+            echo '```'
+            echo
+            echo "Version rapportée par \`/healthz\` : \`${{ steps.nom.outputs.version }}\`"
+            echo
+            echo "Pour l'essayer sans toucher à l'installation existante, dans un"
+            echo "\`docker-compose.yml\` à part (autre port, autre dossier de données) :"
+            echo
+            echo '```yaml'
+            echo "services:"
+            echo "  scan-koillection-essai:"
+            echo "    image: $IMAGE"
+            echo "    ports: [\"8081:8080\"]"
+            echo "    volumes: [\"./data-essai:/data\"]"
+            echo '```'
+            echo
+            echo "L'étiquette \`:latest\` n'a pas été touchée."
+          } >> "$GITHUB_STEP_SUMMARY"
