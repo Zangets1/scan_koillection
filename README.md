@@ -40,10 +40,13 @@ This project was built for French-language books, and that choice drives the who
 | **OpenLibrary** | ✅ | ⚠️ partial | 🇬🇧 English | ⚠️ sometimes | ⚠️ keywords |
 | **K10plus** (MARC21) | ✅ | — English-language only | ❌ | ✅ (field 830) | ❌ |
 | **openBD** (Japan) | ✅ | ❌ | 🇯🇵 Japanese | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
+| Google Books *(disabled)* | ⚠️ key required | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
 
 The BnF is queried first and takes precedence. The others only **fill in the blanks**.
-Google Books is a last resort and can be dropped with one variable: `PROVIDERS=bnf,sudoc,openbd`.
+**Google Books is no longer queried by default.** Without an API key it answers "quota exceeded"
+from a shared address — across 88 test ISBNs it returned nothing, not once. It was costing one
+request per scan for nothing. The code stays: set `GOOGLE_BOOKS_API_KEY` and put it back in the
+list to re-enable it — `PROVIDERS=bnf,sudoc,openlibrary,k10plus,openbd,googlebooks`.
 
 **Why SUDOC comes second.** Measured across 18 French books, it turns up almost no title the
 BnF misses — but it fills the synopsis on **4 more books** and the genre on **8 more**, with
@@ -57,9 +60,9 @@ the book's language area. A catalogue is only queried for the areas it covers:
 
 | Area | Prefixes | Catalogues queried |
 |---|---|---|
-| French-language | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary, Google Books |
-| English-language | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus, Google Books |
-| Japan | `978-4` | SUDOC, OpenLibrary, openBD, Google Books |
+| French-language | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary |
+| English-language | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus |
+| Japan | `978-4` | SUDOC, OpenLibrary, openBD |
 
 Measured across 87 ISBNs, the BnF holds **one English-language book out of fifty-five**:
 querying it for an English novel opened a connection whose answer was known in advance.
@@ -91,7 +94,7 @@ fills nothing the BnF and SUDOC do not already have, at the cost of one more con
 > an empty field beats a chimera.
 
 If you mostly collect English-language books, reorder the sources —
-`PROVIDERS=openlibrary,bnf,sudoc,googlebooks` — or plug in your own catalogue, see
+`PROVIDERS=openlibrary,k10plus,sudoc,bnf` — or plug in your own catalogue, see
 [Adding a catalogue](#adding-a-catalogue).
 
 ---
@@ -262,7 +265,7 @@ Everything goes through environment variables, declared either straight in
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues, in priority order |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,k10plus,openbd` | Catalogues, in priority order |
 | `PROVIDER_TIMEOUT` | `8` | Per-catalogue timeout (s) |
 | `LOOKUP_DEADLINE` | `4` | Overall ceiling for one lookup (s) |
 | `SERIES_SUBCOLLECTIONS` | `1` | Create one sub-collection per series |

@@ -55,7 +55,7 @@ services:
       # rien sur les livres qui ne les concernent pas.
       # Un nom inconnu d'une version plus ancienne de l'image est ignoré sans
       # erreur : cette liste reste valable en cas de retour arrière.
-      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd,googlebooks"
+      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd"
       # Plafond global d'une recherche, en secondes.
       LOOKUP_DEADLINE: "4"
       # Range chaque tome d'une série dans une sous-collection à son nom.

@@ -33,6 +33,10 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ### Modifié
 
+- **Google Books quitte la liste des catalogues interrogés par défaut.** Sans clé d'API il
+  répond « quota dépassé » depuis une adresse partagée : sur 88 ISBN testés il n'a rien
+  renvoyé une seule fois, et coûtait une requête par scan pour rien. Le fournisseur reste
+  dans le code et se réactive en le remettant dans `PROVIDERS`, clé d'API à l'appui.
 - **Un catalogue n'est plus interrogé que sur les ISBN qu'il peut connaître.** Les trois
   premiers chiffres d'un ISBN désignent l'agence qui a enregistré l'éditeur, donc l'aire
   linguistique du livre : la BnF n'est plus sollicitée que sur les `978-2`, openBD que sur

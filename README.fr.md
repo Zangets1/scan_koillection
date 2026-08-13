@@ -41,10 +41,13 @@ Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution,
 | **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
 | **K10plus** (MARC21) | ✅ | — anglophone seulement | ❌ | ✅ (zone 830) | ❌ |
 | **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
+| Google Books *(désactivé)* | ⚠️ clé requise | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
 
 La BnF est interrogée en premier et fait autorité. Les autres ne servent qu'à **combler les champs vides**.
-Google Books reste présent en dernier recours et se retire d'une variable : `PROVIDERS=bnf,sudoc,openbd`.
+**Google Books n'est plus interrogé par défaut.** Sans clé d'API il répond « quota dépassé »
+depuis une adresse partagée — sur 88 ISBN testés, il n'a rien renvoyé une seule fois. Il coûtait
+donc une requête par scan pour rien. Le code reste en place : renseignez `GOOGLE_BOOKS_API_KEY`
+et remettez-le dans la liste pour le réactiver — `PROVIDERS=bnf,sudoc,openlibrary,k10plus,openbd,googlebooks`.
 
 **Pourquoi le SUDOC en second.** Mesuré sur 18 livres français, il n'apporte quasiment
 aucun titre que la BnF ignore — mais il remplit le résumé sur **4 livres de plus** et le
@@ -59,9 +62,9 @@ l'aire linguistique du livre. Un catalogue n'est interrogé que sur les aires qu
 
 | Aire | Préfixes | Catalogues interrogés |
 |---|---|---|
-| Francophone | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary, Google Books |
-| Anglophone | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus, Google Books |
-| Japon | `978-4` | SUDOC, OpenLibrary, openBD, Google Books |
+| Francophone | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary |
+| Anglophone | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus |
+| Japon | `978-4` | SUDOC, OpenLibrary, openBD |
 
 Mesuré sur 87 ISBN, la BnF ne référence qu'**un livre anglophone sur cinquante-cinq** :
 l'interroger pour un roman anglais ouvrait une connexion dont la réponse était connue
@@ -272,7 +275,7 @@ Tout passe par des variables d'environnement, déclarées soit directement dans 
 
 | Variable | Défaut | Rôle |
 |---|---|---|
-| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues et ordre de priorité |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,k10plus,openbd` | Catalogues et ordre de priorité |
 | `PROVIDER_TIMEOUT` | `8` | Délai maximal par catalogue (s) |
 | `LOOKUP_DEADLINE` | `4` | Plafond global d'une recherche (s) |
 | `SERIES_SUBCOLLECTIONS` | `1` | Créer une sous-collection par série |

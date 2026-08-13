@@ -63,7 +63,7 @@ services:
       #
       # Oublier `k10plus` dans cette liste désactive silencieusement toute la
       # nouveauté : la variable écrase la valeur par défaut de l'application.
-      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd,googlebooks"
+      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd"
 
       # ── Réglages courants ───────────────────────────────────────────
       APP_PASSWORD: ""
