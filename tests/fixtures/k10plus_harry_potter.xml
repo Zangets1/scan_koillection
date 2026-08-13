@@ -1,0 +1,926 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"><zs:version>1.1</zs:version><zs:numberOfRecords>3</zs:numberOfRecords><zs:records><zs:record><zs:recordSchema>marcxml</zs:recordSchema><zs:recordPacking>xml</zs:recordPacking><zs:recordData><record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>     cam a22      c 4500</leader>
+  <controlfield tag="001">470675519</controlfield>
+  <controlfield tag="003">DE-627</controlfield>
+  <controlfield tag="005">20251223203237.0</controlfield>
+  <controlfield tag="007">tu</controlfield>
+  <controlfield tag="008">041105s2000    xxk|||||      00| ||eng c</controlfield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0747532745</subfield>
+    <subfield code="9">0-7475-3274-5</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-627)470675519</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-599)GBV470675519</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)254088678</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">DE-627</subfield>
+    <subfield code="b">ger</subfield>
+    <subfield code="c">DE-627</subfield>
+    <subfield code="e">rakwb</subfield>
+  </datafield>
+  <datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">eng</subfield>
+  </datafield>
+  <datafield tag="044" ind1=" " ind2=" ">
+    <subfield code="c">XA-GB</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">823.914</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">LIT 408 ROW 5</subfield>
+    <subfield code="2">sfb</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">7,25</subfield>
+    <subfield code="2">ssgn</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">18.05</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">17.97</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="100" ind1="1" ind2=" ">
+    <subfield code="a">Rowling, J. K.</subfield>
+    <subfield code="d">1965-</subfield>
+    <subfield code="0">(DE-588)122340469</subfield>
+    <subfield code="0">(DE-627)325784256</subfield>
+    <subfield code="0">(DE-576)179029800</subfield>
+    <subfield code="4">aut</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">Harry Potter and the philosopher's stone</subfield>
+    <subfield code="c">J. K. Rowling</subfield>
+  </datafield>
+  <datafield tag="264" ind1=" " ind2="1">
+    <subfield code="a">London</subfield>
+    <subfield code="b">Bloomsbury</subfield>
+    <subfield code="c">2000</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">223 S</subfield>
+  </datafield>
+  <datafield tag="336" ind1=" " ind2=" ">
+    <subfield code="a">Text</subfield>
+    <subfield code="b">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="337" ind1=" " ind2=" ">
+    <subfield code="a">ohne Hilfsmittel zu benutzen</subfield>
+    <subfield code="b">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="338" ind1=" " ind2=" ">
+    <subfield code="a">Band</subfield>
+    <subfield code="b">nc</subfield>
+    <subfield code="2">rdacarrier</subfield>
+  </datafield>
+  <datafield tag="385" ind1=" " ind2=" ">
+    <subfield code="a">Kind</subfield>
+    <subfield code="0">(DE-588)4030550-8</subfield>
+    <subfield code="0">(DE-627)104360100</subfield>
+    <subfield code="0">(DE-576)208988165</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="4">
+    <subfield code="a">Magic</subfield>
+    <subfield code="x">Juvenile fiction</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="4">
+    <subfield code="a">Wizards</subfield>
+    <subfield code="x">Juvenile fiction</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2=" ">
+    <subfield code="a">Children's stories</subfield>
+  </datafield>
+  <datafield tag="655" ind1=" " ind2="7">
+    <subfield code="a">Kinderbuch</subfield>
+    <subfield code="0">(DE-588)4303251-5</subfield>
+    <subfield code="0">(DE-627)121618285</subfield>
+    <subfield code="0">(DE-576)211056774</subfield>
+    <subfield code="2">gnd-content</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="0">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4290802-4</subfield>
+    <subfield code="0">(DE-627)104237988</subfield>
+    <subfield code="0">(DE-576)210836806</subfield>
+    <subfield code="a">Männliche Jugend</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="1">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4036966-3</subfield>
+    <subfield code="0">(DE-627)106239945</subfield>
+    <subfield code="0">(DE-576)209021527</subfield>
+    <subfield code="a">Magie</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="2">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4053474-1</subfield>
+    <subfield code="0">(DE-627)104409630</subfield>
+    <subfield code="0">(DE-576)209103981</subfield>
+    <subfield code="a">Schule</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2=" ">
+    <subfield code="5">(DE-627)</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">689946627</subfield>
+    <subfield code="b">DE-3</subfield>
+    <subfield code="9">3</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">HN 7623 100</subfield>
+    <subfield code="g">A 8.8. Row</subfield>
+    <subfield code="h">Ha 18-RVK</subfield>
+    <subfield code="h">Ha 18-20</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">18.05</subfield>
+    <subfield code="j">Englische Literatur</subfield>
+    <subfield code="0">(DE-627)10640539X</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">17.97</subfield>
+    <subfield code="j">Texte eines einzelnen Autors</subfield>
+    <subfield code="0">(DE-627)181571714</subfield>
+  </datafield>
+  <datafield tag="951" ind1=" " ind2=" ">
+    <subfield code="a">BO</subfield>
+  </datafield>
+</record></zs:recordData><zs:recordPosition>1</zs:recordPosition></zs:record><zs:record><zs:recordSchema>marcxml</zs:recordSchema><zs:recordPacking>xml</zs:recordPacking><zs:recordData><record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>     cam a22      cb4500</leader>
+  <controlfield tag="001">1420980998</controlfield>
+  <controlfield tag="003">DE-627</controlfield>
+  <controlfield tag="005">20260619203247.0</controlfield>
+  <controlfield tag="007">tu</controlfield>
+  <controlfield tag="008">110930s1997    xx |||||      00| ||eng c</controlfield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">9780747532699</subfield>
+    <subfield code="9">978-0-7475-3269-9</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0747532745</subfield>
+    <subfield code="9">0-7475-3274-5</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0747532699</subfield>
+    <subfield code="9">0-7475-3269-9</subfield>
+  </datafield>
+  <datafield tag="024" ind1="3" ind2=" ">
+    <subfield code="a">9780747532699</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-627)1420980998</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-603)098172085</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-576)350980993</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-599)BSZ350980993</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)249662482</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)41272049</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">DE-627</subfield>
+    <subfield code="b">ger</subfield>
+    <subfield code="c">DE-627</subfield>
+    <subfield code="e">rakwb</subfield>
+  </datafield>
+  <datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">eng</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">823.914</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">HN 9990</subfield>
+    <subfield code="2">rvk</subfield>
+    <subfield code="0">(DE-625)rvk/51630:</subfield>
+  </datafield>
+  <datafield tag="100" ind1="1" ind2=" ">
+    <subfield code="a">Rowling, J. K.</subfield>
+    <subfield code="d">1965-</subfield>
+    <subfield code="0">(DE-588)122340469</subfield>
+    <subfield code="0">(DE-627)325784256</subfield>
+    <subfield code="0">(DE-576)179029800</subfield>
+    <subfield code="4">aut</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">Harry Potter and the philosopher's stone</subfield>
+    <subfield code="c">J. K. Rowling</subfield>
+  </datafield>
+  <datafield tag="264" ind1=" " ind2="1">
+    <subfield code="a">London</subfield>
+    <subfield code="a">Berlin [u.a.]</subfield>
+    <subfield code="b">Bloomsbury</subfield>
+    <subfield code="c">1997</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">223 S.</subfield>
+  </datafield>
+  <datafield tag="336" ind1=" " ind2=" ">
+    <subfield code="a">Text</subfield>
+    <subfield code="b">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="337" ind1=" " ind2=" ">
+    <subfield code="a">ohne Hilfsmittel zu benutzen</subfield>
+    <subfield code="b">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="338" ind1=" " ind2=" ">
+    <subfield code="a">Band</subfield>
+    <subfield code="b">nc</subfield>
+    <subfield code="2">rdacarrier</subfield>
+  </datafield>
+  <datafield tag="490" ind1="1" ind2=" ">
+    <subfield code="a">The complete Harry Potter collection / J. K. Rowling</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4035114-2</subfield>
+    <subfield code="0">(DE-627)106249320</subfield>
+    <subfield code="0">(DE-576)209010827</subfield>
+    <subfield code="a">Lehrling</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4078547-6</subfield>
+    <subfield code="0">(DE-627)10607704X</subfield>
+    <subfield code="0">(DE-576)209209119</subfield>
+    <subfield code="a">Ungeheuer</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4067403-4</subfield>
+    <subfield code="0">(DE-627)106109081</subfield>
+    <subfield code="0">(DE-576)209169710</subfield>
+    <subfield code="a">Magier</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4029002-5</subfield>
+    <subfield code="0">(DE-627)104254262</subfield>
+    <subfield code="0">(DE-576)208980547</subfield>
+    <subfield code="a">Junge</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4368519-5</subfield>
+    <subfield code="0">(DE-627)182932214</subfield>
+    <subfield code="0">(DE-576)211561444</subfield>
+    <subfield code="a">Stein der Weisen</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4016114-6</subfield>
+    <subfield code="0">(DE-627)104452412</subfield>
+    <subfield code="0">(DE-576)208914897</subfield>
+    <subfield code="a">Fabeltiere</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="800" ind1="1" ind2=" ">
+    <subfield code="a">Rowling, J. K.</subfield>
+    <subfield code="d">1965-</subfield>
+    <subfield code="t">The complete Harry Potter collection.</subfield>
+    <subfield code="v">(phil)</subfield>
+    <subfield code="9">(phil)</subfield>
+    <subfield code="w">(DE-627)1419864181</subfield>
+    <subfield code="w">(DE-576)349864187</subfield>
+    <subfield code="7">am</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">2691200132</subfield>
+    <subfield code="b">DE-Ch1</subfield>
+    <subfield code="9">Ch 1</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">490749663X</subfield>
+    <subfield code="b">DE-Mz19</subfield>
+    <subfield code="9">Mz 19</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">LIT-GB 60.99 Rowli 2</subfield>
+  </datafield>
+  <datafield tag="936" ind1="r" ind2="v">
+    <subfield code="a">HN 9990</subfield>
+    <subfield code="b">Sonstige</subfield>
+    <subfield code="k">Anglistik. Amerikanistik</subfield>
+    <subfield code="k">Englische Literatur</subfield>
+    <subfield code="k">Die Literatur des 20. Jahrhunderts seit 1945</subfield>
+    <subfield code="k">Literaturgeschichte</subfield>
+    <subfield code="k">Sonstige</subfield>
+    <subfield code="0">(DE-627)1270823043</subfield>
+    <subfield code="0">(DE-625)rvk/51630:</subfield>
+    <subfield code="0">(DE-576)200823043</subfield>
+  </datafield>
+  <datafield tag="936" ind1="s" ind2="n">
+    <subfield code="a">h100</subfield>
+    <subfield code="2">mzub</subfield>
+  </datafield>
+  <datafield tag="951" ind1=" " ind2=" ">
+    <subfield code="a">MV</subfield>
+  </datafield>
+</record></zs:recordData><zs:recordPosition>2</zs:recordPosition></zs:record><zs:record><zs:recordSchema>marcxml</zs:recordSchema><zs:recordPacking>xml</zs:recordPacking><zs:recordData><record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>     cam a22      c 4500</leader>
+  <controlfield tag="001">654027587</controlfield>
+  <controlfield tag="003">DE-627</controlfield>
+  <controlfield tag="005">20260613203240.0</controlfield>
+  <controlfield tag="007">tu</controlfield>
+  <controlfield tag="008">110314s1997    xxk|||||      00| ||eng c</controlfield>
+  <datafield tag="016" ind1="7" ind2=" ">
+    <subfield code="a">b99X1777</subfield>
+    <subfield code="2">UK</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">9780747532699</subfield>
+    <subfield code="9">978-0-7475-3269-9</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">9780747532743</subfield>
+    <subfield code="9">978-0-7475-3274-3</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0747532699</subfield>
+    <subfield code="9">0-7475-3269-9</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0747532745</subfield>
+    <subfield code="q">fest geb. : EUR 16,35</subfield>
+    <subfield code="9">0-7475-3274-5</subfield>
+  </datafield>
+  <datafield tag="024" ind1="3" ind2=" ">
+    <subfield code="a">9780747532743</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-627)654027587</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-603)104477962</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-576)082643644</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-599)GBV654027587</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)832957290</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)249662482</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)41272049</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-604)8128933771</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-478)952109946</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-478)952144536</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">DE-627</subfield>
+    <subfield code="b">ger</subfield>
+    <subfield code="c">DE-627</subfield>
+    <subfield code="e">rakwb</subfield>
+  </datafield>
+  <datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">eng</subfield>
+  </datafield>
+  <datafield tag="044" ind1=" " ind2=" ">
+    <subfield code="c">XA-GB</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">Fic</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">823.914</subfield>
+    <subfield code="q">OCLC</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">LIT 408 ROW 5</subfield>
+    <subfield code="2">sfb</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">7,25</subfield>
+    <subfield code="2">ssgn</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">HN 7623</subfield>
+    <subfield code="2">rvk</subfield>
+    <subfield code="0">(DE-625)rvk/51541:11850</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">HN 9990</subfield>
+    <subfield code="2">rvk</subfield>
+    <subfield code="0">(DE-625)rvk/51630:</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">18.05</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">17.97</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="100" ind1="1" ind2=" ">
+    <subfield code="a">Rowling, J. K.</subfield>
+    <subfield code="d">1965-</subfield>
+    <subfield code="0">(DE-588)122340469</subfield>
+    <subfield code="0">(DE-627)325784256</subfield>
+    <subfield code="0">(DE-576)179029800</subfield>
+    <subfield code="4">aut</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="0">
+    <subfield code="a">Harry Potter and the philosopher's stone</subfield>
+    <subfield code="c">J. K. Rowling</subfield>
+  </datafield>
+  <datafield tag="250" ind1=" " ind2=" ">
+    <subfield code="a">[1. Dr. der Paperbackausg., Ausg. mit Druckfehler]</subfield>
+  </datafield>
+  <datafield tag="264" ind1=" " ind2="1">
+    <subfield code="a">London</subfield>
+    <subfield code="b">Bloomsbury</subfield>
+    <subfield code="c">1997</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">223 S.</subfield>
+    <subfield code="c">20 cm</subfield>
+  </datafield>
+  <datafield tag="336" ind1=" " ind2=" ">
+    <subfield code="a">Text</subfield>
+    <subfield code="b">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="337" ind1=" " ind2=" ">
+    <subfield code="a">ohne Hilfsmittel zu benutzen</subfield>
+    <subfield code="b">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="338" ind1=" " ind2=" ">
+    <subfield code="a">Band</subfield>
+    <subfield code="b">nc</subfield>
+    <subfield code="2">rdacarrier</subfield>
+  </datafield>
+  <datafield tag="385" ind1=" " ind2=" ">
+    <subfield code="a">Jugend</subfield>
+    <subfield code="0">(DE-588)4028859-6</subfield>
+    <subfield code="0">(DE-627)104419199</subfield>
+    <subfield code="0">(DE-576)208979859</subfield>
+  </datafield>
+  <datafield tag="500" ind1=" " ind2=" ">
+    <subfield code="a">Triple smarties gold award winner</subfield>
+  </datafield>
+  <datafield tag="520" ind1=" " ind2=" ">
+    <subfield code="a">Nach dem Tod seiner Eltern lebt Harry bei gräßlichen Verwandten. Doch als er zu seinem 11. Geburtstag die Berufung an die Hexen- und Zaubererschule erhält, ändert sich sein Leben gründlich und er erlebt das aufregendste Jahr seines Lebens.</subfield>
+  </datafield>
+  <datafield tag="520" ind1=" " ind2=" ">
+    <subfield code="a">Nach dem Tod seiner Eltern lebt Harry bei grässlichen Verwandten. Doch als er zu seinem 11. Geburtstag die Berufung an die Hexen- und Zaubererschule erhält, ändert sich sein Leben gründlich, und er erlebt das aufregendste Jahr seines Lebens.</subfield>
+  </datafield>
+  <datafield tag="583" ind1="1" ind2=" ">
+    <subfield code="a">Archivierung prüfen</subfield>
+    <subfield code="c">20240324</subfield>
+    <subfield code="f">DE-4165</subfield>
+    <subfield code="z">3</subfield>
+    <subfield code="2">pdager</subfield>
+  </datafield>
+  <datafield tag="591" ind1=" " ind2=" ">
+    <subfield code="a">keine Ansicht / erl. Lbi</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4035114-2</subfield>
+    <subfield code="0">(DE-627)106249320</subfield>
+    <subfield code="0">(DE-576)209010827</subfield>
+    <subfield code="a">Lehrling</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4078547-6</subfield>
+    <subfield code="0">(DE-627)10607704X</subfield>
+    <subfield code="0">(DE-576)209209119</subfield>
+    <subfield code="a">Ungeheuer</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4067403-4</subfield>
+    <subfield code="0">(DE-627)106109081</subfield>
+    <subfield code="0">(DE-576)209169710</subfield>
+    <subfield code="a">Magier</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4029002-5</subfield>
+    <subfield code="0">(DE-627)104254262</subfield>
+    <subfield code="0">(DE-576)208980547</subfield>
+    <subfield code="a">Junge</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4368519-5</subfield>
+    <subfield code="0">(DE-627)182932214</subfield>
+    <subfield code="0">(DE-576)211561444</subfield>
+    <subfield code="a">Stein der Weisen</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1="0" ind2="7">
+    <subfield code="0">(DE-588)4016114-6</subfield>
+    <subfield code="0">(DE-627)104452412</subfield>
+    <subfield code="0">(DE-576)208914897</subfield>
+    <subfield code="a">Fabeltiere</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="4">
+    <subfield code="a">Magic</subfield>
+    <subfield code="x">Juvenile fiction</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2=" ">
+    <subfield code="a">Children's stories</subfield>
+  </datafield>
+  <datafield tag="655" ind1=" " ind2="7">
+    <subfield code="a">Kinderbuch</subfield>
+    <subfield code="0">(DE-588)4303251-5</subfield>
+    <subfield code="0">(DE-627)121618285</subfield>
+    <subfield code="0">(DE-576)211056774</subfield>
+    <subfield code="2">gnd-content</subfield>
+  </datafield>
+  <datafield tag="655" ind1=" " ind2="7">
+    <subfield code="a">Jugendbuch</subfield>
+    <subfield code="0">(DE-588)4306252-0</subfield>
+    <subfield code="0">(DE-627)123203171</subfield>
+    <subfield code="0">(DE-576)211085316</subfield>
+    <subfield code="2">gnd-content</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="0">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4029002-5</subfield>
+    <subfield code="0">(DE-627)104254262</subfield>
+    <subfield code="0">(DE-576)208980547</subfield>
+    <subfield code="a">Junge</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="1">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4067403-4</subfield>
+    <subfield code="0">(DE-627)106109081</subfield>
+    <subfield code="0">(DE-576)209169710</subfield>
+    <subfield code="a">Magier</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="2">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4035114-2</subfield>
+    <subfield code="0">(DE-627)106249320</subfield>
+    <subfield code="0">(DE-576)209010827</subfield>
+    <subfield code="a">Lehrling</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="3">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4016114-6</subfield>
+    <subfield code="0">(DE-627)104452412</subfield>
+    <subfield code="0">(DE-576)208914897</subfield>
+    <subfield code="a">Fabeltiere</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="4">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4078547-6</subfield>
+    <subfield code="0">(DE-627)10607704X</subfield>
+    <subfield code="0">(DE-576)209209119</subfield>
+    <subfield code="a">Ungeheuer</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2=" ">
+    <subfield code="5">(DE-627)</subfield>
+  </datafield>
+  <datafield tag="689" ind1="1" ind2="0">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4029002-5</subfield>
+    <subfield code="0">(DE-627)104254262</subfield>
+    <subfield code="0">(DE-576)208980547</subfield>
+    <subfield code="a">Junge</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="1" ind2="1">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4368519-5</subfield>
+    <subfield code="0">(DE-627)182932214</subfield>
+    <subfield code="0">(DE-576)211561444</subfield>
+    <subfield code="a">Stein der Weisen</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="1" ind2=" ">
+    <subfield code="5">(DE-627)</subfield>
+  </datafield>
+  <datafield tag="689" ind1="2" ind2="0">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4290802-4</subfield>
+    <subfield code="0">(DE-627)104237988</subfield>
+    <subfield code="0">(DE-576)210836806</subfield>
+    <subfield code="a">Männliche Jugend</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="2" ind2="1">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4036966-3</subfield>
+    <subfield code="0">(DE-627)106239945</subfield>
+    <subfield code="0">(DE-576)209021527</subfield>
+    <subfield code="a">Magie</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="2" ind2="2">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4053474-1</subfield>
+    <subfield code="0">(DE-627)104409630</subfield>
+    <subfield code="0">(DE-576)209103981</subfield>
+    <subfield code="a">Schule</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="2" ind2=" ">
+    <subfield code="5">(DE-627)</subfield>
+  </datafield>
+  <datafield tag="889" ind1=" " ind2=" ">
+    <subfield code="w">(DE-627)227472098</subfield>
+  </datafield>
+  <datafield tag="889" ind1=" " ind2=" ">
+    <subfield code="w">(DE-627)62360180X</subfield>
+  </datafield>
+  <datafield tag="912" ind1=" " ind2=" ">
+    <subfield code="a">SSG-OPC-ang</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1232340707</subfield>
+    <subfield code="b">DE-1a</subfield>
+    <subfield code="9">1a</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">b</subfield>
+    <subfield code="g">53 MA 21661 R</subfield>
+    <subfield code="h">1:KJAR</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1149345624</subfield>
+    <subfield code="b">DE-1a</subfield>
+    <subfield code="9">1a</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">b</subfield>
+    <subfield code="g">53 MA 20301 R</subfield>
+    <subfield code="h">1:KJAR</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">413813061</subfield>
+    <subfield code="b">DE-84</subfield>
+    <subfield code="9">84</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">Pri-Row 1</subfield>
+    <subfield code="h">SD</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">59788451X</subfield>
+    <subfield code="b">DE-84</subfield>
+    <subfield code="9">84</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">Or-6.060</subfield>
+    <subfield code="h">Q2</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">821049240</subfield>
+    <subfield code="b">DE-18</subfield>
+    <subfield code="9">18</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">T 72254</subfield>
+    <subfield code="g">T 72254</subfield>
+    <subfield code="h">18/309-AA</subfield>
+    <subfield code="h">18/39</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3489632575</subfield>
+    <subfield code="b">DE-8</subfield>
+    <subfield code="9">8</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">373.2 | ROW | Har</subfield>
+    <subfield code="h">8/55</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">382187792</subfield>
+    <subfield code="b">DE-7</subfield>
+    <subfield code="9">7</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">2000 A 1595</subfield>
+    <subfield code="h">FMAG</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1747942847</subfield>
+    <subfield code="b">DE-7</subfield>
+    <subfield code="9">7</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">ATE 6232 / 1</subfield>
+    <subfield code="h">7/029</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">865474117</subfield>
+    <subfield code="b">DE-9</subfield>
+    <subfield code="9">9</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">310/HN 7623 H32.997-1</subfield>
+    <subfield code="h">BB 310</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">4335503180</subfield>
+    <subfield code="b">DE-115</subfield>
+    <subfield code="9">115</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">Rowli,J Ju</subfield>
+    <subfield code="h">KiJu-Suedstadt</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">4335503199</subfield>
+    <subfield code="b">DE-115</subfield>
+    <subfield code="9">115</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">TB</subfield>
+    <subfield code="h">STB Vahrenwald</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">80228132X</subfield>
+    <subfield code="b">DE-700</subfield>
+    <subfield code="9">700</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">ELA R 8841 5045-678 5</subfield>
+    <subfield code="h">B</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">64894820X</subfield>
+    <subfield code="b">DE-Va1</subfield>
+    <subfield code="9">Va 1</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">5.4 row = 346753</subfield>
+    <subfield code="h">Lesebereich</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3478222923</subfield>
+    <subfield code="b">DE-56</subfield>
+    <subfield code="9">56</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">d</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">661909050</subfield>
+    <subfield code="b">DE-552</subfield>
+    <subfield code="9">552</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">AL 13-184:1</subfield>
+    <subfield code="g">AL 13-184</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3131991720</subfield>
+    <subfield code="b">DE-21-108</subfield>
+    <subfield code="9">21/108</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">NT 689.310</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">313199178X</subfield>
+    <subfield code="b">DE-25-24</subfield>
+    <subfield code="9">25/24</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">b</subfield>
+    <subfield code="g">Frei 24: XX Row 100</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3453724240</subfield>
+    <subfield code="b">DE-180</subfield>
+    <subfield code="9">180</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">  2000 A 1130</subfield>
+    <subfield code="h">MAG05</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3131991933</subfield>
+    <subfield code="b">DE-31</subfield>
+    <subfield code="9">31</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">102 A 5537</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3131991976</subfield>
+    <subfield code="b">DE-Frei129</subfield>
+    <subfield code="9">Frei 129</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">HN 7623 P568</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">4883255840</subfield>
+    <subfield code="b">DE-77-004</subfield>
+    <subfield code="9">77/004</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">d</subfield>
+    <subfield code="g">Q R 61 I/1</subfield>
+    <subfield code="h">Standort Anglistik/Amerikanistik</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3131992077</subfield>
+    <subfield code="b">DE-752</subfield>
+    <subfield code="9">752</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">Q bn 5.1/ Rowl 97</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3131992131</subfield>
+    <subfield code="b">DE-59</subfield>
+    <subfield code="9">59</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+  </datafield>
+  <datafield tag="935" ind1=" " ind2=" ">
+    <subfield code="i">mdedup</subfield>
+  </datafield>
+  <datafield tag="935" ind1=" " ind2=" ">
+    <subfield code="i">Blocktest</subfield>
+  </datafield>
+  <datafield tag="936" ind1="r" ind2="v">
+    <subfield code="a">HN 7623</subfield>
+    <subfield code="b">Einzelausgaben</subfield>
+    <subfield code="k">Anglistik. Amerikanistik</subfield>
+    <subfield code="k">Englische Literatur</subfield>
+    <subfield code="k">Die Literatur des 20. Jahrhunderts seit 1945</subfield>
+    <subfield code="k">Literaturgeschichte</subfield>
+    <subfield code="k">Einzelne Autoren</subfield>
+    <subfield code="k">Autoren R</subfield>
+    <subfield code="k">Rowling, Joanne K. (= Galbraith, Robert)</subfield>
+    <subfield code="k">Einzelausgaben</subfield>
+    <subfield code="0">(DE-627)1447056760</subfield>
+    <subfield code="0">(DE-625)rvk/51541:11850</subfield>
+    <subfield code="0">(DE-576)377056766</subfield>
+  </datafield>
+  <datafield tag="936" ind1="r" ind2="v">
+    <subfield code="a">HN 9990</subfield>
+    <subfield code="b">Sonstige</subfield>
+    <subfield code="k">Anglistik. Amerikanistik</subfield>
+    <subfield code="k">Englische Literatur</subfield>
+    <subfield code="k">Die Literatur des 20. Jahrhunderts seit 1945</subfield>
+    <subfield code="k">Literaturgeschichte</subfield>
+    <subfield code="k">Sonstige</subfield>
+    <subfield code="0">(DE-627)1270823043</subfield>
+    <subfield code="0">(DE-625)rvk/51630:</subfield>
+    <subfield code="0">(DE-576)200823043</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">18.05</subfield>
+    <subfield code="j">Englische Literatur</subfield>
+    <subfield code="0">(DE-627)10640539X</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">17.97</subfield>
+    <subfield code="j">Texte eines einzelnen Autors</subfield>
+    <subfield code="0">(DE-627)181571714</subfield>
+  </datafield>
+  <datafield tag="936" ind1="s" ind2="n">
+    <subfield code="a">h100</subfield>
+    <subfield code="2">mzub</subfield>
+  </datafield>
+  <datafield tag="951" ind1=" " ind2=" ">
+    <subfield code="a">BO</subfield>
+  </datafield>
+</record></zs:recordData><zs:recordPosition>3</zs:recordPosition></zs:record></zs:records><zs:echoedSearchRetrieveRequest><zs:version>1.1</zs:version><zs:query>pica.isb=9780747532743</zs:query><zs:maximumRecords>3</zs:maximumRecords><zs:recordPacking>xml</zs:recordPacking><zs:recordSchema>marcxml</zs:recordSchema></zs:echoedSearchRetrieveRequest></zs:searchRetrieveResponse>

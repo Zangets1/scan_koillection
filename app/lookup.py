@@ -242,7 +242,8 @@ def merge(metas: list[BookMeta], isbn13: str) -> BookMeta:
 
     scalar_fields = (
         "title", "subtitle", "publisher", "published_date", "page_count",
-        "synopsis", "series", "volume", "language", "cover_url", "source_url", "isbn10",
+        "synopsis", "series", "volume", "language", "country", "cover_url",
+        "source_url", "isbn10",
     )
     for field in scalar_fields:
         for meta in metas:

@@ -39,6 +39,7 @@ Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution,
 | **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (notices Electre) | ✅ (zone 461) | ✅ |
 | **SUDOC** (bibliothèques universitaires) | ✅ | ✅✅ | ✅ (4e de couverture) | ✅ (zone 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
+| **K10plus** (MARC21) | ✅ | — anglophone seulement | ❌ | ✅ (zone 830) | ❌ |
 | **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
 | Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
 
@@ -50,6 +51,43 @@ aucun titre que la BnF ignore — mais il remplit le résumé sur **4 livres de 
 genre sur **8 de plus**, avec des étiquettes bien plus utiles (« Mangas », « Shônen »
 plutôt que « Bandes dessinées »). Il sert aussi de roue de secours : le service SRU de la
 BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
+
+### Chaque catalogue là où il sait répondre
+
+Les trois premiers chiffres d'un ISBN désignent l'agence qui a enregistré l'éditeur, donc
+l'aire linguistique du livre. Un catalogue n'est interrogé que sur les aires qu'il couvre :
+
+| Aire | Préfixes | Catalogues interrogés |
+|---|---|---|
+| Francophone | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary, Google Books |
+| Anglophone | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus, Google Books |
+| Japon | `978-4` | SUDOC, OpenLibrary, openBD, Google Books |
+
+Mesuré sur 87 ISBN, la BnF ne référence qu'**un livre anglophone sur cinquante-cinq** :
+l'interroger pour un roman anglais ouvrait une connexion dont la réponse était connue
+d'avance. Les catalogues étant lancés en parallèle, le temps total est celui du plus lent —
+en retirer deux **raccourcit** la recherche : −0,7 s sur un scan anglophone, −0,3 s sur un
+scan français.
+
+Une aire inconnue n'écarte personne : sur un ISBN dont le groupe n'est pas répertorié, tout
+le monde est interrogé, comme avant.
+
+> **Non, l'ISBN ne dit pas le pays.** `978-0` et `978-1` forment un **unique** groupe
+> « langue anglaise », partagé par le Royaume-Uni, les États-Unis, l'Australie et l'Irlande.
+> Aucun code-barres ne permet de distinguer une édition anglaise d'une édition américaine :
+> `978-0-7475-3274-3` est le Harry Potter de Bloomsbury à Londres, `978-0-590-35340-3` celui
+> de Scholastic à New York. Seule la notice du catalogue porte le pays d'édition — K10plus le
+> renseigne pour environ un livre anglophone sur cinq, et l'API le renvoie dans le champ
+> `country`. C'est trop rare pour mériter une case dans le formulaire.
+
+**Pourquoi K10plus sur l'anglophone.** Catalogue collectif des bibliothèques allemandes, bien
+fourni en éditions anglo-saxonnes, en MARC21, sans clé ni quota. Mesuré sur 55 ISBN
+anglophones, il ne fait découvrir **aucun** livre qu'OpenLibrary ignore, mais il comble la
+pagination (73 % → 84 %) et la série (17 % → 24 %). Ses zones de résumé et de genre sont
+écartées : leur langue dépend de la bibliothèque qui a rédigé la notice, allemande ou
+anglaise, et rien dans le format ne permet de le savoir. Il reste cantonné à l'anglophone —
+sur les ISBN `978-2` il ne comble rien que la BnF et le SUDOC n'aient déjà, pour une
+connexion de plus.
 
 > **Garde-fou anti-mélange.** Certains ISBN sont attribués à deux ouvrages différents selon les catalogues.
 > Si une source secondaire décrit visiblement un autre livre (titre sans rapport **et** aucun auteur commun),
@@ -279,6 +317,17 @@ Les catalogues sont interrogés **tous en même temps** : le temps total est cel
 lent, pas la somme. Ajouter une source ne rallonge donc pas la recherche tant qu'elle
 répond dans les temps — passer de quatre à cinq catalogues a coûté 0,13 s de médiane.
 
+Le corollaire vaut dans l'autre sens, et c'est ce qui rend le tri par aire linguistique
+payant : **retirer** une source retire un candidat au titre de « plus lent ». Comparé sur
+trois serveurs mesurés en alternance sur les mêmes ISBN, écart apparié livre par livre :
+
+| | requêtes par scan | écart |
+|---|:--:|:--:|
+| Scan anglophone, avant | 5 | référence |
+| Scan anglophone, après | 3 | **−0,7 s** |
+| Scan français, avant | 5 | référence |
+| Scan français, après | 4 | **−0,3 s** |
+
 Le maximum n'est pas un hasard : c'est `LOOKUP_DEADLINE`. Passé ce délai, la fiche
 s'affiche avec ce qui est arrivé et les retardataires sont marqués « trop lent » à côté
 des sources. Personne n'attend indéfiniment devant son étagère parce qu'un serveur
@@ -366,6 +415,21 @@ tests/            tests unitaires + fixtures BnF réelles
 Créez `app/providers/mon_catalogue.py`, héritez de `Provider`, renvoyez un `BookMeta`,
 inscrivez la classe dans `build_providers()` puis ajoutez son nom à `PROVIDERS`.
 Un fournisseur qui échoue est simplement ignoré : il ne peut pas bloquer une recherche.
+
+Déclarez `groups` si le catalogue ne couvre qu'une partie du monde — il ne sera alors
+interrogé que sur ces aires (`fr`, `en`, `ja`, `de`, `es`, `it`, `ru`, `zh`, `ko`) :
+
+```python
+class MonCatalogue(Provider):
+    name = "mon_catalogue"
+    label = "Mon catalogue"
+    groups = frozenset({"en"})   # omettre l'attribut = toutes les aires
+```
+
+Deux lecteurs de notices bibliothécaires sont déjà disponibles : `unimarc.py` pour les
+catalogues francophones (BnF, SUDOC) et `marc21.py` pour les catalogues anglo-saxons et
+allemands (K10plus, Library of Congress). Les deux décrivent les mêmes livres, mais les
+zones n'y portent pas les mêmes numéros.
 
 ---
 

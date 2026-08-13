@@ -81,7 +81,8 @@ class Settings:
 
         # --- Fournisseurs de métadonnées --------------------------------
         self.providers: list[str] = _env_list(
-            "PROVIDERS", ["bnf", "sudoc", "openlibrary", "openbd", "googlebooks"]
+            "PROVIDERS",
+            ["bnf", "sudoc", "openlibrary", "k10plus", "openbd", "googlebooks"],
         )
         self.provider_timeout: float = _env_float("PROVIDER_TIMEOUT", 8.0)
         # Plafond global : au-delà, on répond avec ce qui est déjà arrivé plutôt

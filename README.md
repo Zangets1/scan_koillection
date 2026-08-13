@@ -38,6 +38,7 @@ This project was built for French-language books, and that choice drives the who
 | **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (Electre records) | ✅ (field 461) | ✅ |
 | **SUDOC** (French academic libraries) | ✅ | ✅✅ | ✅ (back cover) | ✅ (field 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partial | 🇬🇧 English | ⚠️ sometimes | ⚠️ keywords |
+| **K10plus** (MARC21) | ✅ | — English-language only | ❌ | ✅ (field 830) | ❌ |
 | **openBD** (Japan) | ✅ | ❌ | 🇯🇵 Japanese | ✅ | ⚠️ |
 | Google Books | ✅ | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
 
@@ -48,6 +49,41 @@ Google Books is a last resort and can be dropped with one variable: `PROVIDERS=b
 BnF misses — but it fills the synopsis on **4 more books** and the genre on **8 more**, with
 far more useful labels ("Manga", "Shōnen" instead of "Comics"). It also acts as a spare
 wheel: the BnF's SRU service drops connections intermittently, and SUDOC covers for it.
+
+### Each catalogue only where it can answer
+
+The first digits of an ISBN identify the agency that registered the publisher, and therefore
+the book's language area. A catalogue is only queried for the areas it covers:
+
+| Area | Prefixes | Catalogues queried |
+|---|---|---|
+| French-language | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary, Google Books |
+| English-language | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus, Google Books |
+| Japan | `978-4` | SUDOC, OpenLibrary, openBD, Google Books |
+
+Measured across 87 ISBNs, the BnF holds **one English-language book out of fifty-five**:
+querying it for an English novel opened a connection whose answer was known in advance.
+Since catalogues run in parallel, total time is the slowest one — dropping two therefore
+**shortens** the lookup: −0.7 s on an English scan, −0.3 s on a French one.
+
+An unrecognised area excludes nobody: for an ISBN whose group is not listed, everyone is
+queried, exactly as before.
+
+> **No, the ISBN does not tell you the country.** `978-0` and `978-1` form a **single**
+> "English language" group shared by the UK, the US, Australia and Ireland. No barcode can
+> separate a British edition from an American one: `978-0-7475-3274-3` is Bloomsbury's Harry
+> Potter in London, `978-0-590-35340-3` is Scholastic's in New York. Only the catalogue record
+> carries the country of publication — K10plus supplies it for roughly one English-language
+> book in five, and the API returns it in the `country` field. That is too rare to deserve a
+> box in the form.
+
+**Why K10plus for English-language books.** The union catalogue of German libraries is well
+stocked in Anglo-American editions, speaks MARC21, and needs no key or quota. Measured across
+55 English-language ISBNs it turns up **no** book OpenLibrary misses, but it fills the page
+count (73 % → 84 %) and the series (17 % → 24 %). Its summary and genre fields are discarded:
+their language depends on whichever library wrote the record, German or English, and nothing
+in the format says which. It stays confined to English-language ISBNs — on `978-2` codes it
+fills nothing the BnF and SUDOC do not already have, at the cost of one more connection.
 
 > **Guard against mixed-up records.** Some ISBNs are assigned to two different works
 > depending on the catalogue. When a secondary source clearly describes another book
@@ -271,6 +307,17 @@ Catalogues are queried **all at once**: total time is the slowest one, not the s
 source therefore costs nothing as long as it answers in time — going from four to five
 catalogues cost 0.13 s of median.
 
+The converse holds too, and that is what makes routing by language area pay off: **dropping**
+a source removes a candidate for the "slowest" title. Compared across three servers measured
+in alternation on the same ISBNs, paired book by book:
+
+| | requests per scan | difference |
+|---|:--:|:--:|
+| English scan, before | 5 | baseline |
+| English scan, after | 3 | **−0.7 s** |
+| French scan, before | 5 | baseline |
+| French scan, after | 4 | **−0.3 s** |
+
 The worst case is no accident: it is `LOOKUP_DEADLINE`. Past that, the form appears with
 whatever arrived and the stragglers are marked "trop lent" next to the sources. Nobody waits
 indefinitely in front of a bookshelf because a remote server hiccuped.
@@ -361,6 +408,20 @@ wording together.
 Create `app/providers/my_catalogue.py`, subclass `Provider`, return a `BookMeta`, register
 the class in `build_providers()` and add its name to `PROVIDERS`. A provider that fails is
 simply ignored: it cannot hold up a lookup.
+
+Declare `groups` if the catalogue only covers part of the world — it will then be queried
+for those areas only (`fr`, `en`, `ja`, `de`, `es`, `it`, `ru`, `zh`, `ko`):
+
+```python
+class MyCatalogue(Provider):
+    name = "my_catalogue"
+    label = "My catalogue"
+    groups = frozenset({"en"})   # omit the attribute for every area
+```
+
+Two readers for library records already exist: `unimarc.py` for French-language catalogues
+(BnF, SUDOC) and `marc21.py` for Anglo-American and German ones (K10plus, Library of
+Congress). Both describe the same books, but the fields do not carry the same numbers.
 
 ---
 
