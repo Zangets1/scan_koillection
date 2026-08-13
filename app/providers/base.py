@@ -19,9 +19,22 @@ class Provider(abc.ABC):
     name: str = ""
     #: Libellé affiché dans l'interface
     label: str = ""
+    #: Aires linguistiques (cf. :func:`app.isbn.registration_group`) que ce
+    #: catalogue couvre utilement. ``None`` signifie « toutes », ce qui reste le
+    #: cas par défaut : un fournisseur qui ne se prononce pas est interrogé comme
+    #: auparavant.
+    groups: frozenset[str] | None = None
 
     def enabled(self) -> bool:  # pragma: no cover - trivial
         return True
+
+    def handles(self, group: str) -> bool:
+        """Vrai si ce catalogue mérite d'être interrogé pour cette aire.
+
+        Un groupe inconnu (chaîne vide) n'écarte personne : mieux vaut une
+        requête de trop qu'une notice manquée sur un ISBN mal identifié.
+        """
+        return self.groups is None or not group or group in self.groups
 
     @abc.abstractmethod
     async def fetch(self, client: httpx.AsyncClient, isbn13: str) -> BookMeta | None:

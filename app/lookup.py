@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 import httpx
 
+from . import isbn as isbn_utils
 from . import series as series_utils
 from .config import Settings
 from .models import BookMeta, LookupResponse
@@ -119,10 +120,18 @@ class LookupService:
         l'utilisateur, code-barres en main devant son étagère, parce qu'un
         catalogue secondaire est lent. Passé le délai, on répond avec ce qui est
         arrivé et les retardataires sont signalés comme tels dans l'interface.
+
+        Encore faut-il qu'ils aient une chance de répondre : le groupe
+        d'enregistrement de l'ISBN désigne l'agence qui a enregistré l'éditeur,
+        donc l'aire linguistique du livre. Interroger la BnF pour un ISBN 978-0
+        ouvre une connexion pour rien. Ce tri est une lecture de cinq chiffres,
+        et il retire deux candidats au titre de « fournisseur le plus lent ».
         """
+        group = isbn_utils.registration_group(isbn13)
         tasks = {
             asyncio.create_task(self._fetch_one(provider, isbn13)): provider
             for provider in self.providers
+            if provider.handles(group)
         }
         if not tasks:
             return {}, []

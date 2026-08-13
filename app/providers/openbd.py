@@ -20,11 +20,12 @@ URL = "https://api.openbd.jp/v1/get"
 class OpenBdProvider(Provider):
     name = "openbd"
     label = "openBD (Japon)"
+    #: La base ne contient que des ISBN japonais. Ce filtre remplace le test
+    #: ``startswith("9784")`` qui était écrit ici en dur : le service n'est
+    #: désormais plus sollicité du tout hors du Japon.
+    groups = frozenset({"ja"})
 
     async def fetch(self, client: httpx.AsyncClient, isbn13: str) -> BookMeta | None:
-        # La base ne contient que des ISBN japonais : inutile de la solliciter sinon.
-        if not isbn13.startswith("9784"):
-            return None
         response = await client.get(URL, params={"isbn": isbn13})
         if response.status_code != 200:
             return None
