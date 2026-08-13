@@ -423,6 +423,21 @@ Two readers for library records already exist: `unimarc.py` for French-language 
 (BnF, SUDOC) and `marc21.py` for Anglo-American and German ones (K10plus, Library of
 Congress). Both describe the same books, but the fields do not carry the same numbers.
 
+### What about the Library of Congress?
+
+It is the only genuine US national catalogue available without a key, and `marc21.py`
+already knows how to read its records. But it only exposes SRU on
+`http://lx2.loc.gov:210/LCDB` — in the clear, on a non-standard port that many home networks
+filter. Before writing the provider, check that it answers **from the machine that will make
+the requests**:
+
+```bash
+python3 tools/test-loc.py
+```
+
+The script has no dependencies and changes nothing: it opens a connection, looks up three
+sample ISBNs and prints what it gets back.
+
 ---
 
 ## Versions and rolling back

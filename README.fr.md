@@ -431,6 +431,21 @@ catalogues francophones (BnF, SUDOC) et `marc21.py` pour les catalogues anglo-sa
 allemands (K10plus, Library of Congress). Les deux décrivent les mêmes livres, mais les
 zones n'y portent pas les mêmes numéros.
 
+### Et la Library of Congress ?
+
+C'est le seul véritable catalogue national américain accessible sans clé, et `marc21.py`
+sait déjà lire ses notices. Mais elle n'expose son service SRU que sur
+`http://lx2.loc.gov:210/LCDB` — en clair, sur un port non standard que beaucoup de réseaux
+domestiques filtrent. Avant d'écrire le fournisseur, vérifiez qu'elle répond **depuis la
+machine qui fera les requêtes** :
+
+```bash
+python3 tools/test-loc.py
+```
+
+Le script n'a aucune dépendance et ne modifie rien : il ouvre une connexion, interroge trois
+ISBN témoins et affiche ce qu'il obtient.
+
 ---
 
 ## Versions et retour arrière
