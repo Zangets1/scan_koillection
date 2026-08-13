@@ -22,7 +22,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest ruff
+          # pytest-asyncio est indispensable : pyproject.toml déclare
+          # asyncio_mode = "auto", et sans lui toute fonction de test asynchrone
+          # est comptée en échec — la moitié de la suite couvre du code async.
+          pip install pytest pytest-asyncio ruff
 
       - name: Analyse statique
         run: ruff check app tests
