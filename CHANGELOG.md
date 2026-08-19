@@ -7,6 +7,25 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **K10plus** (`k10plus`), catalogue collectif des bibliothèques allemandes, interrogé sur
+  les seuls ISBN anglophones. Sur 55 ISBN testés, il ne fait découvrir aucun livre
+  qu'OpenLibrary ignore mais comble la pagination (73 % → 84 %) et la série (17 % → 24 %).
+  Ses zones de résumé et de genre sont écartées : leur langue dépend de la bibliothèque qui
+  a rédigé la notice, et rien dans le format ne permet de le savoir à l'avance.
+- **Library of Congress** (`loc`), dépôt légal des États-Unis, **absente de la liste par
+  défaut**. Mesurée depuis un réseau où le port 210 passe, sur 55 ISBN anglophones : elle
+  en connaît 10 (18 %), en 388 ms de médiane. Son apport propre, une fois retiré ce
+  qu'OpenLibrary et K10plus donnaient déjà, tient en deux paginations et le pays
+  d'édition sur 8 livres — la couverture de ce champ passe de 21 % à 36 %. Elle n'écoute
+  qu'en HTTP clair sur un port non standard : là où il est filtré, la connexion reste
+  pendante et chaque scan anglophone attendrait `LOOKUP_DEADLINE`. D'où l'activation
+  explicite, après vérification par `python3 tools/mesure-loc.py`.
+- **Lecteur MARC21** (`app/providers/marc21.py`), pendant d'`unimarc.py` pour les catalogues
+  anglo-saxons et allemands. Il ouvre la voie à la Library of Congress, sous réserve que son
+  service — HTTP en clair sur le port 210 — soit joignable depuis le serveur.
+- **Pays d'édition** dans la réponse de `/api/lookup` (champ `country`), lu dans la notice
+  MARC et jamais déduit de l'ISBN. Renseigné pour environ un livre anglophone sur cinq, ce
+  qui est trop rare pour justifier un champ dans le formulaire ou dans Koillection.
 - **Tri automatique des issues** : chaque nouvelle issue reçoit une analyse — nature de la
   demande, vérification qu'elle n'est pas déjà corrigée, causes de configuration connues,
   informations manquantes — et une étiquette. Ce workflow ne modifie jamais le code.
@@ -19,6 +38,30 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 - **README en anglais** (`README.md`), la version française devenant `README.fr.md`. Les
   deux se renvoient l'une à l'autre. Le tri des issues et la correction assistée répondent
   désormais dans la langue de l'issue.
+
+### Modifié
+
+- **Google Books quitte la liste des catalogues interrogés par défaut.** Sans clé d'API il
+  répond « quota dépassé » depuis une adresse partagée : sur 88 ISBN testés il n'a rien
+  renvoyé une seule fois, et coûtait une requête par scan pour rien. Le fournisseur reste
+  dans le code et se réactive en le remettant dans `PROVIDERS`, clé d'API à l'appui.
+- **Un catalogue n'est plus interrogé que sur les ISBN qu'il peut connaître.** Les trois
+  premiers chiffres d'un ISBN désignent l'agence qui a enregistré l'éditeur, donc l'aire
+  linguistique du livre : la BnF n'est plus sollicitée que sur les `978-2`, openBD que sur
+  les `978-4`. Mesuré sur 87 ISBN, la BnF ne référence qu'un livre anglophone sur 55 ;
+  l'interroger pour un roman anglais ouvrait une connexion dont la réponse était connue.
+  Les catalogues tournant en parallèle, en retirer deux **raccourcit** la recherche :
+  −0,7 s sur un scan anglophone, −0,3 s sur un scan français.
+
+  Le défaut reste « toutes les aires » : un fournisseur qui ne déclare rien est interrogé
+  comme avant, et un ISBN dont le groupe n'est pas répertorié n'écarte personne.
+
+  > À noter, parce que c'est contre-intuitif : `978-0` et `978-1` forment un **unique**
+  > groupe « langue anglaise », partagé par le Royaume-Uni, les États-Unis, l'Australie et
+  > l'Irlande. Aucun ISBN ne permet de distinguer une édition anglaise d'une américaine.
+
+- Le test `startswith("9784")` qu'openBD portait en dur dans son `fetch()` est remplacé par
+  la déclaration commune `groups`.
 
 ## [1.3.2] — 2026-08-11
 

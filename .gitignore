@@ -5,6 +5,7 @@ __pycache__/
 .env
 .env.local
 data/
+data-v2/
 *.sqlite3
 .DS_Store
 node_modules/

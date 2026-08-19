@@ -39,17 +39,59 @@ Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution,
 | **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (notices Electre) | ✅ (zone 461) | ✅ |
 | **SUDOC** (bibliothèques universitaires) | ✅ | ✅✅ | ✅ (4e de couverture) | ✅ (zone 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
+| **K10plus** (MARC21) | ✅ | — anglophone seulement | ❌ | ✅ (zone 830) | ❌ |
+| **Library of Congress** *(désactivée)* | ⚠️ port 210 | — anglophone seulement | ❌ | ❌ | ❌ |
 | **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
+| Google Books *(désactivé)* | ⚠️ clé requise | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
 
 La BnF est interrogée en premier et fait autorité. Les autres ne servent qu'à **combler les champs vides**.
-Google Books reste présent en dernier recours et se retire d'une variable : `PROVIDERS=bnf,sudoc,openbd`.
+**Google Books n'est plus interrogé par défaut.** Sans clé d'API il répond « quota dépassé »
+depuis une adresse partagée — sur 88 ISBN testés, il n'a rien renvoyé une seule fois. Il coûtait
+donc une requête par scan pour rien. Le code reste en place : renseignez `GOOGLE_BOOKS_API_KEY`
+et remettez-le dans la liste pour le réactiver — `PROVIDERS=bnf,sudoc,openlibrary,k10plus,openbd,googlebooks`.
 
 **Pourquoi le SUDOC en second.** Mesuré sur 18 livres français, il n'apporte quasiment
 aucun titre que la BnF ignore — mais il remplit le résumé sur **4 livres de plus** et le
 genre sur **8 de plus**, avec des étiquettes bien plus utiles (« Mangas », « Shônen »
 plutôt que « Bandes dessinées »). Il sert aussi de roue de secours : le service SRU de la
 BnF coupe la connexion par intermittence, et le SUDOC prend alors le relais.
+
+### Chaque catalogue là où il sait répondre
+
+Les trois premiers chiffres d'un ISBN désignent l'agence qui a enregistré l'éditeur, donc
+l'aire linguistique du livre. Un catalogue n'est interrogé que sur les aires qu'il couvre :
+
+| Aire | Préfixes | Catalogues interrogés |
+|---|---|---|
+| Francophone | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary |
+| Anglophone | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus |
+| Japon | `978-4` | SUDOC, OpenLibrary, openBD |
+
+Mesuré sur 87 ISBN, la BnF ne référence qu'**un livre anglophone sur cinquante-cinq** :
+l'interroger pour un roman anglais ouvrait une connexion dont la réponse était connue
+d'avance. Les catalogues étant lancés en parallèle, le temps total est celui du plus lent —
+en retirer deux **raccourcit** la recherche : −0,7 s sur un scan anglophone, −0,3 s sur un
+scan français.
+
+Une aire inconnue n'écarte personne : sur un ISBN dont le groupe n'est pas répertorié, tout
+le monde est interrogé, comme avant.
+
+> **Non, l'ISBN ne dit pas le pays.** `978-0` et `978-1` forment un **unique** groupe
+> « langue anglaise », partagé par le Royaume-Uni, les États-Unis, l'Australie et l'Irlande.
+> Aucun code-barres ne permet de distinguer une édition anglaise d'une édition américaine :
+> `978-0-7475-3274-3` est le Harry Potter de Bloomsbury à Londres, `978-0-590-35340-3` celui
+> de Scholastic à New York. Seule la notice du catalogue porte le pays d'édition — K10plus le
+> renseigne pour environ un livre anglophone sur cinq, et l'API le renvoie dans le champ
+> `country`. C'est trop rare pour mériter une case dans le formulaire.
+
+**Pourquoi K10plus sur l'anglophone.** Catalogue collectif des bibliothèques allemandes, bien
+fourni en éditions anglo-saxonnes, en MARC21, sans clé ni quota. Mesuré sur 55 ISBN
+anglophones, il ne fait découvrir **aucun** livre qu'OpenLibrary ignore, mais il comble la
+pagination (73 % → 84 %) et la série (17 % → 24 %). Ses zones de résumé et de genre sont
+écartées : leur langue dépend de la bibliothèque qui a rédigé la notice, allemande ou
+anglaise, et rien dans le format ne permet de le savoir. Il reste cantonné à l'anglophone —
+sur les ISBN `978-2` il ne comble rien que la BnF et le SUDOC n'aient déjà, pour une
+connexion de plus.
 
 > **Garde-fou anti-mélange.** Certains ISBN sont attribués à deux ouvrages différents selon les catalogues.
 > Si une source secondaire décrit visiblement un autre livre (titre sans rapport **et** aucun auteur commun),
@@ -234,7 +276,7 @@ Tout passe par des variables d'environnement, déclarées soit directement dans 
 
 | Variable | Défaut | Rôle |
 |---|---|---|
-| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues et ordre de priorité |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,k10plus,openbd` | Catalogues et ordre de priorité |
 | `PROVIDER_TIMEOUT` | `8` | Délai maximal par catalogue (s) |
 | `LOOKUP_DEADLINE` | `4` | Plafond global d'une recherche (s) |
 | `SERIES_SUBCOLLECTIONS` | `1` | Créer une sous-collection par série |
@@ -278,6 +320,17 @@ Mesuré sur 18 livres français, cache vidé, les cinq catalogues activés :
 Les catalogues sont interrogés **tous en même temps** : le temps total est celui du plus
 lent, pas la somme. Ajouter une source ne rallonge donc pas la recherche tant qu'elle
 répond dans les temps — passer de quatre à cinq catalogues a coûté 0,13 s de médiane.
+
+Le corollaire vaut dans l'autre sens, et c'est ce qui rend le tri par aire linguistique
+payant : **retirer** une source retire un candidat au titre de « plus lent ». Comparé sur
+trois serveurs mesurés en alternance sur les mêmes ISBN, écart apparié livre par livre :
+
+| | requêtes par scan | écart |
+|---|:--:|:--:|
+| Scan anglophone, avant | 5 | référence |
+| Scan anglophone, après | 3 | **−0,7 s** |
+| Scan français, avant | 5 | référence |
+| Scan français, après | 4 | **−0,3 s** |
 
 Le maximum n'est pas un hasard : c'est `LOOKUP_DEADLINE`. Passé ce délai, la fiche
 s'affiche avec ce qui est arrivé et les retardataires sont marqués « trop lent » à côté
@@ -366,6 +419,93 @@ tests/            tests unitaires + fixtures BnF réelles
 Créez `app/providers/mon_catalogue.py`, héritez de `Provider`, renvoyez un `BookMeta`,
 inscrivez la classe dans `build_providers()` puis ajoutez son nom à `PROVIDERS`.
 Un fournisseur qui échoue est simplement ignoré : il ne peut pas bloquer une recherche.
+
+Déclarez `groups` si le catalogue ne couvre qu'une partie du monde — il ne sera alors
+interrogé que sur ces aires (`fr`, `en`, `ja`, `de`, `es`, `it`, `ru`, `zh`, `ko`) :
+
+```python
+class MonCatalogue(Provider):
+    name = "mon_catalogue"
+    label = "Mon catalogue"
+    groups = frozenset({"en"})   # omettre l'attribut = toutes les aires
+```
+
+Deux lecteurs de notices bibliothécaires sont déjà disponibles : `unimarc.py` pour les
+catalogues francophones (BnF, SUDOC) et `marc21.py` pour les catalogues anglo-saxons et
+allemands (K10plus, Library of Congress). Les deux décrivent les mêmes livres, mais les
+zones n'y portent pas les mêmes numéros.
+
+### Essayer une branche avant de la fusionner
+
+Pousser sur une branche `v*` publie une image portant son nom, par exemple
+`ghcr.io/zangets1/scan_koillection:v2`. Elle est construite pour amd64 et arm64, et
+**`:latest` n'est jamais touchée** : votre installation de production ne peut pas
+l'attraper par un `docker compose pull`.
+
+Le fichier **`docker-compose.v2.yml`** monte cette image à côté de votre installation, sans
+rien y toucher : nom de projet, noms de conteneurs, ports et dossier de données sont tous
+décalés, si bien que les deux piles tournent en même temps.
+
+```bash
+docker login ghcr.io                                  # le paquet est privé
+docker compose -f docker-compose.v2.yml up -d         # → http://NAS:8081
+docker compose -f docker-compose.v2.yml --profile https up -d   # → https://NAS:8444
+```
+
+Renseignez-y d'abord les mêmes identifiants Koillection que votre pile habituelle : c'est
+bien la même collection que l'on veut alimenter, seule la recherche est à l'essai.
+
+`GET /healthz` renvoie la version exacte (`v2-<commit>`), de quoi vérifier ce qui tourne
+réellement. Le workflow se relance aussi à la main depuis **Actions → Image d'essai**.
+
+Pour tout retirer :
+
+```bash
+docker compose -f docker-compose.v2.yml down && rm -rf ./data-v2
+```
+
+> **Le piège.** `PROVIDERS` écrase la liste par défaut de l'application. Si votre compose
+> énumère les catalogues sans `k10plus`, la nouveauté est silencieusement désactivée. À
+> l'inverse, `k10plus` reste sans effet sur une image plus ancienne : un nom inconnu est
+> ignoré sans erreur, la liste est donc sûre en cas de retour arrière.
+
+### Et la Library of Congress ?
+
+C'est le seul véritable catalogue national américain accessible sans clé, et `marc21.py`
+sait déjà lire ses notices. Mais elle n'expose son service SRU que sur
+`http://lx2.loc.gov:210/LCDB` — en clair, sur un port non standard que beaucoup de réseaux
+domestiques filtrent.
+
+Le fournisseur existe (`loc`) mais **n'est pas dans la liste par défaut**. Là où le port est
+filtré, la connexion n'échoue pas vite : elle reste pendante, et chaque scan anglophone
+attendrait `LOOKUP_DEADLINE` avant d'afficher la fiche. Il faut donc l'activer sciemment,
+après vérification :
+
+```bash
+python3 tools/mesure-loc.py        # les 55 ISBN du banc d'essai, ~3 min
+python3 tools/mesure-loc.py 12     # aperçu rapide
+```
+
+Sans aucune dépendance, il ne modifie rien : il vérifie le port, s'assure que la syntaxe de
+recherche est acceptée — un index refusé ressemblerait sinon à « aucune notice » — puis
+compare les trois sources et compte l'apport propre de la LC.
+
+Si les chiffres vous conviennent :
+
+```bash
+PROVIDERS=bnf,sudoc,openlibrary,k10plus,loc,openbd
+```
+
+**Ce qu'elle apporte, mesuré.** Depuis un réseau où le port passe : 10 ISBN anglophones sur
+55 (18 %), en 388 ms de médiane — plus rapide qu'OpenLibrary, donc sans effet sur le temps
+de réponse. Son apport propre se limite à deux paginations et au **pays d'édition sur 8
+livres**, ce qui porte la couverture de ce champ de 21 % à 36 %. Aucun livre qu'elle serait
+seule à connaître.
+
+Les notices trouvées sont presque toutes des éditeurs américains — c'est un dépôt légal
+national. Ces 18 % reflètent donc la part d'éditions américaines du corpus de test, qui mêle
+britanniques et américaines : **sur une collection surtout américaine, elle couvrirait
+davantage**.
 
 ---
 

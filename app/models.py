@@ -27,6 +27,12 @@ class BookMeta(BaseModel):
     series: str | None = None
     volume: int | None = None
     language: str | None = None
+    #: Pays d'édition, lu dans la notice MARC (zone 008/15-17 ou 044) et jamais
+    #: déduit de l'ISBN : le groupe « 978-0 / 978-1 » couvre indistinctement le
+    #: Royaume-Uni, les États-Unis et le reste de l'aire anglophone. Renseigné
+    #: pour environ un livre anglophone sur cinq — trop rare pour mériter un
+    #: champ dans le formulaire, mais exposé par l'API.
+    country: str | None = None
     cover_url: str | None = None
     #: Toutes les couvertures proposées, dans l'ordre de préférence. Les
     #: catalogues répondent souvent 200 avec une image vide : la validation est

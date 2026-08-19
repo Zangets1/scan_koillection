@@ -13,3 +13,4 @@ data
 docker-compose*.yml
 Caddyfile
 pytest.ini
+tools

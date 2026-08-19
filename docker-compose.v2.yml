@@ -1,0 +1,147 @@
+# Scan Koillection — pile d'essai de la branche v2, à faire tourner À CÔTÉ de
+# l'installation habituelle sans rien y toucher.
+#
+# Tout est décalé pour que les deux cohabitent : nom de projet, noms de
+# conteneurs, ports publiés et dossier de données. Vous pouvez donc scanner
+# les mêmes livres dans les deux et comparer les fiches obtenues.
+#
+#   docker login ghcr.io          # le paquet est privé
+#   docker compose -f docker-compose.v2.yml up -d
+#   → http://ADRESSE_DU_NAS:8081
+#
+# Pour la caméra du téléphone, il faut du HTTPS :
+#   docker compose -f docker-compose.v2.yml --profile https up -d
+#   → https://ADRESSE_DU_NAS:8444
+#
+# Quand vous en avez fini :
+#   docker compose -f docker-compose.v2.yml down
+#   rm -rf ./data-v2
+#
+# Ce fichier se suffit à lui-même et peut être collé tel quel dans l'interface
+# Docker d'un NAS. Renseignez les valeurs marquées « À RENSEIGNER ».
+
+# Nom de projet distinct : sans lui, Compose déduirait le nom du dossier et
+# entrerait en conflit avec la pile déjà en place.
+name: scan-koillection-v2
+
+services:
+  scan-koillection-v2:
+    # Image publiée à chaque poussée sur la branche v2 par le workflow
+    # « Image d'essai ». Elle ne touche jamais `:latest` : votre installation
+    # de production ne peut pas l'attraper par un `docker compose pull`.
+    image: ghcr.io/zangets1/scan_koillection:v2
+    container_name: scan-koillection-v2
+    restart: unless-stopped
+    # `pull_policy: always` parce que l'étiquette `v2` est mobile : elle est
+    # réécrite à chaque commit sur la branche. Sans cela, un `up -d` relancerait
+    # l'image déjà téléchargée en croyant être à jour.
+    pull_policy: always
+    ports:
+      # 8081 et non 8080 : le port de la pile habituelle reste libre.
+      - "8081:8080"
+    networks:
+      - default
+      - koillection
+    environment:
+      # ── Koillection — À RENSEIGNER ──────────────────────────────────
+      # Les mêmes valeurs que votre pile habituelle : c'est bien la même
+      # collection que l'on veut alimenter, on ne teste que la recherche.
+      KOILLECTION_URL: "http://koillection:80"
+      KOILLECTION_USERNAME: "mon_utilisateur"
+      KOILLECTION_PASSWORD: "mon_mot_de_passe"
+      KOILLECTION_DEFAULT_COLLECTION: "Livres"
+
+      # ── Droits sur le dossier ./data-v2 ─────────────────────────────
+      PUID: "1000"
+      PGID: "1000"
+
+      # ── Ce qui change en v2 ─────────────────────────────────────────
+      # `k10plus` est le seul ajout à la liste. Il n'est interrogé que sur les
+      # ISBN anglophones (978-0, 978-1, 979-8) ; la BnF n'est plus sollicitée
+      # que sur les 978-2 et openBD que sur les 978-4, sans que cela se
+      # déclare ici — le tri est fait par le code, d'après l'ISBN scanné.
+      #
+      # Oublier `k10plus` dans cette liste désactive silencieusement toute la
+      # nouveauté : la variable écrase la valeur par défaut de l'application.
+      PROVIDERS: "bnf,sudoc,openlibrary,k10plus,openbd"
+
+      # ── Réglages courants ───────────────────────────────────────────
+      APP_PASSWORD: ""
+      SESSION_SECRET: ""
+      LOOKUP_DEADLINE: "4"
+      SERIES_SUBCOLLECTIONS: "1"
+      GENRES_AS_TAGS: "1"
+      UPLOAD_COVER: "1"
+      TZ: "Europe/Paris"
+
+      # Décommentez pour suivre, ligne à ligne, quels catalogues sont
+      # interrogés pour chaque ISBN — c'est le plus simple pour vérifier que
+      # le tri par aire linguistique fait bien son travail :
+      #   docker logs -f scan-koillection-v2
+      # LOG_LEVEL: "DEBUG"
+    volumes:
+      # Dossier distinct : l'historique des ajouts est un SQLite, autant ne pas
+      # le mêler à celui de la pile habituelle.
+      - ./data-v2:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ────────────────────────────────────────────────────────────────────
+  # HTTPS local — iOS et Android refusent la caméra sur une page http://.
+  # Sans ce service, seule la saisie manuelle de l'ISBN fonctionnera depuis
+  # un téléphone.
+  # ────────────────────────────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: scan-koillection-v2-tls
+    profiles: ["https"]
+    restart: unless-stopped
+    ports:
+      # 8444 et non 8443, pour ne pas heurter le Caddy de la pile habituelle.
+      - "8444:8444"
+    environment:
+      # À RENSEIGNER : exactement l'adresse tapée dans le navigateur.
+      NAS_HOST: "192.168.1.10"
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        printf '%s\n' \
+          '{' \
+          "  default_sni $${NAS_HOST}" \
+          '}' \
+          "https://$${NAS_HOST}:8444 {" \
+          '  tls internal' \
+          '  encode gzip' \
+          '  reverse_proxy scan-koillection-v2:8080' \
+          '}' > /etc/caddy/Caddyfile
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    volumes:
+      # Volumes propres à cette pile : l'autorité de certification de
+      # l'installation habituelle n'est ni lue ni écrasée. Le téléphone
+      # redemandera donc d'accepter l'avertissement une fois pour ce port.
+      - caddy-v2-data:/data
+      - caddy-v2-config:/config
+    depends_on:
+      - scan-koillection-v2
+
+volumes:
+  caddy-v2-data:
+  caddy-v2-config:
+
+# ──────────────────────────────────────────────────────────────────────
+# LE SEUL POINT À VÉRIFIER — identique à la pile habituelle.
+#
+# `name` doit être le nom EXACT du réseau Docker de votre Koillection :
+#
+#     docker network ls
+#
+# Deux piles peuvent rejoindre le même réseau externe sans se gêner.
+# ──────────────────────────────────────────────────────────────────────
+networks:
+  default:
+  koillection:
+    external: true
+    name: koillection_default

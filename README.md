@@ -38,16 +38,56 @@ This project was built for French-language books, and that choice drives the who
 | **BnF** (SRU / UNIMARC) | ✅ | ✅✅ | ✅ (Electre records) | ✅ (field 461) | ✅ |
 | **SUDOC** (French academic libraries) | ✅ | ✅✅ | ✅ (back cover) | ✅ (field 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partial | 🇬🇧 English | ⚠️ sometimes | ⚠️ keywords |
+| **K10plus** (MARC21) | ✅ | — English-language only | ❌ | ✅ (field 830) | ❌ |
+| **Library of Congress** *(disabled)* | ⚠️ port 210 | — English-language only | ❌ | ❌ | ❌ |
 | **openBD** (Japan) | ✅ | ❌ | 🇯🇵 Japanese | ✅ | ⚠️ |
-| Google Books | ✅ | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
+| Google Books *(disabled)* | ⚠️ key required | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
 
 The BnF is queried first and takes precedence. The others only **fill in the blanks**.
-Google Books is a last resort and can be dropped with one variable: `PROVIDERS=bnf,sudoc,openbd`.
+**Google Books is no longer queried by default.** Without an API key it answers "quota exceeded"
+from a shared address — across 88 test ISBNs it returned nothing, not once. It was costing one
+request per scan for nothing. The code stays: set `GOOGLE_BOOKS_API_KEY` and put it back in the
+list to re-enable it — `PROVIDERS=bnf,sudoc,openlibrary,k10plus,openbd,googlebooks`.
 
 **Why SUDOC comes second.** Measured across 18 French books, it turns up almost no title the
 BnF misses — but it fills the synopsis on **4 more books** and the genre on **8 more**, with
 far more useful labels ("Manga", "Shōnen" instead of "Comics"). It also acts as a spare
 wheel: the BnF's SRU service drops connections intermittently, and SUDOC covers for it.
+
+### Each catalogue only where it can answer
+
+The first digits of an ISBN identify the agency that registered the publisher, and therefore
+the book's language area. A catalogue is only queried for the areas it covers:
+
+| Area | Prefixes | Catalogues queried |
+|---|---|---|
+| French-language | `978-2`, `979-10` | BnF, SUDOC, OpenLibrary |
+| English-language | `978-0`, `978-1`, `979-8` | SUDOC, OpenLibrary, K10plus |
+| Japan | `978-4` | SUDOC, OpenLibrary, openBD |
+
+Measured across 87 ISBNs, the BnF holds **one English-language book out of fifty-five**:
+querying it for an English novel opened a connection whose answer was known in advance.
+Since catalogues run in parallel, total time is the slowest one — dropping two therefore
+**shortens** the lookup: −0.7 s on an English scan, −0.3 s on a French one.
+
+An unrecognised area excludes nobody: for an ISBN whose group is not listed, everyone is
+queried, exactly as before.
+
+> **No, the ISBN does not tell you the country.** `978-0` and `978-1` form a **single**
+> "English language" group shared by the UK, the US, Australia and Ireland. No barcode can
+> separate a British edition from an American one: `978-0-7475-3274-3` is Bloomsbury's Harry
+> Potter in London, `978-0-590-35340-3` is Scholastic's in New York. Only the catalogue record
+> carries the country of publication — K10plus supplies it for roughly one English-language
+> book in five, and the API returns it in the `country` field. That is too rare to deserve a
+> box in the form.
+
+**Why K10plus for English-language books.** The union catalogue of German libraries is well
+stocked in Anglo-American editions, speaks MARC21, and needs no key or quota. Measured across
+55 English-language ISBNs it turns up **no** book OpenLibrary misses, but it fills the page
+count (73 % → 84 %) and the series (17 % → 24 %). Its summary and genre fields are discarded:
+their language depends on whichever library wrote the record, German or English, and nothing
+in the format says which. It stays confined to English-language ISBNs — on `978-2` codes it
+fills nothing the BnF and SUDOC do not already have, at the cost of one more connection.
 
 > **Guard against mixed-up records.** Some ISBNs are assigned to two different works
 > depending on the catalogue. When a secondary source clearly describes another book
@@ -55,7 +95,7 @@ wheel: the BnF's SRU service drops connections intermittently, and SUDOC covers 
 > an empty field beats a chimera.
 
 If you mostly collect English-language books, reorder the sources —
-`PROVIDERS=openlibrary,bnf,sudoc,googlebooks` — or plug in your own catalogue, see
+`PROVIDERS=openlibrary,k10plus,sudoc,bnf` — or plug in your own catalogue, see
 [Adding a catalogue](#adding-a-catalogue).
 
 ---
@@ -226,7 +266,7 @@ Everything goes through environment variables, declared either straight in
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `PROVIDERS` | `bnf,sudoc,openlibrary,openbd,googlebooks` | Catalogues, in priority order |
+| `PROVIDERS` | `bnf,sudoc,openlibrary,k10plus,openbd` | Catalogues, in priority order |
 | `PROVIDER_TIMEOUT` | `8` | Per-catalogue timeout (s) |
 | `LOOKUP_DEADLINE` | `4` | Overall ceiling for one lookup (s) |
 | `SERIES_SUBCOLLECTIONS` | `1` | Create one sub-collection per series |
@@ -270,6 +310,17 @@ Measured across 18 French books, cache cleared, all five catalogues enabled:
 Catalogues are queried **all at once**: total time is the slowest one, not the sum. Adding a
 source therefore costs nothing as long as it answers in time — going from four to five
 catalogues cost 0.13 s of median.
+
+The converse holds too, and that is what makes routing by language area pay off: **dropping**
+a source removes a candidate for the "slowest" title. Compared across three servers measured
+in alternation on the same ISBNs, paired book by book:
+
+| | requests per scan | difference |
+|---|:--:|:--:|
+| English scan, before | 5 | baseline |
+| English scan, after | 3 | **−0.7 s** |
+| French scan, before | 5 | baseline |
+| French scan, after | 4 | **−0.3 s** |
 
 The worst case is no accident: it is `LOOKUP_DEADLINE`. Past that, the form appears with
 whatever arrived and the stragglers are marked "trop lent" next to the sources. Nobody waits
@@ -361,6 +412,91 @@ wording together.
 Create `app/providers/my_catalogue.py`, subclass `Provider`, return a `BookMeta`, register
 the class in `build_providers()` and add its name to `PROVIDERS`. A provider that fails is
 simply ignored: it cannot hold up a lookup.
+
+Declare `groups` if the catalogue only covers part of the world — it will then be queried
+for those areas only (`fr`, `en`, `ja`, `de`, `es`, `it`, `ru`, `zh`, `ko`):
+
+```python
+class MyCatalogue(Provider):
+    name = "my_catalogue"
+    label = "My catalogue"
+    groups = frozenset({"en"})   # omit the attribute for every area
+```
+
+Two readers for library records already exist: `unimarc.py` for French-language catalogues
+(BnF, SUDOC) and `marc21.py` for Anglo-American and German ones (K10plus, Library of
+Congress). Both describe the same books, but the fields do not carry the same numbers.
+
+### Trying a branch before merging it
+
+Pushing to a `v*` branch publishes an image named after it, for example
+`ghcr.io/zangets1/scan_koillection:v2`. It is built for both amd64 and arm64, and
+**`:latest` is never touched**: your production install cannot pick it up through a
+`docker compose pull`.
+
+The **`docker-compose.v2.yml`** file runs that image alongside your installation without
+touching it: project name, container names, ports and data directory are all shifted, so
+both stacks run at the same time.
+
+```bash
+docker login ghcr.io                                  # the package is private
+docker compose -f docker-compose.v2.yml up -d         # → http://NAS:8081
+docker compose -f docker-compose.v2.yml --profile https up -d   # → https://NAS:8444
+```
+
+Fill in the same Koillection credentials as your usual stack: it is the same collection you
+want to feed, only the lookup is under test.
+
+`GET /healthz` returns the exact version (`v2-<commit>`), so you can check what is actually
+running. The workflow can also be re-run by hand from **Actions → Image d'essai**.
+
+To remove everything:
+
+```bash
+docker compose -f docker-compose.v2.yml down && rm -rf ./data-v2
+```
+
+> **The trap.** `PROVIDERS` overrides the application's default list. If your compose
+> enumerates catalogues without `k10plus`, the whole feature is silently disabled. The
+> reverse is safe: `k10plus` has no effect on an older image, since an unknown name is
+> ignored without error — the list survives a rollback.
+
+### What about the Library of Congress?
+
+It is the only genuine US national catalogue available without a key, and `marc21.py`
+already knows how to read its records. But it only exposes SRU on
+`http://lx2.loc.gov:210/LCDB` — in the clear, on a non-standard port that many home networks
+filter.
+
+The provider exists (`loc`) but is **not in the default list**. Where the port is filtered
+the connection does not fail fast — it hangs, and every English scan would wait for
+`LOOKUP_DEADLINE` before the form appears. So it has to be enabled deliberately, after
+checking:
+
+```bash
+python3 tools/mesure-loc.py        # the 55 benchmark ISBNs, ~3 min
+python3 tools/mesure-loc.py 12     # quick look
+```
+
+With no dependencies, and changing nothing: it checks the port, confirms the search syntax is
+accepted — a rejected index would otherwise look like "no records" — then compares the three
+sources and counts what the LC adds on its own.
+
+If the numbers suit you:
+
+```bash
+PROVIDERS=bnf,sudoc,openlibrary,k10plus,loc,openbd
+```
+
+**What it adds, measured.** From a network where the port gets through: 10 English-language
+ISBNs out of 55 (18 %), at a 388 ms median — faster than OpenLibrary, so no effect on
+response time. Its own contribution comes down to two page counts and the **country of
+publication on 8 books**, taking that field's coverage from 21 % to 36 %. Not one book it
+alone knows about.
+
+The records it holds are almost all American publishers — it is a national deposit library.
+Those 18 % therefore reflect the share of US editions in the test corpus, which mixes British
+and American ones: **on a mostly American collection it would cover more**.
 
 ---
 

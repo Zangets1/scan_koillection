@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"><zs:version>1.1</zs:version><zs:numberOfRecords>1</zs:numberOfRecords><zs:records><zs:record><zs:recordSchema>marcxml</zs:recordSchema><zs:recordPacking>xml</zs:recordPacking><zs:recordData><record xmlns="http://www.loc.gov/MARC21/slim">
+  <leader>     cam a22      c 4500</leader>
+  <controlfield tag="001">656699574</controlfield>
+  <controlfield tag="003">DE-627</controlfield>
+  <controlfield tag="005">20260613222051.0</controlfield>
+  <controlfield tag="007">tu</controlfield>
+  <controlfield tag="008">110419s2011    xxu|||||      00| ||eng c</controlfield>
+  <datafield tag="010" ind1=" " ind2=" ">
+    <subfield code="a">  2011013568</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">0307700003</subfield>
+    <subfield code="q">hbk</subfield>
+    <subfield code="9">0-307-70000-3</subfield>
+  </datafield>
+  <datafield tag="020" ind1=" " ind2=" ">
+    <subfield code="a">9780307700001</subfield>
+    <subfield code="q"> : hbk</subfield>
+    <subfield code="9">978-0-307-70000-1</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-627)656699574</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-603)268542252</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-576)349706956</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(DE-599)GBV656699574</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)753378922</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)753378922</subfield>
+  </datafield>
+  <datafield tag="035" ind1=" " ind2=" ">
+    <subfield code="a">(OCoLC)693809642</subfield>
+  </datafield>
+  <datafield tag="040" ind1=" " ind2=" ">
+    <subfield code="a">DE-627</subfield>
+    <subfield code="b">ger</subfield>
+    <subfield code="c">DE-627</subfield>
+    <subfield code="e">rakwb</subfield>
+  </datafield>
+  <datafield tag="041" ind1=" " ind2=" ">
+    <subfield code="a">eng</subfield>
+  </datafield>
+  <datafield tag="044" ind1=" " ind2=" ">
+    <subfield code="c">XD-US</subfield>
+    <subfield code="c">XD-CA</subfield>
+  </datafield>
+  <datafield tag="050" ind1=" " ind2="0">
+    <subfield code="a">PS3615.T88</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">813/.6</subfield>
+    <subfield code="q">LOC</subfield>
+    <subfield code="2">22</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">813.6</subfield>
+    <subfield code="q">OCLC</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">810</subfield>
+    <subfield code="q">BSZ</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2=" ">
+    <subfield code="a">B</subfield>
+    <subfield code="q">BSZ</subfield>
+  </datafield>
+  <datafield tag="082" ind1="0" ind2="4">
+    <subfield code="a">810</subfield>
+    <subfield code="a">B</subfield>
+    <subfield code="q">DNB</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">7,26</subfield>
+    <subfield code="2">ssgn</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">HU 9800</subfield>
+    <subfield code="2">rvk</subfield>
+    <subfield code="0">(DE-625)rvk/54407:</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">18.06</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="084" ind1=" " ind2=" ">
+    <subfield code="a">17.97</subfield>
+    <subfield code="2">bkl</subfield>
+  </datafield>
+  <datafield tag="100" ind1="1" ind2=" ">
+    <subfield code="a">Otsuka, Julie</subfield>
+    <subfield code="d">1962-</subfield>
+    <subfield code="0">(DE-588)1024157881</subfield>
+    <subfield code="0">(DE-627)719271843</subfield>
+    <subfield code="0">(DE-576)186203845</subfield>
+    <subfield code="4">aut</subfield>
+  </datafield>
+  <datafield tag="245" ind1="1" ind2="4">
+    <subfield code="a">The Buddha in the attic</subfield>
+    <subfield code="b">[a novel]</subfield>
+    <subfield code="c">Julie Otsuka</subfield>
+  </datafield>
+  <datafield tag="250" ind1=" " ind2=" ">
+    <subfield code="a">1. ed.</subfield>
+  </datafield>
+  <datafield tag="264" ind1=" " ind2="1">
+    <subfield code="a">New York, NY [u.a.]</subfield>
+    <subfield code="b">Alfred A. Knopf</subfield>
+    <subfield code="c">2011</subfield>
+  </datafield>
+  <datafield tag="300" ind1=" " ind2=" ">
+    <subfield code="a">129 S.</subfield>
+  </datafield>
+  <datafield tag="336" ind1=" " ind2=" ">
+    <subfield code="a">Text</subfield>
+    <subfield code="b">txt</subfield>
+    <subfield code="2">rdacontent</subfield>
+  </datafield>
+  <datafield tag="337" ind1=" " ind2=" ">
+    <subfield code="a">ohne Hilfsmittel zu benutzen</subfield>
+    <subfield code="b">n</subfield>
+    <subfield code="2">rdamedia</subfield>
+  </datafield>
+  <datafield tag="338" ind1=" " ind2=" ">
+    <subfield code="a">Band</subfield>
+    <subfield code="b">nc</subfield>
+    <subfield code="2">rdacarrier</subfield>
+  </datafield>
+  <datafield tag="490" ind1="0" ind2=" ">
+    <subfield code="a">A Borzoi book</subfield>
+  </datafield>
+  <datafield tag="500" ind1=" " ind2=" ">
+    <subfield code="a">This is a Borzoi book</subfield>
+  </datafield>
+  <datafield tag="520" ind1=" " ind2=" ">
+    <subfield code="a">Presents the stories of six Japanese mail-order brides whose new lives in early twentieth-century San Francisco are marked by backbreaking migrant work, cultural struggles, children who reject their heritage, and the prospect of wartime internment</subfield>
+  </datafield>
+  <datafield tag="583" ind1="1" ind2=" ">
+    <subfield code="a">Archivierung prüfen</subfield>
+    <subfield code="c">20240324</subfield>
+    <subfield code="f">DE-4165</subfield>
+    <subfield code="z">1</subfield>
+    <subfield code="2">pdager</subfield>
+  </datafield>
+  <datafield tag="583" ind1="1" ind2=" ">
+    <subfield code="a">Archivierung prüfen</subfield>
+    <subfield code="c">20260307</subfield>
+    <subfield code="f">DE-640</subfield>
+    <subfield code="z">3</subfield>
+    <subfield code="2">pdager</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="0">
+    <subfield code="a">Mail order brides</subfield>
+    <subfield code="v">Fiction</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="0">
+    <subfield code="a">Japanese</subfield>
+    <subfield code="z">California</subfield>
+    <subfield code="v">Fiction</subfield>
+  </datafield>
+  <datafield tag="650" ind1=" " ind2="0">
+    <subfield code="a">General</subfield>
+    <subfield code="2">eflch</subfield>
+  </datafield>
+  <datafield tag="651" ind1=" " ind2="0">
+    <subfield code="a">San Francisco (Calif.)</subfield>
+    <subfield code="x">History</subfield>
+    <subfield code="y">20th century</subfield>
+    <subfield code="v">Fiction</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2="0">
+    <subfield code="a">San Francisco (Calif</subfield>
+    <subfield code="a">Mail order brides</subfield>
+    <subfield code="a">Japanese - California</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2=" ">
+    <subfield code="a">Japanese American families</subfield>
+    <subfield code="a">Fiction</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2=" ">
+    <subfield code="a">San Francisco (Calif.)</subfield>
+    <subfield code="a">Fiction</subfield>
+  </datafield>
+  <datafield tag="653" ind1=" " ind2=" ">
+    <subfield code="a">Historical fiction</subfield>
+  </datafield>
+  <datafield tag="655" ind1=" " ind2="0">
+    <subfield code="a">Modern &amp; contemporary fiction (post c 1945)</subfield>
+    <subfield code="2">bicssc</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="0">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4335258-3</subfield>
+    <subfield code="0">(DE-627)148590373</subfield>
+    <subfield code="0">(DE-576)211357294</subfield>
+    <subfield code="a">Japanerin</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="1">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4013960-8</subfield>
+    <subfield code="0">(DE-627)106341502</subfield>
+    <subfield code="0">(DE-576)20890610X</subfield>
+    <subfield code="a">Einwanderung</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="2">
+    <subfield code="D">g</subfield>
+    <subfield code="0">(DE-588)4029307-5</subfield>
+    <subfield code="0">(DE-627)106274775</subfield>
+    <subfield code="0">(DE-576)208982043</subfield>
+    <subfield code="a">Kalifornien</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="3">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4013657-7</subfield>
+    <subfield code="0">(DE-627)106342479</subfield>
+    <subfield code="0">(DE-576)208904964</subfield>
+    <subfield code="a">Eheschließung</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="4">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4436284-5</subfield>
+    <subfield code="0">(DE-627)222713097</subfield>
+    <subfield code="0">(DE-576)212426818</subfield>
+    <subfield code="a">Japanischer Einwanderer</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2="5">
+    <subfield code="D">s</subfield>
+    <subfield code="0">(DE-588)4001307-8</subfield>
+    <subfield code="0">(DE-627)106397591</subfield>
+    <subfield code="0">(DE-576)20884225X</subfield>
+    <subfield code="a">Alltag</subfield>
+    <subfield code="2">gnd</subfield>
+  </datafield>
+  <datafield tag="689" ind1="0" ind2=" ">
+    <subfield code="5">(DE-627)</subfield>
+  </datafield>
+  <datafield tag="856" ind1="4" ind2="2">
+    <subfield code="u">http://www.loc.gov/catdir/enhancements/fy1205/2011013568-b.html</subfield>
+    <subfield code="x">Verlag</subfield>
+    <subfield code="3">Autorenbiografie</subfield>
+    <subfield code="7">1</subfield>
+  </datafield>
+  <datafield tag="856" ind1="4" ind2="2">
+    <subfield code="u">http://www.loc.gov/catdir/enhancements/fy1205/2011013568-d.html</subfield>
+    <subfield code="x">Verlag</subfield>
+    <subfield code="3">Verlagsangaben</subfield>
+    <subfield code="7">1</subfield>
+  </datafield>
+  <datafield tag="856" ind1="4" ind2="2">
+    <subfield code="u">http://www.loc.gov/catdir/enhancements/fy1205/2011013568-s.html</subfield>
+    <subfield code="x">Verlag</subfield>
+    <subfield code="3">Auszug</subfield>
+    <subfield code="7">1</subfield>
+  </datafield>
+  <datafield tag="856" ind1="4" ind2="2">
+    <subfield code="u">http://deposit.dnb.de/cgi-bin/dokserv?id=4040112&amp;prov=M&amp;dok_var=1&amp;dok_ext=htm</subfield>
+    <subfield code="m">X:MVB</subfield>
+    <subfield code="q">text/html</subfield>
+    <subfield code="3">Inhaltstext</subfield>
+    <subfield code="7">1</subfield>
+  </datafield>
+  <datafield tag="912" ind1=" " ind2=" ">
+    <subfield code="a">SSG-OLC-pha</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1289569045</subfield>
+    <subfield code="b">DE-1a</subfield>
+    <subfield code="9">1a</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">1 A 838149</subfield>
+    <subfield code="h">2</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1338296752</subfield>
+    <subfield code="b">DE-46</subfield>
+    <subfield code="9">46</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">a ang 957 ots 3/197</subfield>
+    <subfield code="h">E03</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1324336099</subfield>
+    <subfield code="b">DE-27</subfield>
+    <subfield code="9">27</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">AMK:Y::O88.5/1:Bud:2011</subfield>
+    <subfield code="h">J 25</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">1290646961</subfield>
+    <subfield code="b">DE-7</subfield>
+    <subfield code="9">7</subfield>
+    <subfield code="c">GBV</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">2012 A 12142</subfield>
+    <subfield code="h">FMAG</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3167245662</subfield>
+    <subfield code="b">DE-21</subfield>
+    <subfield code="9">21</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">52 A 6528</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3167245743</subfield>
+    <subfield code="b">DE-25</subfield>
+    <subfield code="9">25</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">GE 2012/1519</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3167245832</subfield>
+    <subfield code="b">DE-14</subfield>
+    <subfield code="9">14</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">3167245913</subfield>
+    <subfield code="b">DE-352</subfield>
+    <subfield code="9">352</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+  </datafield>
+  <datafield tag="924" ind1="0" ind2=" ">
+    <subfield code="a">4906956890</subfield>
+    <subfield code="b">DE-Mz19</subfield>
+    <subfield code="9">Mz 19</subfield>
+    <subfield code="c">BSZ</subfield>
+    <subfield code="d">c</subfield>
+    <subfield code="g">LIT-AM 65.99 Otsuk 1</subfield>
+  </datafield>
+  <datafield tag="935" ind1=" " ind2=" ">
+    <subfield code="i">Blocktest</subfield>
+  </datafield>
+  <datafield tag="936" ind1="r" ind2="v">
+    <subfield code="a">HU 9800</subfield>
+    <subfield code="b">Sonstige</subfield>
+    <subfield code="k">Anglistik. Amerikanistik</subfield>
+    <subfield code="k">Amerikanische Literatur</subfield>
+    <subfield code="k">20. Jahrhundert</subfield>
+    <subfield code="k">Literaturgeschichte</subfield>
+    <subfield code="k">Sonstige</subfield>
+    <subfield code="0">(DE-627)1270708627</subfield>
+    <subfield code="0">(DE-625)rvk/54407:</subfield>
+    <subfield code="0">(DE-576)200708627</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">18.06</subfield>
+    <subfield code="j">Angloamerikanische Literatur</subfield>
+    <subfield code="0">(DE-627)106415417</subfield>
+  </datafield>
+  <datafield tag="936" ind1="b" ind2="k">
+    <subfield code="a">17.97</subfield>
+    <subfield code="j">Texte eines einzelnen Autors</subfield>
+    <subfield code="0">(DE-627)181571714</subfield>
+  </datafield>
+  <datafield tag="936" ind1="s" ind2="n">
+    <subfield code="a">h100</subfield>
+    <subfield code="2">mzub</subfield>
+  </datafield>
+  <datafield tag="951" ind1=" " ind2=" ">
+    <subfield code="a">BO</subfield>
+  </datafield>
+</record></zs:recordData><zs:recordPosition>1</zs:recordPosition></zs:record></zs:records><zs:echoedSearchRetrieveRequest><zs:version>1.1</zs:version><zs:query>pica.isb=9780307700001</zs:query><zs:maximumRecords>3</zs:maximumRecords><zs:recordPacking>xml</zs:recordPacking><zs:recordSchema>marcxml</zs:recordSchema></zs:echoedSearchRetrieveRequest></zs:searchRetrieveResponse>
