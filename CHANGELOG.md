@@ -12,6 +12,14 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
   qu'OpenLibrary ignore mais comble la pagination (73 % → 84 %) et la série (17 % → 24 %).
   Ses zones de résumé et de genre sont écartées : leur langue dépend de la bibliothèque qui
   a rédigé la notice, et rien dans le format ne permet de le savoir à l'avance.
+- **Library of Congress** (`loc`), dépôt légal des États-Unis, **absente de la liste par
+  défaut**. Mesurée depuis un réseau où le port 210 passe, sur 55 ISBN anglophones : elle
+  en connaît 10 (18 %), en 388 ms de médiane. Son apport propre, une fois retiré ce
+  qu'OpenLibrary et K10plus donnaient déjà, tient en deux paginations et le pays
+  d'édition sur 8 livres — la couverture de ce champ passe de 21 % à 36 %. Elle n'écoute
+  qu'en HTTP clair sur un port non standard : là où il est filtré, la connexion reste
+  pendante et chaque scan anglophone attendrait `LOOKUP_DEADLINE`. D'où l'activation
+  explicite, après vérification par `python3 tools/mesure-loc.py`.
 - **Lecteur MARC21** (`app/providers/marc21.py`), pendant d'`unimarc.py` pour les catalogues
   anglo-saxons et allemands. Il ouvre la voie à la Library of Congress, sous réserve que son
   service — HTTP en clair sur le port 210 — soit joignable depuis le serveur.

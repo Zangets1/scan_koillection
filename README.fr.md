@@ -40,6 +40,7 @@ Champs remontés dans Koillection : **titre, auteur, éditeur, date de parution,
 | **SUDOC** (bibliothèques universitaires) | ✅ | ✅✅ | ✅ (4e de couverture) | ✅ (zone 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partiel | 🇬🇧 anglais | ⚠️ parfois | ⚠️ mots-clés |
 | **K10plus** (MARC21) | ✅ | — anglophone seulement | ❌ | ✅ (zone 830) | ❌ |
+| **Library of Congress** *(désactivée)* | ⚠️ port 210 | — anglophone seulement | ❌ | ❌ | ❌ |
 | **openBD** (Japon) | ✅ | ❌ | 🇯🇵 japonais | ✅ | ⚠️ |
 | Google Books *(désactivé)* | ⚠️ clé requise | ⚠️ irrégulier | ⚠️ | ❌ | ⚠️ |
 
@@ -475,9 +476,10 @@ sait déjà lire ses notices. Mais elle n'expose son service SRU que sur
 `http://lx2.loc.gov:210/LCDB` — en clair, sur un port non standard que beaucoup de réseaux
 domestiques filtrent.
 
-Qu'elle réponde ne suffirait pas à l'ajouter : encore faut-il qu'elle comble des champs
-qu'OpenLibrary et K10plus laissent vides. Le script mesure les deux, **depuis la machine qui
-fera les requêtes** :
+Le fournisseur existe (`loc`) mais **n'est pas dans la liste par défaut**. Là où le port est
+filtré, la connexion n'échoue pas vite : elle reste pendante, et chaque scan anglophone
+attendrait `LOOKUP_DEADLINE` avant d'afficher la fiche. Il faut donc l'activer sciemment,
+après vérification :
 
 ```bash
 python3 tools/mesure-loc.py        # les 55 ISBN du banc d'essai, ~3 min
@@ -487,6 +489,23 @@ python3 tools/mesure-loc.py 12     # aperçu rapide
 Sans aucune dépendance, il ne modifie rien : il vérifie le port, s'assure que la syntaxe de
 recherche est acceptée — un index refusé ressemblerait sinon à « aucune notice » — puis
 compare les trois sources et compte l'apport propre de la LC.
+
+Si les chiffres vous conviennent :
+
+```bash
+PROVIDERS=bnf,sudoc,openlibrary,k10plus,loc,openbd
+```
+
+**Ce qu'elle apporte, mesuré.** Depuis un réseau où le port passe : 10 ISBN anglophones sur
+55 (18 %), en 388 ms de médiane — plus rapide qu'OpenLibrary, donc sans effet sur le temps
+de réponse. Son apport propre se limite à deux paginations et au **pays d'édition sur 8
+livres**, ce qui porte la couverture de ce champ de 21 % à 36 %. Aucun livre qu'elle serait
+seule à connaître.
+
+Les notices trouvées sont presque toutes des éditeurs américains — c'est un dépôt légal
+national. Ces 18 % reflètent donc la part d'éditions américaines du corpus de test, qui mêle
+britanniques et américaines : **sur une collection surtout américaine, elle couvrirait
+davantage**.
 
 ---
 

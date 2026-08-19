@@ -39,6 +39,7 @@ This project was built for French-language books, and that choice drives the who
 | **SUDOC** (French academic libraries) | ✅ | ✅✅ | ✅ (back cover) | ✅ (field 200) | ✅✅ |
 | **OpenLibrary** | ✅ | ⚠️ partial | 🇬🇧 English | ⚠️ sometimes | ⚠️ keywords |
 | **K10plus** (MARC21) | ✅ | — English-language only | ❌ | ✅ (field 830) | ❌ |
+| **Library of Congress** *(disabled)* | ⚠️ port 210 | — English-language only | ❌ | ❌ | ❌ |
 | **openBD** (Japan) | ✅ | ❌ | 🇯🇵 Japanese | ✅ | ⚠️ |
 | Google Books *(disabled)* | ⚠️ key required | ⚠️ inconsistent | ⚠️ | ❌ | ⚠️ |
 
@@ -467,9 +468,10 @@ already knows how to read its records. But it only exposes SRU on
 `http://lx2.loc.gov:210/LCDB` — in the clear, on a non-standard port that many home networks
 filter.
 
-Answering would not be enough to justify adding it: it also has to fill fields OpenLibrary
-and K10plus leave empty. The script measures both, **from the machine that will make the
-requests**:
+The provider exists (`loc`) but is **not in the default list**. Where the port is filtered
+the connection does not fail fast — it hangs, and every English scan would wait for
+`LOOKUP_DEADLINE` before the form appears. So it has to be enabled deliberately, after
+checking:
 
 ```bash
 python3 tools/mesure-loc.py        # the 55 benchmark ISBNs, ~3 min
@@ -479,6 +481,22 @@ python3 tools/mesure-loc.py 12     # quick look
 With no dependencies, and changing nothing: it checks the port, confirms the search syntax is
 accepted — a rejected index would otherwise look like "no records" — then compares the three
 sources and counts what the LC adds on its own.
+
+If the numbers suit you:
+
+```bash
+PROVIDERS=bnf,sudoc,openlibrary,k10plus,loc,openbd
+```
+
+**What it adds, measured.** From a network where the port gets through: 10 English-language
+ISBNs out of 55 (18 %), at a 388 ms median — faster than OpenLibrary, so no effect on
+response time. Its own contribution comes down to two page counts and the **country of
+publication on 8 books**, taking that field's coverage from 21 % to 36 %. Not one book it
+alone knows about.
+
+The records it holds are almost all American publishers — it is a national deposit library.
+Those 18 % therefore reflect the share of US editions in the test corpus, which mixes British
+and American ones: **on a mostly American collection it would cover more**.
 
 ---
 

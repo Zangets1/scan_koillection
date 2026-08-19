@@ -8,6 +8,7 @@ from .bnf import BnfProvider
 from .googlebooks import GoogleBooksProvider
 from .isbndb import IsbndbProvider
 from .k10plus import K10plusProvider
+from .loc import LocProvider
 from .openbd import OpenBdProvider
 from .openlibrary import OpenLibraryProvider
 from .sudoc import SudocProvider
@@ -18,6 +19,7 @@ __all__ = [
     "GoogleBooksProvider",
     "IsbndbProvider",
     "K10plusProvider",
+    "LocProvider",
     "OpenBdProvider",
     "OpenLibraryProvider",
     "SudocProvider",
@@ -36,6 +38,7 @@ def build_providers(settings: Settings) -> list[Provider]:
         SudocProvider.name: SudocProvider(),
         OpenLibraryProvider.name: OpenLibraryProvider(),
         K10plusProvider.name: K10plusProvider(),
+        LocProvider.name: LocProvider(),
         OpenBdProvider.name: OpenBdProvider(),
         GoogleBooksProvider.name: GoogleBooksProvider(settings.google_books_key),
         IsbndbProvider.name: IsbndbProvider(settings.isbndb_key),
