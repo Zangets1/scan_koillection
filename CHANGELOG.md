@@ -26,6 +26,10 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
   allongée.** La source la mieux fournie est essayée en premier : la boucle s'arrête au
   premier candidat au lieu d'attendre les 500 en HTML de la BnF puis OpenLibrary, la plus
   lente des trois (1 à 3 s).
+- **Une vignette ne l'emporte plus sur une vraie couverture.** En dessous de 250 px de large,
+  une image est mise de côté et ne sert qu'en dernier recours : Google Books ne publie que du
+  128 px, illisible une fois étiré dans Koillection. Elle n'est pas refusée pour autant — qui
+  active ce catalogue l'a fait pour avoir une image, et la lui retirer serait un recul.
 - **L'image n'est plus téléchargée deux fois.** Celle qui s'affiche dans la fiche est gardée
   en mémoire quelques minutes — huit livres au plus, rien au-delà de 2 Mio — pour être
   téléversée dans Koillection sans repasser par le réseau.

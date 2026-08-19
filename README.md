@@ -138,6 +138,11 @@ book tested, and 128-pixel thumbnails, useless as covers, for most English ones.
 contribution at a usable size: one book out of 46. Like the Library of Congress, it would
 cost one request per scan for almost nothing.
 
+**A thumbnail is demoted, not refused.** Below 250 px the image is set aside and only comes
+back if no other candidate lands. Google Books publishes nothing but 128 px — `thumbnail`
+and `smallThumbnail` alike — and that catalogue is opt-in: refusing outright would replace a
+blurry cover with no cover at all, for the very people who enabled it to get one.
+
 **Downloaded once.** The image is resolved for display, then again when you confirm the
 addition a few seconds later. It is kept in memory in between — eight books at most, ten
 minutes, nothing heavier than 2 MiB — so it crosses the network only once.

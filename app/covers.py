@@ -26,12 +26,18 @@ indisponible » parfaitement valide — celle de Google à ``zoom=3`` pèse 246 
 aucun seuil de taille ne la distingue d'une vraie couverture. Chaque candidat
 est donc réellement téléchargé et vérifié avant d'être affiché ou téléversé
 dans Koillection.
+
+Une image peut enfin être valide et pourtant inutilisable : Google Books ne
+publie que des vignettes de 128 pixels, illisibles une fois étirées dans
+Koillection. Elle n'est pas refusée pour autant — voir :func:`resolve`, qui la
+garde en dernier recours plutôt que de laisser la fiche sans image.
 """
 
 from __future__ import annotations
 
 import hashlib
 import logging
+import struct
 import time
 from collections import OrderedDict
 from urllib.parse import urlparse
@@ -45,6 +51,11 @@ logger = logging.getLogger(__name__)
 #: En dessous, il s'agit d'un pixel de remplissage et non d'une couverture.
 MIN_COVER_BYTES = 2000
 MAX_COVER_BYTES = 8 * 1024 * 1024
+
+#: En dessous, c'est une vignette de liste de résultats : Koillection affiche la
+#: couverture autour de 300 px et l'étirement se voit. Une telle image n'est pas
+#: refusée pour autant — voir :func:`resolve`, qui la garde en dernier recours.
+MIN_COVER_WIDTH = 250
 
 #: L'URL de couverture transite par le navigateur : sans liste blanche, le
 #: service deviendrait un relais HTTP ouvert vers le réseau interne du NAS.
@@ -118,6 +129,40 @@ def candidates(isbn13: str, from_catalogues: list[str]) -> list[str]:
     return dedupe([url for url in urls if url])
 
 
+def image_width(content: bytes) -> int:
+    """Largeur en pixels, lue dans l'en-tête. ``0`` quand le format est inconnu.
+
+    Trois formats suffisent : c'est tout ce que ces services servent. Un format
+    non reconnu renvoie ``0``, ce qui vaut « je ne sais pas » et n'écarte donc
+    jamais une image — mieux vaut une couverture non jugée qu'une fiche vide.
+    """
+    if content[:2] == b"\xff\xd8":  # JPEG : parcours des segments jusqu'au SOF
+        index = 2
+        while index < len(content) - 9:
+            if content[index] != 0xFF:
+                index += 1
+                continue
+            marker = content[index + 1]
+            if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                          0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                return struct.unpack(">H", content[index + 7:index + 9])[0]
+            if marker in (0xD8, 0xD9) or 0xD0 <= marker <= 0xD7:
+                index += 2
+                continue
+            index += 2 + struct.unpack(">H", content[index + 2:index + 4])[0]
+        return 0
+    if content[:8] == b"\x89PNG\r\n\x1a\n":
+        return struct.unpack(">I", content[16:20])[0]
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        if content[12:16] == b"VP8 ":
+            return struct.unpack("<H", content[26:28])[0] & 0x3FFF
+        if content[12:16] == b"VP8L":
+            return (struct.unpack("<I", content[21:25])[0] & 0x3FFF) + 1
+        if content[12:16] == b"VP8X":
+            return int.from_bytes(content[24:27], "little") + 1
+    return 0
+
+
 def is_allowed(url: str) -> bool:
     """Vrai si l'URL pointe vers un service de couverture connu."""
     try:
@@ -135,6 +180,9 @@ class Cover:
         self.content = content
         self.content_type = content_type
         self.url = url
+        #: Lue une seule fois : elle sert à départager deux images valides, et
+        #: la même couverture peut ressortir du cache plusieurs fois.
+        self.width = image_width(content)
 
     @property
     def extension(self) -> str:
@@ -196,35 +244,65 @@ def clear_cache() -> None:
     _CACHE.clear()
 
 
+async def _download(client: httpx.AsyncClient, url: str) -> Cover | None:
+    """Télécharge un candidat et dit s'il s'agit vraiment d'une couverture."""
+    try:
+        response = await client.get(url, timeout=10.0)
+    except httpx.HTTPError as exc:
+        logger.info("Couverture injoignable (%s) : %s", url, exc)
+        return None
+    if response.status_code != 200:
+        return None
+    content_type = (response.headers.get("content-type") or "").split(";")[0].strip().lower()
+    if not content_type.startswith("image/"):
+        # La BnF répond 500 avec une page HTML quand elle n'a pas la vignette.
+        return None
+    content = response.content
+    if not MIN_COVER_BYTES <= len(content) <= MAX_COVER_BYTES:
+        return None
+    if content_type == "image/gif":
+        # OpenLibrary sert un GIF transparent en guise de « pas de couverture ».
+        return None
+    service = PLACEHOLDERS.get(hashlib.md5(content).hexdigest())
+    if service is not None:
+        logger.info("Couverture de remplacement écartée (%s) : %s", service, url)
+        return None
+    cover = Cover(content, content_type, url)
+    _CACHE.set(url, cover)
+    return cover
+
+
 async def resolve(client: httpx.AsyncClient, candidate_urls: list[str]) -> Cover | None:
-    """Renvoie la première couverture réellement exploitable."""
+    """Renvoie la meilleure couverture disponible parmi les candidats.
+
+    Une image trop petite n'est pas refusée, elle est rétrogradée. Google Books
+    ne sert que des vignettes de 128 px — mesuré sur cinq livres, `thumbnail`
+    comme `smallThumbnail` — et le catalogue s'active à la main : refuser sec
+    reviendrait à remplacer une couverture floue par une fiche sans image chez
+    ceux qui l'ont justement ajouté pour en avoir une. Elle est donc gardée de
+    côté et ne ressort que si aucun autre candidat n'aboutit.
+
+    La règle s'applique aussi à une image sortie du cache : sinon la vignette
+    mise de côté au premier appel court-circuiterait la recherche au second.
+    """
+    fallback: Cover | None = None
     for url in candidate_urls:
         if not url or not is_allowed(url):
             continue
-        cached = _CACHE.get(url)
-        if cached is not None:
-            return cached
-        try:
-            response = await client.get(url, timeout=10.0)
-        except httpx.HTTPError as exc:
-            logger.info("Couverture injoignable (%s) : %s", url, exc)
+        cover = _CACHE.get(url)
+        if cover is None:
+            cover = await _download(client, url)
+        if cover is None:
             continue
-        if response.status_code != 200:
+        if cover.width and cover.width < MIN_COVER_WIDTH:
+            if fallback is None:
+                fallback = cover
             continue
-        content_type = (response.headers.get("content-type") or "").split(";")[0].strip().lower()
-        if not content_type.startswith("image/"):
-            continue
-        content = response.content
-        if not MIN_COVER_BYTES <= len(content) <= MAX_COVER_BYTES:
-            continue
-        if content_type == "image/gif":
-            # OpenLibrary sert un GIF transparent en guise de « pas de couverture ».
-            continue
-        service = PLACEHOLDERS.get(hashlib.md5(content).hexdigest())
-        if service is not None:
-            logger.info("Couverture de remplacement écartée (%s) : %s", service, url)
-            continue
-        cover = Cover(content, content_type, url)
-        _CACHE.set(url, cover)
         return cover
-    return None
+    if fallback is not None:
+        logger.info(
+            "Aucune vraie couverture : vignette de %s px retenue faute de mieux (%s).",
+            fallback.width,
+            fallback.url,
+        )
+    return fallback
