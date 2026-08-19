@@ -36,9 +36,12 @@ import urllib.parse
 import urllib.request
 from xml.etree import ElementTree as ET
 
-# Les consoles Windows écrivent en cp1252 et ne connaissent ni « → » ni « · ».
+# Ne jamais imposer un encodage à la console : forcer l'UTF-8 sur une console
+# Windows en cp1252 produit du « rÃ©pond » là où l'on voulait « répond ». On
+# garde donc son encodage et on se contente de neutraliser les caractères
+# qu'elle ne sait pas écrire — le texte reste lisible partout.
 if hasattr(sys.stdout, "reconfigure"):  # Python 3.7+
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stdout.reconfigure(errors="replace")
 
 MARC = "{http://www.loc.gov/MARC21/slim}"
 UA = "scan-koillection/2.0 (+https://github.com/zangets1/scan_koillection) mesure ponctuelle"
@@ -58,7 +61,7 @@ CORPUS = [
     "9780765331960", "9780765316974", "9780765391353", "9780747532743", "9780590353403",
 ]
 
-#: Codes pays MARC (zone 008/15-17) → pays lisible, réduits à l'essentiel ici.
+#: Codes pays MARC (zone 008/15-17) -> pays lisible, réduits à l'essentiel ici.
 COUNTRIES = {
     "xxu": "États-Unis", "nyu": "États-Unis", "cau": "États-Unis", "mau": "États-Unis",
     "ilu": "États-Unis", "pau": "États-Unis", "mnu": "États-Unis", "txu": "États-Unis",
@@ -120,6 +123,21 @@ def lire_marc(xml_text: str) -> dict | None:
 # ----------------------------------------------------------------------
 # Les trois sources
 # ----------------------------------------------------------------------
+def isbn10(isbn13: str) -> str | None:
+    """« 9780590353403 » -> « 0590353403 ».
+
+    Une notice de 1997 ne porte que l'ISBN-10 en zone 020 : chercher la forme à
+    treize chiffres n'y trouve rien. Les catalogues de bibliothèque sont pleins
+    de notices anciennes jamais reprises.
+    """
+    if len(isbn13) != 13 or not isbn13.startswith("978") or not isbn13.isdigit():
+        return None
+    corps = isbn13[3:12]
+    total = sum((10 - i) * int(c) for i, c in enumerate(corps))
+    cle = (11 - total % 11) % 11
+    return corps + ("X" if cle == 10 else str(cle))
+
+
 def _url_loc(isbn: str) -> str:
     params = urllib.parse.urlencode({
         "version": "1.1", "operation": "searchRetrieve",
@@ -129,8 +147,19 @@ def _url_loc(isbn: str) -> str:
 
 
 def loc(isbn: str) -> dict | None:
-    body = fetch(_url_loc(isbn))
-    return lire_marc(body) if body else None
+    """Interroge la LC sur les deux formes de l'ISBN.
+
+    L'index est littéral : une notice qui ne porte que l'ISBN-10 reste
+    introuvable si l'on ne cherche que la forme à treize chiffres.
+    """
+    for forme in (isbn, isbn10(isbn)):
+        if not forme:
+            continue
+        body = fetch(_url_loc(forme))
+        fiche = lire_marc(body) if body else None
+        if fiche:
+            return fiche
+    return None
 
 
 def diagnostic_sru(xml_text: str) -> str | None:
@@ -200,28 +229,43 @@ def main() -> int:
         print("   depuis cette machine. Rien d'autre à mesurer.")
         return 1
 
-    # Une requête d'essai avant les cinquante-cinq : si le serveur refuse la
-    # syntaxe de recherche, mieux vaut le dire que de conclure « apport nul ».
-    print("   Requête d'essai sur un ISBN connu…", end=" ", flush=True)
-    essai = fetch(_url_loc("9780747532743"))
-    if essai is None:
-        print("échec.")
-        print("   Le port s'ouvre mais aucune réponse HTTP n'arrive. Réseau instable,")
-        print("   ou service momentanément indisponible : réessayez plus tard.")
+    # Requêtes d'essai avant les cinquante-cinq. Deux pièges à écarter : un
+    # serveur qui refuse la syntaxe (il répond par un diagnostic, pas par une
+    # erreur HTTP), et un index littéral qui ne connaît que l'ISBN-10. Les deux
+    # ressembleraient à « aucune notice » et fausseraient toute la mesure.
+    #
+    # Les témoins sont des éditions AMÉRICAINES : la Library of Congress
+    # catalogue le dépôt légal des États-Unis, pas les tirages britanniques.
+    temoins = [
+        ("9780590353403", "Harry Potter, Scholastic, New York"),
+        ("9780307700001", "The Buddha in the attic, Knopf, New York"),
+        ("9780345391803", "Hitchhiker's Guide, Ballantine, New York"),
+    ]
+    print("   Requêtes d'essai sur des éditions américaines connues :")
+    formes_qui_marchent = []
+    for code, description in temoins:
+        for etiquette, forme in (("ISBN-13", code), ("ISBN-10", isbn10(code))):
+            if not forme:
+                continue
+            reponse = fetch(_url_loc(forme))
+            if reponse is None:
+                verdict = "pas de réponse"
+            elif (souci := diagnostic_sru(reponse)):
+                verdict = f"le serveur proteste : {souci}"
+            elif lire_marc(reponse) is None:
+                verdict = "aucune notice"
+            else:
+                verdict = "TROUVÉ"
+                formes_qui_marchent.append(etiquette)
+            print(f"      {etiquette} {forme:<14} {verdict}   ({description})")
+            time.sleep(0.5)
+
+    if not formes_qui_marchent:
+        print("\n   Aucun de ces trois livres américains n'est trouvé. Le service répond")
+        print("   mais la recherche ne donne rien : l'index a probablement changé de nom.")
+        print("   Collez ces lignes dans l'issue #3, le script sera corrigé en conséquence.")
         return 1
-    souci = diagnostic_sru(essai)
-    if souci:
-        print("le serveur proteste.")
-        print(f"   → {souci}")
-        print("   La syntaxe de recherche est refusée : la mesure serait fausse.")
-        print("   Signalez ce message dans l'issue #3, le script sera corrigé.")
-        return 1
-    if lire_marc(essai) is None:
-        print("aucune notice pour un ISBN pourtant courant.")
-        print("   Le service répond mais ne trouve rien : soit l'index a changé,")
-        print("   soit le catalogue est en maintenance. Signalez-le dans l'issue #3.")
-        return 1
-    print("notice reçue et lisible.")
+    print(f"\n   Formes qui aboutissent : {', '.join(sorted(set(formes_qui_marchent)))}.")
 
     print(f"\n2. Interrogation de {len(corpus)} ISBN anglophones sur trois sources.")
     print("   (une seconde entre chaque livre, pour rester poli avec les serveurs)\n")

@@ -465,15 +465,20 @@ docker compose -f docker-compose.v2.yml down && rm -rf ./data-v2
 It is the only genuine US national catalogue available without a key, and `marc21.py`
 already knows how to read its records. But it only exposes SRU on
 `http://lx2.loc.gov:210/LCDB` — in the clear, on a non-standard port that many home networks
-filter. Before writing the provider, check that it answers **from the machine that will make
-the requests**:
+filter.
+
+Answering would not be enough to justify adding it: it also has to fill fields OpenLibrary
+and K10plus leave empty. The script measures both, **from the machine that will make the
+requests**:
 
 ```bash
-python3 tools/test-loc.py
+python3 tools/mesure-loc.py        # the 55 benchmark ISBNs, ~3 min
+python3 tools/mesure-loc.py 12     # quick look
 ```
 
-The script has no dependencies and changes nothing: it opens a connection, looks up three
-sample ISBNs and prints what it gets back.
+With no dependencies, and changing nothing: it checks the port, confirms the search syntax is
+accepted — a rejected index would otherwise look like "no records" — then compares the three
+sources and counts what the LC adds on its own.
 
 ---
 
