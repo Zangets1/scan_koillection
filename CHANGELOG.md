@@ -5,6 +5,15 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+## [2.1.0] — 2026-08-19
+
+Cette version répare les couvertures : deux livres français sur trois arrivaient dans
+Koillection sans image. Rien à faire à la mise à jour — aucune variable ne change, aucune
+fiche existante n'est touchée, et un retour à la 2.0.0 reste possible.
+
+**Les couvertures déjà manquantes ne sont pas reprises** : seuls les livres ajoutés à partir
+de maintenant profitent des nouvelles sources.
+
 ### Corrigé
 
 - **Les couvertures arrivent enfin.** Elles n'étaient qu'un sous-produit des catalogues
@@ -266,6 +275,8 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[2.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.0
+[2.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.0.0
 [1.3.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.2
 [1.3.1]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.1
 [1.3.0]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.0
