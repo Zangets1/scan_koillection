@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 import httpx
 
+from . import covers
 from . import isbn as isbn_utils
 from . import series as series_utils
 from .config import Settings
@@ -242,7 +243,7 @@ def merge(metas: list[BookMeta], isbn13: str) -> BookMeta:
 
     scalar_fields = (
         "title", "subtitle", "publisher", "published_date", "page_count",
-        "synopsis", "series", "volume", "language", "country", "cover_url",
+        "synopsis", "series", "volume", "language", "country",
         "source_url", "isbn10",
     )
     for field in scalar_fields:
@@ -272,9 +273,14 @@ def merge(metas: list[BookMeta], isbn13: str) -> BookMeta:
 
     merged.sources = dedupe([source for meta in metas for source in meta.sources])
 
-    candidates = [meta.cover_url for meta in metas if meta.cover_url]
-    candidates.append(f"https://covers.openlibrary.org/b/isbn/{isbn13}-L.jpg")
-    merged.cover_candidates = dedupe(candidates)
+    # Les couvertures ont leur propre ordre, décidé par app.covers : la source
+    # la mieux fournie passe devant, quelle que soit la hiérarchie des notices.
+    merged.cover_candidates = covers.candidates(
+        isbn13, [meta.cover_url for meta in metas if meta.cover_url]
+    )
+    # `cover_url` est la couverture retenue, donc la première de la liste : c'est
+    # elle que le formulaire renverra à l'ajout, et elle est déjà en cache.
+    merged.cover_url = merged.cover_candidates[0] if merged.cover_candidates else None
 
     # Un titre du type « One Piece, Tome 12 : ... » livre la série même quand
     # aucun catalogue ne remplit la zone dédiée.

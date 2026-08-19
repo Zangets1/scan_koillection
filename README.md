@@ -100,6 +100,55 @@ If you mostly collect English-language books, reorder the sources —
 
 ---
 
+### Where the covers come from
+
+A cover is not metadata: it does not come from the same services, and the best record
+catalogue is not the best image source. SUDOC, K10plus and the Library of Congress publish
+none at all, the BnF puts only part of its thumbnails online, and OpenLibrary is well stocked
+in English and nearly empty in French. As long as the cover was merely a by-product of the
+catalogues being queried, it was missing most of the time.
+
+Image sources therefore have their own list and their own order. Measured across 46 ISBNs
+with `python3 tools/mesure-couvertures.py`, from the project's own server:
+
+| Image source | French books | English books | Median time |
+|---|:--:|:--:|:--:|
+| **ePagine** (French independent booksellers' network) | **96 %** | 33 % | 65 to 96 ms |
+| **OpenLibrary** | 17 % | **77 %** | 1.0 to 3.1 s |
+| **BnF** | 14 % | — | 59 ms |
+| Google Books without a key *(left out)* | 0 % | 27 % | 0.3 s |
+
+Books leaving with an image: **32 % → 96 %** in French, **77 % → 94 %** in English.
+
+**ePagine goes first, and the record now displays faster than before.** Its URL is built from
+the EAN — one request, no key, no prior search — and since it almost always lands, the loop
+stops at the first candidate instead of trying the BnF, which answers 500 with an HTML page
+when it lacks the thumbnail, and then OpenLibrary. The list got longer, the wait got shorter.
+
+**"Image not available" is a real image.** None of these services plainly says it does not
+have the file: the BnF returns 500 as HTML, OpenLibrary a 43-byte transparent GIF, ePagine
+and Google a perfectly valid image — 2.7 KB for one, up to 246 KB for the other. No size
+threshold tells them apart; what gives them away is being identical from one book to the
+next. Their fingerprints are listed in `app/covers.py`, and `tools/mesure-couvertures.py`
+unmasks any that show up later, by spotting one image served for two ISBNs.
+
+**Google Books without a key stays out.** Its image address does not consume any quota — the
+"quota exceeded" only applies to the JSON API. But it serves the placeholder for every French
+book tested, and 128-pixel thumbnails, useless as covers, for most English ones. Net
+contribution at a usable size: one book out of 46. Like the Library of Congress, it would
+cost one request per scan for almost nothing.
+
+**Downloaded once.** The image is resolved for display, then again when you confirm the
+addition a few seconds later. It is kept in memory in between — eight books at most, ten
+minutes, nothing heavier than 2 MiB — so it crosses the network only once.
+
+> **ePagine is not a documented public API**: the URL pattern may change or be closed off.
+> That is why it stays one candidate among several — the day it disappears, the BnF and
+> OpenLibrary take over and nothing breaks. Usage is measured too: one request per scanned
+> book, and the image is then stored in Koillection, never fetched from the service again.
+
+---
+
 ## Installing on a NAS
 
 ### 1. Docker Compose
@@ -398,7 +447,7 @@ app/
   importer.py     turns a book record into a Koillection item and its fields
   series.py       series/volume extraction from a title
   isbn.py         validation, ISBN-10 ↔ ISBN-13 conversion
-  covers.py       cover resolution (allow-list + real verification)
+  covers.py       image sources, allow-list, real verification, short-lived cache
 static/           the PWA: one page, one CSS, one JS, ZXing vendored in
 tests/            unit tests plus real BnF fixtures
 ```

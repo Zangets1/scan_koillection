@@ -58,12 +58,22 @@ def test_serie_deduite_du_titre_pendant_la_fusion():
     assert merged.title == "Le pont des héros"
 
 
-def test_candidats_de_couverture_toujours_completes_par_openlibrary():
+def test_les_couvertures_ont_leur_propre_ordre():
+    """La source la mieux fournie passe devant la hiérarchie des notices.
+
+    La BnF fait autorité sur les champs, pas sur les images : elle ne publie sa
+    vignette que pour un livre français sur sept. Elle reste candidate, mais
+    derrière une source qui répond presque toujours.
+    """
     merged = merge([make(title="1984", cover_url="https://catalogue.bnf.fr/couverture?x")], "9782070368228")
     assert merged.cover_candidates == [
+        "https://images.epagine.fr/228/9782070368228_1_75.jpg",
         "https://catalogue.bnf.fr/couverture?x",
         "https://covers.openlibrary.org/b/isbn/9782070368228-L.jpg",
     ]
+    # C'est cette URL que le formulaire renvoie à l'ajout : elle doit désigner
+    # la couverture retenue, pas celle du catalogue le plus prioritaire.
+    assert merged.cover_url == merged.cover_candidates[0]
 
 
 def test_nom_ditem_avec_et_sans_serie():
