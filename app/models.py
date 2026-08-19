@@ -33,10 +33,13 @@ class BookMeta(BaseModel):
     #: pour environ un livre anglophone sur cinq — trop rare pour mériter un
     #: champ dans le formulaire, mais exposé par l'API.
     country: str | None = None
+    #: La couverture retenue, c'est-à-dire le premier des candidats ci-dessous.
+    #: Ce n'est pas celle du catalogue le plus prioritaire : les images ont leur
+    #: propre hiérarchie, décidée par :mod:`app.covers`.
     cover_url: str | None = None
-    #: Toutes les couvertures proposées, dans l'ordre de préférence. Les
-    #: catalogues répondent souvent 200 avec une image vide : la validation est
-    #: faite à la demande par :mod:`app.covers`.
+    #: Toutes les couvertures à essayer, dans l'ordre. Les services répondent
+    #: souvent 200 avec une image vide ou un « image non disponible » : la
+    #: validation est faite à la demande par :mod:`app.covers`.
     cover_candidates: list[str] = Field(default_factory=list)
     #: Lien vers la notice d'origine (BnF, OpenLibrary…)
     source_url: str | None = None

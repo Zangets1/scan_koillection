@@ -5,6 +5,41 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+### Corrigé
+
+- **Les couvertures arrivent enfin.** Elles n'étaient qu'un sous-produit des catalogues
+  interrogés pour leurs notices : trois des cinq fournisseurs par défaut ne publient aucune
+  image, la BnF ne met en ligne qu'une partie de ses vignettes, et OpenLibrary est presque
+  vide sur l'édition française. Les sources d'images ont désormais leur propre liste et leur
+  propre ordre, mené par **ePagine**, dont l'URL se construit à partir de l'EAN. Mesuré sur
+  46 ISBN avec le nouvel outil : les livres repartant avec une image passent de **32 % à
+  96 %** en français et de **77 % à 94 %** en anglais.
+- **Les images « couverture indisponible » ne sont plus téléversées.** Elles passaient toutes
+  les vérifications — bon code, bon type, taille honnête : celle de Google à `zoom=3` pèse
+  246 ko. Elles sont maintenant reconnues à leur empreinte, la même d'un livre à l'autre.
+  Ce défaut ne se voyait pas avec les catalogues par défaut, mais un `PROVIDERS` contenant
+  `googlebooks` déposait ce placard gris dans Koillection.
+
+### Modifié
+
+- **La couverture est plus rapide à afficher, alors même que la liste de candidats s'est
+  allongée.** La source la mieux fournie est essayée en premier : la boucle s'arrête au
+  premier candidat au lieu d'attendre les 500 en HTML de la BnF puis OpenLibrary, la plus
+  lente des trois (1 à 3 s).
+- **L'image n'est plus téléchargée deux fois.** Celle qui s'affiche dans la fiche est gardée
+  en mémoire quelques minutes — huit livres au plus, rien au-delà de 2 Mio — pour être
+  téléversée dans Koillection sans repasser par le réseau.
+- `cover_url`, dans la réponse de `/api/lookup`, désigne désormais la couverture retenue —
+  la première de `cover_candidates` — et non celle du catalogue le plus prioritaire.
+
+### Ajouté
+
+- **`tools/mesure-couvertures.py`** : quelle source détient réellement l'image, en combien de
+  temps et à quelle taille. Il mesure sur vos propres livres, lus dans `data/history.sqlite3`,
+  démasque les images de remplacement par leur empreinte, compte à part les vignettes trop
+  petites pour servir de couverture, et vérifie par des témoins qu'aucune source n'est
+  filtrée depuis votre réseau. Sans dépendance, il ne modifie rien.
+
 ## [2.0.0] — 2026-08-19
 
 Cette version élargit la recherche au-delà du francophone, et change pour cela deux
