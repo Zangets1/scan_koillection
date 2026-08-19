@@ -5,6 +5,17 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+## [2.0.0] — 2026-08-19
+
+Cette version élargit la recherche au-delà du francophone, et change pour cela deux
+comportements par défaut — d'où le changement de version majeure. Rien à faire à la mise à
+jour : les fiches déjà dans Koillection ne sont pas touchées, et un retour à la 1.3.2 reste
+possible, le dossier `./data` étant compatible.
+
+**Si votre `docker-compose.yml` ou votre `.env` fixe `PROVIDERS`**, cette liste écrase les
+valeurs par défaut : ajoutez-y `k10plus`, sans quoi la nouveauté reste silencieusement
+inactive.
+
 ### Ajouté
 
 - **K10plus** (`k10plus`), catalogue collectif des bibliothèques allemandes, interrogé sur
