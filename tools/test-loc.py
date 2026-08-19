@@ -8,7 +8,8 @@ que depuis la machine qui fera les requêtes.
     python3 test-loc.py            # trois ISBN témoins
     python3 test-loc.py 9780306406157
 
-Sans dépendance : urllib seul, exécutable sur le NAS tel quel.
+Sans dépendance : urllib seul, exécutable sur le NAS tel quel. Fonctionne aussi
+sous Windows, PowerShell compris.
 """
 import socket
 import sys
@@ -17,6 +18,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree as ET
+
+# Les consoles Windows écrivent encore en cp1252, qui ne connaît pas la flèche
+# « → » employée plus bas. Sans cette ligne, le script s'interromprait sur un
+# UnicodeEncodeError au lieu de répondre à la question posée. `errors="replace"`
+# couvre les consoles plus anciennes encore : un caractère de remplacement vaut
+# mieux qu'une pile d'appels.
+if hasattr(sys.stdout, "reconfigure"):  # Python 3.7+
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BASE = "http://lx2.loc.gov:210/LCDB"
 MARC = "{http://www.loc.gov/MARC21/slim}"
