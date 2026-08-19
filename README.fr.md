@@ -141,6 +141,12 @@ comme couverture, pour la plupart des anglophones. Apport propre en taille corre
 livre sur 46. Comme la Library of Congress, il coûterait une requête par scan pour presque
 rien.
 
+**Une vignette est rétrogradée, pas refusée.** En dessous de 250 px, l'image est mise de
+côté et ne ressort que si aucun autre candidat n'aboutit. Google Books ne publie que du
+128 px — `thumbnail` comme `smallThumbnail` — et ce catalogue s'active à la main : refuser
+sec reviendrait à remplacer une couverture floue par une fiche sans image chez ceux qui
+l'ont justement ajouté pour en avoir une.
+
 **Téléchargée une fois.** L'image est résolue pour l'affichage, puis à nouveau quand vous
 validez l'ajout, quelques secondes plus tard. Elle est gardée en mémoire dans l'intervalle —
 huit livres au plus, dix minutes, rien de plus lourd que 2 Mio — pour ne traverser le réseau
