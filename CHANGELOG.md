@@ -5,6 +5,16 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+## [2.1.1] — 2026-08-21
+
+Cette version répare la détection des doublons : un livre déjà ajouté pouvait l'être encore,
+et encore, sans qu'aucun message ne le signale. Rien à faire à la mise à jour — aucune
+variable ne change, aucune fiche existante n'est touchée, et un retour à la 2.1.0 reste
+possible.
+
+**Les doublons déjà créés ne sont pas supprimés** : le correctif empêche les suivants, il ne
+nettoie pas le passé. Les exemplaires en trop sont à retirer depuis Koillection.
+
 ### Corrigé
 
 - **Un même livre pouvait être ajouté plusieurs fois de suite, sans le moindre message.**
@@ -310,6 +320,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[2.1.1]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.1
 [2.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.0
 [2.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.0.0
 [1.3.2]: https://github.com/zangets1/scan_koillection/releases/tag/v1.3.2
