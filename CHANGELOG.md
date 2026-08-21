@@ -5,6 +5,41 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+### Corrigé
+
+- **Un même livre pouvait être ajouté plusieurs fois de suite, sans le moindre message.**
+  La recherche de doublon comparait les noms d'items, puis exigeait un champ ISBN concordant
+  pour conclure. Un item du même nom **sans** ISBN était donc traité comme un autre livre —
+  alors que c'est précisément la trace d'un ajout précédent qui a mal fini : Koillection qui
+  refuse le champ, ou la connexion qui casse entre la création de l'item et l'écriture de ses
+  données. La fiche amputée devenait invisible à tout contrôle ultérieur, et chaque nouveau
+  scan du même livre en fabriquait une copie de plus. L'ISBN départage maintenant les
+  homonymes sans les créer : à nom égal, seul un ISBN **différent** écarte un item.
+- **Deux validations simultanées créaient deux exemplaires.** Le double appui sur « Ajouter »,
+  la touche « Entrée » du clavier du téléphone pendant que la requête tournait, ou un renvoi
+  après une réponse qui tardait : chaque requête cherchait un doublon avant que l'autre n'ait
+  créé le sien, et les deux passaient. Les ajouts d'un même livre s'exécutent désormais l'un
+  après l'autre — deux livres différents restent traités en parallèle — et le bouton se
+  désactive le temps de l'envoi.
+- **Un champ refusé par Koillection ne disparaît plus dans les journaux.** Il est remonté à
+  l'écran de confirmation : « Koillection a refusé : ISBN. La fiche est créée mais
+  incomplète. » C'était le seul symptôme visible du bug ci-dessus, et il n'était visible nulle
+  part.
+- **Un ajout n'échoue plus après la création de l'item.** Une couverture injoignable ou un
+  Koillection qui décroche en fin de parcours renvoyaient une erreur alors que l'item existait
+  déjà : l'utilisateur rescannait, et obtenait un deuxième exemplaire. Tout ce qui suit la
+  création est maintenant sans conséquence sur le verdict, et l'ajout est journalisé même si
+  la couverture manque.
+- **Un livre renommé dans Koillection est de nouveau reconnu.** La comparaison par nom ne
+  voyait rien quand le titre avait changé entre deux scans. L'historique local sert de filet :
+  à ISBN et collection identiques, il signale le doublon — après avoir vérifié que l'item est
+  toujours en place, pour qu'un livre supprimé de Koillection reste rescannable.
+
+### Ajouté
+
+- `warnings` dans la réponse de `POST /api/add` : la liste des champs que Koillection a
+  refusés.
+
 ## [2.1.0] — 2026-08-19
 
 Cette version répare les couvertures : deux livres français sur trois arrivaient dans

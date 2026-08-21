@@ -517,8 +517,19 @@ function readForm() {
   };
 }
 
+/**
+ * Un envoi à la fois.
+ *
+ * Le voile d'attente masque le bouton mais n'arrête pas tout : la touche
+ * « Entrée » du clavier du téléphone soumet encore le formulaire, et un
+ * deuxième appui déjà en file d'attente part quand même. Deux requêtes
+ * simultanées, deux exemplaires du même livre.
+ */
+let sending = false;
+
 async function submitBook(event) {
   event.preventDefault();
+  if (sending) return;
   const payload = readForm();
   const error = $('book-error');
 
@@ -541,7 +552,14 @@ async function submitBook(event) {
   }
   error.hidden = true;
 
-  await sendBook(payload);
+  sending = true;
+  $('btn-add').disabled = true;
+  try {
+    await sendBook(payload);
+  } finally {
+    sending = false;
+    $('btn-add').disabled = false;
+  }
 }
 
 async function sendBook(payload) {
@@ -564,6 +582,18 @@ async function sendBook(payload) {
 
     $('done-title').textContent = payload.read ? 'Livre ajouté et marqué comme lu' : 'Livre ajouté';
     $('done-message').textContent = result.message || '';
+
+    // Une fiche amputée doit se voir tout de suite : c'est justement celle
+    // qu'aucun scan ultérieur ne reconnaîtra bien, faute d'ISBN écrit.
+    const warning = $('done-warning');
+    const refused = result.warnings || [];
+    if (refused.length) {
+      warning.textContent = `Koillection a refusé : ${refused.join(', ')}. `
+        + 'La fiche est créée mais incomplète — complétez-la à la main.';
+      warning.hidden = false;
+    } else {
+      warning.hidden = true;
+    }
     const link = $('done-link');
     if (result.item_url) {
       link.href = result.item_url;

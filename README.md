@@ -421,12 +421,23 @@ ISBN at all (old books, editions without a barcode).
 
 ## Duplicate detection
 
-Before each creation, items in the destination collection are compared on their ISBN field.
-If the book is already there, a confirmation appears with a link to the existing record.
+Before each creation, items in the destination collection are compared on their name — which
+is identical when the same book is scanned twice. The ISBN only separates namesakes: with
+equal names, only a **different** ISBN rules an item out. A record with the same name but no
+ISBN therefore still counts as a duplicate, because it is almost always an earlier add that
+ended badly. If the book is already there, a confirmation appears with a link to the existing
+record; adding a second copy anyway remains possible.
+
+The local history is a second safety net: for the same ISBN in the same collection it flags
+the duplicate even when the record has been renamed inside Koillection. It first checks the
+item is still there — a book deleted from Koillection can be rescanned without argument.
+
+Two simultaneous submissions of the same book run one after the other, so neither can decide
+before the other has created its item.
 
 > **A known limit.** Koillection's API exposes no search filter, so the check is confined to
 > the target collection (and its series sub-collection). The same book filed elsewhere won't
-> be caught. The local history, on the other hand, flags any ISBN the tool has seen before.
+> be caught.
 
 ---
 
@@ -436,9 +447,17 @@ If the book is already there, a confirmation appears with a link to the existing
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest pytest-asyncio
-.venv/bin/python -m pytest                 # 79 tests, no network access
+.venv/bin/python -m pytest                 # 157 tests, no network access
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
+
+### Duplicate test bench
+
+The failures that manufacture duplicates — a rejected field, a connection breaking mid-add,
+two simultaneous submissions — don't reproduce against a real Koillection.
+`tools/koillection-factice.py` stands in for one and misbehaves on command;
+`tools/banc-doublons.py` runs six scenarios against it and exits non-zero on the first extra
+item. Usage is documented at the top of each file.
 
 ### Layout
 

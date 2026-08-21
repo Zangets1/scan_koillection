@@ -439,12 +439,23 @@ Le bouton **« Saisir le livre à la main »** de l'accueil ouvre la même fiche
 
 ## Détection des doublons
 
-Avant chaque création, les items de la collection de destination sont comparés sur leur champ ISBN.
-Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche existante.
+Avant chaque création, les items de la collection de destination sont comparés sur leur nom —
+identique quand le même livre est scanné deux fois. L'ISBN ne sert qu'à départager les
+homonymes : à nom égal, seul un ISBN **différent** écarte un item. Une fiche du même nom mais
+sans ISBN reste donc un doublon, car c'est presque toujours un ajout précédent qui a mal fini.
+Si le livre est déjà là, une confirmation s'affiche avec un lien vers la fiche existante ; rien
+n'empêche d'ajouter quand même un second exemplaire.
+
+L'historique local sert de second filet : à ISBN et collection identiques, il signale le
+doublon même quand la fiche a été renommée dans Koillection. Il vérifie d'abord que l'item est
+toujours en place — un livre supprimé de Koillection se rescanne sans discuter.
+
+Deux validations simultanées du même livre s'exécutent l'une après l'autre, pour qu'aucune ne
+puisse conclure avant que l'autre n'ait créé son item.
 
 > **Limite assumée.** L'API de Koillection n'expose aucun filtre de recherche : la vérification
 > se limite à la collection visée (et à sa sous-collection de série). Un même livre rangé
-> ailleurs ne sera pas détecté. L'historique local, lui, signale tout ISBN déjà passé par l'outil.
+> ailleurs ne sera pas détecté.
 
 ---
 
@@ -454,9 +465,17 @@ Si le livre y est déjà, une confirmation s'affiche avec un lien vers la fiche 
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 79 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 157 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
+
+### Banc d'essai des doublons
+
+Les pannes qui fabriquent des doublons — un champ refusé, une connexion qui casse au milieu
+d'un ajout, deux validations simultanées — ne se reproduisent pas sur un vrai Koillection.
+`tools/koillection-factice.py` en tient lieu et se dérègle sur commande ;
+`tools/banc-doublons.py` déroule six scénarios contre lui et sort en échec au premier item de
+trop. Le mode d'emploi est en tête de chaque fichier.
 
 ### Organisation
 
