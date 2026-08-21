@@ -92,6 +92,9 @@ class AddResponse(BaseModel):
     created_collection: bool = False
     duplicate: bool = False
     duplicate_of: str | None = None
+    #: Champs que Koillection a refusés. L'item existe quand même, mais amputé :
+    #: le dire évite de découvrir des semaines plus tard une fiche sans ISBN.
+    warnings: list[str] = Field(default_factory=list)
     message: str | None = None
 
 

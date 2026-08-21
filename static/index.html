@@ -13,7 +13,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
-<link rel="stylesheet" href="/styles.css?v=4">
+<link rel="stylesheet" href="/styles.css?v=5">
 </head>
 <body>
 
@@ -229,6 +229,7 @@
     <div class="done-mark" aria-hidden="true">✓</div>
     <h2 id="done-title">Livre ajouté</h2>
     <p class="muted" id="done-message"></p>
+    <p id="done-warning" class="error" hidden></p>
     <a class="btn btn-ghost btn-block" id="done-link" target="_blank" rel="noopener" hidden>Voir dans Koillection</a>
     <button class="btn btn-primary btn-block btn-lg" id="btn-scan-next" type="button">Scanner le livre suivant</button>
     <button class="btn btn-ghost btn-block" id="btn-home" type="button">Retour à l'accueil</button>
@@ -239,6 +240,6 @@
 <div id="busy" class="busy" hidden><div class="spinner" aria-hidden="true"></div><p id="busy-label">Recherche…</p></div>
 
 <script src="/vendor/zxing.min.js"></script>
-<script src="/app.js?v=4"></script>
+<script src="/app.js?v=5"></script>
 </body>
 </html>

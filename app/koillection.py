@@ -348,6 +348,14 @@ class KoillectionClient:
         collection de plusieurs centaines de livres, l'ajout deviendrait
         interminable. On se sert donc du nom — identique quand le même livre est
         scanné deux fois — pour ne vérifier l'ISBN que sur les rares homonymes.
+
+        L'ISBN départage les homonymes, il ne les crée pas : un item du même nom
+        **sans** ISBN reste un doublon. C'est même le cas le plus important, car
+        un item sans ISBN est presque toujours un ajout précédent dont
+        l'écriture des champs a échoué — Koillection qui refuse le champ, ou la
+        connexion qui casse au milieu. Le considérer comme un autre livre
+        rendait ces ajouts-là définitivement invisibles : chaque nouveau scan
+        du même livre en fabriquait une copie de plus, sans le moindre message.
         """
         wanted = _normalize_name(name)
         candidates = [
@@ -363,17 +371,38 @@ class KoillectionClient:
             # Sans champ ISBN configuré, l'homonymie exacte fait office de preuve.
             return candidates[0]
 
+        #: Homonyme dont l'ISBN ne contredit pas celui du livre scanné : gardé
+        #: de côté, un ISBN qui concorde vaut mieux et lui passerait devant.
+        muet: dict | None = None
         for item in candidates:
             response = await self.request("GET", f"/api/items/{item['id']}/data")
             if response.status_code >= 400:
+                # Champs illisibles : on ne peut rien conclure, et devant un
+                # homonyme le doute profite à la mise en garde.
+                muet = muet or item
                 continue
             payload = response.json()
             if isinstance(payload, dict):
                 payload = payload.get("hydra:member") or payload.get("member") or []
-            for datum in payload:
-                if datum.get("label") == label and _same_isbn(datum.get("value"), isbn13):
-                    return item
-        return None
+            inscrits = [
+                datum.get("value") for datum in payload if datum.get("label") == label
+            ]
+            if any(_same_isbn(value, isbn13) for value in inscrits):
+                return item
+            if not any(_digits(value) for value in inscrits):
+                muet = muet or item
+        return muet
+
+    async def item_exists(self, item_id: str) -> bool:
+        """Dit si un item enregistré dans l'historique est toujours en place."""
+        if not item_id:
+            return False
+        try:
+            response = await self.request("GET", f"/api/items/{item_id}")
+        except KoillectionError:
+            # Koillection muet : on ne peut pas affirmer que l'item existe.
+            return False
+        return response.status_code < 400
 
     async def create_item(
         self,
@@ -397,7 +426,15 @@ class KoillectionClient:
 
     async def add_datum(
         self, item_iri: str, label: str, value: str, datum_type: str, position: int
-    ) -> None:
+    ) -> bool:
+        """Écrit un champ personnalisé. Renvoie ``False`` si Koillection l'a refusé.
+
+        Un champ refusé (libellé en doublon, valeur invalide, serveur qui
+        tousse) ne doit pas faire échouer tout l'ajout : l'item existe déjà.
+        Mais il ne doit pas non plus passer inaperçu — c'est ainsi qu'on se
+        retrouve avec une fiche sans ISBN, que plus rien ne reconnaîtra ensuite.
+        L'appelant reçoit donc le verdict et le remonte à l'utilisateur.
+        """
         body = {
             "item": item_iri,
             "type": datum_type,
@@ -405,16 +442,20 @@ class KoillectionClient:
             "value": value,
             "position": position,
         }
-        response = await self.request("POST", "/api/data", json_body=body)
+        try:
+            response = await self.request("POST", "/api/data", json_body=body)
+        except KoillectionError as exc:
+            logger.warning("Champ « %s » non écrit : %s", label, exc)
+            return False
         if response.status_code not in (200, 201):
-            # Un champ refusé (libellé en doublon, valeur invalide) ne doit pas
-            # faire échouer tout l'ajout : l'item existe déjà.
             logger.warning(
                 "Champ « %s » refusé par Koillection (%s) : %s",
                 label,
                 response.status_code,
                 response.text[:200],
             )
+            return False
+        return True
 
     async def upload_cover(self, item_id: str, cover: Cover) -> bool:
         files = {"file": (f"cover{cover.extension}", cover.content, cover.content_type)}
@@ -522,6 +563,10 @@ def _normalize_name(value: str) -> str:
     return "".join(c for c in without_accents.casefold() if c.isalnum())
 
 
+def _digits(value: object) -> str:
+    """Réduit un ISBN à ses caractères significatifs : « 978-2-07 » → « 978207 »."""
+    return "".join(c for c in str(value or "") if c.isalnum()).upper()
+
+
 def _same_isbn(left: object, right: str) -> bool:
-    digits = lambda value: "".join(c for c in str(value or "") if c.isalnum())  # noqa: E731
-    return digits(left).upper() == digits(right).upper()
+    return bool(_digits(left)) and _digits(left) == _digits(right)
