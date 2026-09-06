@@ -5,6 +5,25 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+## [2.1.2] — 2026-09-06
+
+Cette version répare les messages, pas Koillection. Quand son API d'authentification renvoie
+une erreur 500, le scanner accusait une adresse qui n'y était pour rien et redemandait un
+jeton à chaque affichage de page. Rien à faire à la mise à jour — aucune variable ne change,
+aucune fiche existante n'est touchée, et un retour à la 2.1.1 reste possible.
+
+**Une erreur 500 sur `/api/authentication_token` se répare dans Koillection**, pas ici : il
+s'agit presque toujours de la paire de clés JWT, à régénérer depuis son conteneur avant de le
+redémarrer.
+
+```bash
+docker exec -it koillection php bin/console lexik:jwt:generate-keypair --overwrite
+docker restart koillection
+```
+
+Le scanner sait maintenant nommer cette panne et donner ce geste ; il ne peut pas l'accomplir
+à votre place.
+
 ### Corrigé
 
 - **Une panne de Koillection n'est plus imputée à la configuration du scanner.** Quand
@@ -346,6 +365,7 @@ Première version publiée.
 - **Image Docker multi-architecture** (amd64, arm64) publiée sur GHCR, profil Compose
   `https` avec Caddy pour obtenir le HTTPS qu'exigent les navigateurs mobiles.
 
+[2.1.2]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.2
 [2.1.1]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.1
 [2.1.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.1.0
 [2.0.0]: https://github.com/zangets1/scan_koillection/releases/tag/v2.0.0
