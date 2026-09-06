@@ -5,6 +5,32 @@ et le versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## Non publié
 
+### Corrigé
+
+- **Une panne de Koillection n'est plus imputée à la configuration du scanner.** Quand
+  `POST /api/authentication_token` répond 500 — clés JWT absentes, illisibles par le serveur
+  web, ou générées avec une autre passphrase —, le message était « Authentification
+  Koillection impossible (500). Vérifiez KOILLECTION_URL », soit l'adresse qui venait
+  justement de répondre 200 à l'étape précédente du diagnostic. Il nomme désormais la cause
+  probable, cite le message de Koillection et donne la commande qui régénère les clés
+  (`php bin/console lexik:jwt:generate-keypair --overwrite`). Le bandeau n'en affiche que la
+  première phrase ; le détail complet reste dans le diagnostic, juste en dessous.
+- **Le diagnostic ne met plus en cause les identifiants sur une panne serveur.** Une erreur
+  500 s'affichait en « Identifiants acceptés ✗ », ce qui envoyait réinitialiser un mot de
+  passe que Koillection n'avait pas même regardé. L'étape s'appelle « API d'authentification »
+  dans ce cas, et les codes 404 (adresse qui ne désigne pas un Koillection) et 502/503/504
+  (reverse proxy ou conteneur en cours de redémarrage) ont chacun leur explication.
+- **Le scanner ne réclame plus un jeton à un serveur qu'il vient de voir échouer.** Chaque
+  affichage de page en redemandait un — liste des collections, diagnostic, rechargement —,
+  d'où des 500 en rafale dans les journaux de Koillection et une attente à chaque écran. Un
+  échec est retenu 30 secondes et resservi tel quel ; « ⟳ Recharger depuis Koillection » et
+  « Diagnostiquer la connexion » retentent immédiatement, puisque c'est le geste de
+  quelqu'un qui vient de réparer quelque chose.
+- **Un Koillection injoignable pendant l'authentification ne fait plus répondre 500 au
+  scanner.** L'erreur réseau remontait brute jusqu'à FastAPI au lieu d'être traduite en
+  cause probable, comme elle l'est partout ailleurs (« Le nom … est introuvable », « Rien ne
+  répond sur … »).
+
 ## [2.1.1] — 2026-08-21
 
 Cette version répare la détection des doublons : un livre déjà ajouté pouvait l'être encore,
