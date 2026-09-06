@@ -31,9 +31,29 @@ logger = logging.getLogger(__name__)
 #: scanner, assez longue pour ne pas réinterroger l'API à chaque affichage.
 CACHE_TTL = 60.0
 
+#: Délai d'observation après un échec d'authentification. L'interface redemande
+#: la liste des collections à chaque affichage, et le diagnostic dans la foulée :
+#: chacune de ces requêtes réclamait un jeton à un serveur qu'on venait de voir
+#: échouer. Le verdict précédent est réutilisé pendant ce délai — l'utilisateur
+#: est renseigné aussitôt, et le journal de Koillection cesse de se remplir. Un
+#: rafraîchissement demandé explicitement le court-circuite.
+AUTH_RETRY_DELAY = 30.0
+
 
 class KoillectionError(RuntimeError):
     """Erreur fonctionnelle remontée telle quelle à l'interface."""
+
+
+class KoillectionAuthError(KoillectionError):
+    """Jeton JWT non obtenu, avec le code HTTP quand le serveur en a renvoyé un.
+
+    Le code distingue le mot de passe refusé (401) de la panne serveur (5xx) :
+    ce ne sont pas les mêmes causes, et surtout pas les mêmes gestes.
+    """
+
+    def __init__(self, message: str, status: int | None = None) -> None:
+        super().__init__(message)
+        self.status = status
 
 
 class KoillectionClient:
@@ -42,6 +62,8 @@ class KoillectionClient:
         self._client: httpx.AsyncClient | None = None
         self._token: str | None = None
         self._token_at: float = 0.0
+        self._auth_error: KoillectionAuthError | None = None
+        self._auth_error_at: float = 0.0
         self._lock = asyncio.Lock()
         self._collections: list[KoiCollection] | None = None
         self._collections_at: float = 0.0
@@ -79,8 +101,10 @@ class KoillectionClient:
         self._collections = None
         self._tags = None
 
-    def _is_fresh(self, stored_at: float) -> bool:
-        return time.monotonic() - stored_at < CACHE_TTL
+    def _is_fresh(self, stored_at: float, ttl: float | None = None) -> bool:
+        # CACHE_TTL est lu à l'appel, et non figé en valeur par défaut, pour
+        # rester ajustable depuis les tests.
+        return time.monotonic() - stored_at < (CACHE_TTL if ttl is None else ttl)
 
     # ------------------------------------------------------------------
     # Diagnostic
@@ -88,9 +112,11 @@ class KoillectionClient:
     async def diagnose(self) -> list[dict]:
         """Déroule la chaîne de connexion étape par étape.
 
-        « Aucune collection » a trois causes très différentes — serveur
-        injoignable, identifiants refusés, ou compte réellement vide — que
-        l'interface ne savait pas distinguer. Ce contrôle nomme la bonne.
+        « Aucune collection » a quatre causes très différentes — serveur
+        injoignable, API d'authentification en panne, identifiants refusés, ou
+        compte réellement vide — que l'interface ne savait pas distinguer. Ce
+        contrôle nomme la bonne, et interroge toujours le serveur : c'est le
+        geste de quelqu'un qui vient de réparer quelque chose.
         """
         steps: list[dict] = []
 
@@ -129,11 +155,13 @@ class KoillectionClient:
             return steps
 
         try:
+            # Éprouver la chaîne, c'est redemander un jeton, pas relire celui
+            # qu'on a en poche.
             self._token = None
-            await self._authenticate()
+            await self._ensure_token(force=True)
             add("Identifiants acceptés", True, f"Connecté en tant que « {self.settings.koillection_username} ».")
         except KoillectionError as exc:
-            add("Identifiants acceptés", False, str(exc))
+            add(_auth_step_label(exc), False, str(exc))
             return steps
 
         try:
@@ -160,33 +188,73 @@ class KoillectionClient:
     # ------------------------------------------------------------------
     async def _authenticate(self) -> str:
         assert self._client is not None
-        response = await self._client.post(
-            "/api/authentication_token",
-            json={
-                "username": self.settings.koillection_username,
-                "password": self.settings.koillection_password,
-            },
-            headers={"Content-Type": "application/json"},
-        )
-        if response.status_code == 401:
-            raise KoillectionError("Identifiants Koillection refusés (401).")
-        if response.status_code >= 400:
-            raise KoillectionError(
-                f"Authentification Koillection impossible ({response.status_code}). "
-                "Vérifiez KOILLECTION_URL."
+        try:
+            response = await self._client.post(
+                "/api/authentication_token",
+                json={
+                    "username": self.settings.koillection_username,
+                    "password": self.settings.koillection_password,
+                },
+                headers={"Content-Type": "application/json"},
             )
-        token = (response.json() or {}).get("token")
+        except httpx.HTTPError as exc:
+            raise KoillectionAuthError(
+                _explain_network_error(exc, self.settings.koillection_url)
+            ) from exc
+
+        if response.status_code in (401, 403):
+            raise KoillectionAuthError(
+                f"Identifiants Koillection refusés ({response.status_code}). Vérifiez "
+                "KOILLECTION_USERNAME et KOILLECTION_PASSWORD ; le nom d'utilisateur "
+                "n'est pas l'adresse e-mail.",
+                response.status_code,
+            )
+        if response.status_code >= 400:
+            raise KoillectionAuthError(_explain_auth_failure(response), response.status_code)
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = None
+        token = payload.get("token") if isinstance(payload, dict) else None
         if not token:
-            raise KoillectionError("Koillection n'a pas renvoyé de jeton JWT.")
+            # Un 200 sans jeton, c'est quelqu'un d'autre qui répond : page
+            # d'accueil d'un reverse proxy, portail d'authentification…
+            raise KoillectionAuthError(
+                "Koillection a répondu sans jeton JWT. Un intermédiaire (reverse proxy, "
+                "portail d'authentification) répond peut-être à sa place : KOILLECTION_URL "
+                "doit désigner Koillection lui-même."
+            )
         self._token = token
         self._token_at = time.monotonic()
         return token
 
-    async def _ensure_token(self) -> str:
+    async def _ensure_token(self, force: bool = False) -> str:
+        """Renvoie un jeton valide. ``force`` ignore la temporisation d'échec.
+
+        Il ne jette pas pour autant un jeton encore bon : rafraîchir la liste des
+        collections ne doit pas coûter une authentification de plus quand tout va
+        bien. Qui veut éprouver la chaîne entière — le diagnostic — oublie le
+        jeton avant d'appeler.
+        """
         async with self._lock:
+            if force:
+                self._auth_error = None
+            elif self._auth_error is not None and self._is_fresh(self._auth_error_at, AUTH_RETRY_DELAY):
+                # Le serveur vient d'échouer : on redit pourquoi sans le solliciter.
+                raise self._auth_error
             # Les jetons Koillection vivent 1 h ; on renouvelle largement avant.
             if self._token is None or time.monotonic() - self._token_at > 1800:
-                return await self._authenticate()
+                try:
+                    token = await self._authenticate()
+                except KoillectionError as exc:
+                    self._auth_error = (
+                        exc if isinstance(exc, KoillectionAuthError) else KoillectionAuthError(str(exc))
+                    )
+                    self._auth_error_at = time.monotonic()
+                    raise
+                self._auth_error = None
+                return token
             return self._token
 
     async def request(
@@ -199,12 +267,13 @@ class KoillectionClient:
         files: dict | None = None,
         content_type: str = "application/json",
         retry_auth: bool = True,
+        force_auth: bool = False,
     ) -> httpx.Response:
         if self._client is None:
             raise KoillectionError(
                 "Koillection n'est pas configuré (KOILLECTION_URL / USERNAME / PASSWORD)."
             )
-        token = await self._ensure_token()
+        token = await self._ensure_token(force_auth)
         headers = {"Authorization": f"Bearer {token}"}
         if json_body is not None and files is None:
             headers["Content-Type"] = content_type
@@ -217,6 +286,8 @@ class KoillectionClient:
             raise KoillectionError(f"Koillection injoignable : {exc}") from exc
 
         if response.status_code == 401 and retry_auth:
+            # Jeton périmé : on en redemande un, sans se laisser arrêter par la
+            # temporisation, qui ne vise que les pannes.
             self._token = None
             return await self.request(
                 method,
@@ -226,15 +297,18 @@ class KoillectionClient:
                 files=files,
                 content_type=content_type,
                 retry_auth=False,
+                force_auth=True,
             )
         return response
 
-    async def _get_all(self, path: str) -> list[dict]:
+    async def _get_all(self, path: str, force_auth: bool = False) -> list[dict]:
         """Parcourt toutes les pages d'une collection API Platform."""
         results: list[dict] = []
         page = 1
         while page <= 200:  # garde-fou
-            response = await self.request("GET", path, params={"page": page})
+            response = await self.request(
+                "GET", path, params={"page": page}, force_auth=force_auth and page == 1
+            )
             if response.status_code >= 400:
                 raise KoillectionError(
                     f"GET {path} a échoué ({response.status_code}) : {response.text[:200]}"
@@ -255,7 +329,9 @@ class KoillectionClient:
         if self._collections is not None and not refresh and self._is_fresh(self._collections_at):
             return self._collections
 
-        raw = await self._get_all("/api/collections")
+        # Rafraîchir, c'est ce que fait l'utilisateur après avoir réparé quelque
+        # chose : la temporisation ne doit pas lui resservir l'erreur d'avant.
+        raw = await self._get_all("/api/collections", force_auth=refresh)
         by_id: dict[str, KoiCollection] = {}
         for entry in raw:
             identifier = entry.get("id")
@@ -475,7 +551,7 @@ class KoillectionClient:
     async def tags(self, refresh: bool = False) -> dict[str, str]:
         if self._tags is not None and not refresh and self._is_fresh(self._tags_at):
             return self._tags
-        raw = await self._get_all("/api/tags")
+        raw = await self._get_all("/api/tags", force_auth=refresh)
         self._tags_at = time.monotonic()
         self._tags = {
             (entry.get("label") or "").casefold(): f"/api/tags/{entry['id']}"
@@ -527,6 +603,76 @@ def _build_path(collection: KoiCollection, by_id: dict[str, KoiCollection]) -> s
         parts.append(parent.title)
         parent_id = parent.parent
     return " / ".join(reversed(parts))
+
+
+def _server_detail(response: httpx.Response) -> str:
+    """Extrait le message du serveur : JSON d'API Platform, ou rien.
+
+    Une page d'erreur HTML de Symfony ne dit rien d'utile en quelques centaines
+    de caractères ; mieux vaut ne rien citer que de noyer le conseil qui suit.
+    """
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = None
+    if isinstance(payload, dict):
+        for key in ("detail", "hydra:description", "message", "error_description", "title"):
+            value = payload.get(key)
+            if isinstance(value, str) and value.strip():
+                return " ".join(value.split())[:200]
+    text = (response.text or "").strip()
+    if not text or text.startswith("<") or "<html" in text[:200].lower():
+        return ""
+    return " ".join(text.split())[:200]
+
+
+def _explain_auth_failure(response: httpx.Response) -> str:
+    """Traduit un refus de jeton autre qu'un mot de passe erroné.
+
+    Le message d'avant — « Vérifiez KOILLECTION_URL » — était le pire conseil
+    possible sur une erreur 500 : l'adresse est justement celle qui vient de
+    répondre 200 à l'étape précédente du diagnostic. On envoyait l'utilisateur
+    retourner sa configuration pendant que la panne était chez Koillection.
+    """
+    code = response.status_code
+    detail = _server_detail(response)
+    # Le message du serveur garde sa ponctuation : rien ne s'ajoute après le guillemet.
+    cite = f" Koillection dit : « {detail} »" if detail else ""
+
+    if code == 404:
+        return (
+            f"Koillection ne connaît pas /api/authentication_token (404). KOILLECTION_URL "
+            f"ne désigne pas la racine d'un Koillection, ou un reverse proxy n'en publie "
+            f"qu'une partie.{cite}"
+        )
+    if code in (502, 503, 504):
+        return (
+            f"Un intermédiaire répond {code} à la place de Koillection : le conteneur "
+            f"redémarre, ou le reverse proxy ne le joint plus. Réessayez une fois "
+            f"Koillection reparti.{cite}"
+        )
+    if code >= 500:
+        return (
+            f"Koillection répond, mais son API d'authentification échoue ({code}) : "
+            f"l'adresse n'est donc pas en cause. La cause habituelle est la paire de clés "
+            f"JWT (config/jwt/private.pem et public.pem) absente, illisible par le serveur "
+            f"web, ou générée avec une autre passphrase. Régénérez-la depuis le conteneur "
+            f"Koillection — « php bin/console lexik:jwt:generate-keypair --overwrite » — "
+            f"puis redémarrez-le. Son journal donne le message exact.{cite}"
+        )
+    return f"Authentification Koillection impossible ({code}).{cite}"
+
+
+def _auth_step_label(exc: Exception) -> str:
+    """Nomme l'étape de diagnostic d'après ce qui a réellement échoué.
+
+    Afficher « Identifiants acceptés ✗ » sur une erreur 500 envoyait réinitialiser
+    un mot de passe qui n'y était pour rien : le serveur ne l'a même pas regardé.
+    """
+    status = getattr(exc, "status", None)
+    if status is not None and status >= 500:
+        return "API d'authentification"
+    return "Identifiants acceptés"
 
 
 #: Formulations d'échec de résolution DNS selon la plateforme.

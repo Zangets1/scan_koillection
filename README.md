@@ -271,6 +271,17 @@ one minute so the API isn't queried on every page view.
 >
 > The usual traps:
 >
+> - **`✗ API d'authentification` — HTTP 500.** Koillection answers everywhere else, but its
+>   token endpoint fails: the JWT keypair (`config/jwt/private.pem` and `public.pem`) is
+>   missing, unreadable by the web server, or was generated with a different passphrase.
+>   Regenerate it inside the Koillection container, then restart it:
+>
+>   ```bash
+>   docker exec -it koillection php bin/console lexik:jwt:generate-keypair --overwrite
+>   docker restart koillection
+>   ```
+>
+>   The URL is not the culprit here, and neither is the password: the server never looked at it.
 > - **`http://koillection:80` without a shared network.** Every Compose stack creates its
 >   own: the Koillection container name simply doesn't resolve from the scanner.
 > - **`localhost` or `127.0.0.1`**, which from inside the container means the container
@@ -447,7 +458,7 @@ before the other has created its item.
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest pytest-asyncio
-.venv/bin/python -m pytest                 # 157 tests, no network access
+.venv/bin/python -m pytest                 # 169 tests, no network access
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 

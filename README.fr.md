@@ -290,6 +290,17 @@ liste est mise en cache une minute pour ne pas interroger l'API à chaque affich
 >
 > Les pièges habituels :
 >
+> - **`✗ API d'authentification` — erreur 500.** Koillection répond partout ailleurs, mais
+>   son endpoint de jeton échoue : la paire de clés JWT (`config/jwt/private.pem` et
+>   `public.pem`) est absente, illisible par le serveur web, ou générée avec une autre
+>   passphrase. Régénérez-la dans le conteneur Koillection, puis redémarrez-le :
+>
+>   ```bash
+>   docker exec -it koillection php bin/console lexik:jwt:generate-keypair --overwrite
+>   docker restart koillection
+>   ```
+>
+>   L'adresse n'y est pour rien, et le mot de passe non plus : le serveur ne l'a pas regardé.
 > - **`http://koillection:80` sans réseau partagé.** Chaque pile Compose crée son propre
 >   réseau : le nom du conteneur Koillection n'est pas résolu depuis le scanner. Voir
 >   ci-dessous.
@@ -465,7 +476,7 @@ puisse conclure avant que l'autre n'ait créé son item.
 git clone https://github.com/zangets1/scan_koillection.git
 cd scan_koillection
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
-.venv/bin/python -m pytest                 # 157 tests, sans accès réseau
+.venv/bin/python -m pytest                 # 169 tests, sans accès réseau
 KOILLECTION_URL=... .venv/bin/uvicorn app.main:app --reload --port 8080
 ```
 

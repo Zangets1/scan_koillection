@@ -640,11 +640,23 @@ function goHome() {
 }
 
 /**
+ * Première phrase d'un message, pour le bandeau.
+ *
+ * Les erreurs Koillection nomment la cause *et* le geste qui la répare : c'est
+ * ce qu'il faut dans le diagnostic, c'est trop long pour une pastille qui
+ * disparaît en cinq secondes. Le détail complet s'affiche juste en dessous.
+ */
+function firstSentence(message) {
+  const fin = message.indexOf('. ');
+  return fin > 40 ? message.slice(0, fin + 1) : message;
+}
+
+/**
  * Affiche la chaîne de connexion à Koillection, étape par étape.
  *
- * Une liste vide peut vouloir dire trois choses : serveur injoignable,
- * identifiants refusés, ou compte réellement sans collection. Le message
- * générique d'avant ne permettait pas de trancher.
+ * Une liste vide peut vouloir dire quatre choses : serveur injoignable, API
+ * d'authentification en panne, identifiants refusés, ou compte réellement sans
+ * collection. Le message générique d'avant ne permettait pas de trancher.
  */
 async function runDiagnostics(silencieux = false) {
   const bloc = $('diagnostics');
@@ -682,7 +694,7 @@ async function loadCollections(refresh = false) {
     state.collections = await api(`/api/collections${refresh ? '?refresh=true' : ''}`);
   } catch (error) {
     state.collections = [];
-    toast(error.message, true);
+    toast(firstSentence(error.message), true);
   }
   fillCollectionSelect($('collection-select'));
   const preset = state.config && state.config.default_collection;
